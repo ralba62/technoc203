@@ -111,6 +111,90 @@ window.SUJETS_DNB = [
   },
 
   {
+    id: "echographe",
+    titre: "L'échographe portable",
+    source: "DNB 2018 · Sciences · partie Technologie",
+    pdf: "docs/dnb/dnb-2018-echographe-technologie.pdf",
+    theme: "objets",
+    duree: "30 min",
+    contexte: "L'échographie est une technologie d'imagerie 2D qui permet de visualiser certaines parties du corps humain, non visibles à l'œil nu. Un constructeur d'échographes souhaite intégrer une transmission des résultats d'une vidéo de l'échographie en haute définition (HD). Afin de garantir une bonne disponibilité de cet appareil, il est nécessaire d'améliorer l'autonomie de la batterie et d'indiquer l'état de sa charge électrique.",
+    documents: [
+      { titre: "Document 1 — Principe de fonctionnement d'un échographe portable", html: `
+        <figure class="fig" style="max-width:300px; float:right; margin:0 0 10px 16px"><img src="assets/img/dnb/echo-appareil.png" alt="Échographe portable relié sans fil à une tablette"></figure>
+        <p>Lorsque le médecin appuie sur le bouton marche/arrêt (flèche ②), la carte de traitement est alimentée. Un voyant témoin de connexion avec la tablette est allumé (flèche ③).</p>
+        <p>La consigne de début et de fin d'acquisition des images, ainsi que sa visualisation, se font sur la tablette tactile. La tablette transmet les consignes (flèche ⑤) au module de communication qui les transmet à la carte de traitement.</p>
+        <p>La carte de traitement alimente l'émetteur à ultrasons en énergie électrique. L'émetteur à ultrasons convertit l'énergie électrique en signal sonore (flèche ④) qui se propage au sein du corps du patient. L'écho du signal sonore est capté par le récepteur qui le convertit en signal électrique transmis à la carte de traitement puis au module de communication. Celui-ci renvoie les résultats du traitement (flèche ⑤) à la tablette pour l'affichage des images.</p>
+        <figure class="fig" style="clear:both"><img src="assets/img/dnb/echo-doc1-blocs.png" alt="Diagramme des blocs internes de l'échographe : connecteur d'alimentation, bouton marche/arrêt, module de gestion de l'énergie, batterie, carte de traitement, voyants, module de communication, émetteur/récepteur à ultrasons. Flèches numérotées de 1 à 6."></figure>` },
+      { titre: "Document 2 — Caractéristiques des technologies de transmission sans fil", html: `
+        <figure class="fig"><img src="assets/img/dnb/echo-doc2-transmissions.png" alt="Graphique débit / portée : NFC (environ 100 kbit/s, quelques cm), Bluetooth V2 à V4 (environ 1 Mbit/s, jusqu'à 10 m environ), Wi-Fi 802.11 g/n (de 10 à plus de 100 Mbit/s, jusqu'à 100 m environ)."></figure>
+        <p style="margin-top:10px"><b>Débits nécessaires pour une transmission :</b></p>
+        <ul style="margin:0"><li>d'une image d'échographie en 1 s → 128 kbit/s (kilobits par seconde) ;</li>
+        <li>d'une vidéo d'échographie haute définition → 10 Mbit/s (mégabits par seconde).</li></ul>` },
+      { titre: "Document 3 — Caractéristiques des batteries", html: `
+        <table>
+          <tr><th>Critère</th><th>Plomb</th><th>Ni-Cd</th><th>Ni-Mh</th><th>Li-ion</th></tr>
+          <tr><td>Rapport énergie stockée / masse</td><td>40 Wh/kg</td><td>60 Wh/kg</td><td>85 Wh/kg</td><td>170 Wh/kg</td></tr>
+          <tr><td>Prix pour 1 Wh</td><td>0,15 €</td><td>0,60 €</td><td>0,65 €</td><td>0,70 €</td></tr>
+          <tr><td>Source de pollution</td><td>élevée</td><td>élevée</td><td>faible</td><td>faible</td></tr>
+          <tr><td>Durée de vie (ans)</td><td>4 à 5</td><td>2 à 3</td><td>2 à 4</td><td>2 à 3</td></tr>
+        </table>` },
+      { titre: "Document 4 — Gestion de la charge de la batterie", html: `
+        <p>Un module de gestion gère la charge de la batterie et communique les informations suivantes à la carte de traitement :</p>
+        <ul><li><b>charge en cours</b> — état vrai ou faux ;</li><li><b>batterie déchargée</b> — état vrai ou faux ;</li><li><b>batterie chargée</b> — état vrai ou faux.</li></ul>
+        <p>L'information de l'utilisateur est réalisée à l'aide d'une LED tricolore. En permanence :</p>
+        <ul style="margin:0"><li>lorsque la batterie est en charge, la LED clignote en orange (1 s allumée, 1 s éteinte) ;</li>
+        <li>lorsque la batterie est en charge et qu'elle a atteint son niveau chargé, la LED s'allume en vert ;</li>
+        <li>si la batterie est déchargée, la LED s'éclaire en rouge.</li></ul>` },
+    ],
+    questions: [
+      { type:"saisie", pts:6, docs:[0], enonce:"Question 1 — À l'aide du document 1, indique pour chaque flèche numérotée la nature de l'interaction et le type de flux. Exemple : la flèche ⑥ est un signal lumineux, flux d'information.",
+        champs:[
+          { repere:"①", label:"Flèche ① — nature de l'interaction", options:["signal sonore","signal lumineux","courant électrique","ondes radio (sans fil)","consigne utilisateur"], reponse:"courant électrique" },
+          { repere:"①", label:"Flèche ① — type de flux", options:["flux d'énergie","flux d'information"], reponse:"flux d'énergie" },
+          { repere:"②", label:"Flèche ② — nature de l'interaction", options:["signal sonore","signal lumineux","courant électrique","ondes radio (sans fil)","consigne utilisateur"], reponse:"consigne utilisateur" },
+          { repere:"②", label:"Flèche ② — type de flux", options:["flux d'énergie","flux d'information"], reponse:"flux d'information" },
+          { repere:"③", label:"Flèche ③ — nature de l'interaction", options:["signal sonore","signal lumineux","courant électrique","ondes radio (sans fil)","consigne utilisateur"], reponse:"signal lumineux" },
+          { repere:"③", label:"Flèche ③ — type de flux", options:["flux d'énergie","flux d'information"], reponse:"flux d'information" },
+          { repere:"④", label:"Flèche ④ — nature de l'interaction", options:["signal sonore","signal lumineux","courant électrique","ondes radio (sans fil)","consigne utilisateur"], reponse:"signal sonore" },
+          { repere:"④", label:"Flèche ④ — type de flux", options:["flux d'énergie","flux d'information"], reponse:"flux d'information" },
+          { repere:"⑤", label:"Flèche ⑤ — nature de l'interaction", options:["signal sonore","signal lumineux","courant électrique","ondes radio (sans fil)","consigne utilisateur"], reponse:"ondes radio (sans fil)" },
+          { repere:"⑤", label:"Flèche ⑤ — type de flux", options:["flux d'énergie","flux d'information"], reponse:"flux d'information" },
+        ],
+        explication:"① le chargeur apporte du courant électrique (énergie) ; ② le médecin appuie sur le bouton (consigne, information) ; ③ le voyant informe le médecin (signal lumineux) ; ④ les ultrasons émis et leur écho servent à construire l'image (signal sonore, information) ; ⑤ la tablette et le module communiquent sans fil (ondes radio, information)." },
+
+      { type:"qcm", pts:2, docs:[1], enonce:"Question 2 — Pour transmettre une vidéo en HD, il faut adapter le module de communication. À l'aide du document 2, choisis la solution technique que le constructeur doit intégrer.",
+        choix:["NFC","Bluetooth V2 à V4","Wi-Fi 802.11 g / 802.11n"],
+        bonne:2, explication:"Seul le Wi-Fi atteint le débit de 10 Mbit/s nécessaire pour une vidéo HD." },
+      { type:"ouvert", pts:3, docs:[1], enonce:"Question 2 (suite) — Argumente ton choix en précisant le ou les critères de choix.",
+        correction:"Critère principal : le <b>débit</b>. Une vidéo HD demande <b>10 Mbit/s</b>. Le Wi-Fi offre de 10 à plus de 100 Mbit/s ; le Bluetooth (environ 1 Mbit/s) et le NFC (environ 100 kbit/s) sont insuffisants. La <b>portée</b> du Wi-Fi (jusqu'à environ 100 m) convient aussi, alors que le NFC ne fonctionne qu'à quelques centimètres." },
+
+      { type:"multi", pts:3, docs:[2], enonce:"Question 3 — Pour répondre au cahier des charges, le constructeur remplace la batterie Ni-Cd par une batterie Li-ion. À l'aide du document 3, coche les exigences qui ont été déterminantes dans ce choix.",
+        choix:["Rapport énergie stockée / masse","Prix pour 1 Wh","Source de pollution","Durée de vie"],
+        bonnes:[0, 2],
+        explication:"La Li-ion stocke beaucoup plus d'énergie pour la même masse et pollue moins. Elle est plus chère et ne dure pas plus longtemps : ces critères ne l'ont pas avantagée." },
+      { type:"ouvert", pts:3, docs:[2], enonce:"Question 3 (suite) — Argumente ta réponse en comparant les batteries Ni-Cd et Li-ion.",
+        correction:"La Li-ion stocke <b>170 Wh/kg</b> contre <b>60 Wh/kg</b> pour la Ni-Cd : presque 3 fois plus d'énergie pour la même masse, donc une <b>meilleure autonomie</b> sans alourdir l'appareil (exigence du cahier des charges). Elle est aussi <b>moins polluante</b> (faible au lieu d'élevée). En revanche, elle est un peu plus chère (0,70 € contre 0,60 € par Wh) et sa durée de vie est la même (2 à 3 ans) : ce ne sont donc pas ces critères qui ont décidé du choix." },
+
+      { type:"saisie", pts:8, docs:[3], enonce:"Question 4 — À l'aide du document 4, complète les cases A à G du programme de gestion du voyant d'alimentation.",
+        html:`<figure class="fig" style="max-width:560px"><div class="markers">
+          <img src="assets/img/dnb/echo-q4-programme.png" alt="Programme par blocs à compléter, cases A à G : A devant « indéfiniment », B condition « = Vrai », C après « Batterie chargée = », D couleur de la LED, E action sur la LED, F bloc vide entre les deux parties, G après « Batterie déchargée = ».">
+          <span class="mk" style="left:11.3%; top:5.3%">A</span><span class="mk" style="left:33.3%; top:12.1%">B</span><span class="mk" style="left:62.9%; top:19.4%">C</span>
+          <span class="mk" style="left:90.3%; top:35.6%">D</span><span class="mk" style="left:22.5%; top:46.8%">E</span><span class="mk" style="left:16.3%; top:61%">F</span><span class="mk" style="left:67.6%; top:67.3%">G</span>
+        </div></figure>`,
+        champs:[
+          { repere:"A", label:"Case A", options:["répéter","si","attendre","sinon"], reponse:"répéter" },
+          { repere:"B", label:"Case B", options:["Batterie chargée","Batterie déchargée","Charge en cours"], reponse:"Charge en cours" },
+          { repere:"C", label:"Case C", options:["Vrai","Faux"], reponse:"Vrai" },
+          { repere:"D", label:"Case D", options:["orange","rouge","vert"], reponse:"orange" },
+          { repere:"E", label:"Case E", options:["Allumer","Éteindre","Attendre"], reponse:"Éteindre" },
+          { repere:"F", label:"Case F", options:["alors","répéter","si","sinon"], reponse:"sinon" },
+          { repere:"G", label:"Case G", options:["Vrai","Faux"], reponse:"Vrai" },
+        ],
+        explication:"Répéter indéfiniment : si charge en cours = Vrai, alors si batterie chargée = Vrai → LED verte, sinon la LED clignote en orange (allumer orange, attendre 1 s, éteindre, attendre 1 s). Sinon (pas en charge) : si batterie déchargée = Vrai → LED rouge, sinon LED verte." },
+    ],
+  },
+
+  {
     id: "velo-electrique",
     titre: "Le vélo à assistance électrique",
     theme: "energie",
