@@ -245,5 +245,7 @@ CHAPITRES.push({
   entrainement: [
     { label:"Défis du concours Blaise Robotics", url:"concours.html#epreuves" },
     { label:"DNB Tapis de course — question 5 : compléter le programme", url:"dnb.html#tapis-de-course/q5" },
+    { label:"DNB Échographe — question 1 : flux d'énergie et d'information", url:"dnb.html#echographe/q1" },
+    { label:"DNB Échographe — question 4 : compléter le programme de la LED", url:"dnb.html#echographe/q4" },
   ],
 });

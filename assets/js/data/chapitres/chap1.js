@@ -107,5 +107,6 @@ CHAPITRES.push({
 
   entrainement: [
     { label:"DNB Tapis de course — question 4 : mettre les tapis en réseau", url:"dnb.html#tapis-de-course/q4" },
+    { label:"DNB Échographe — question 2 : choisir une transmission sans fil selon le débit", url:"dnb.html#echographe/q2" },
   ],
 });
