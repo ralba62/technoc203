@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connaissances — TechnoC203</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css?v=20261122062623">
+<script src="assets/js/site.js?v=20261122062623"></script>
+<script src="assets/js/data/connaissances.js?v=20261122062623"></script>
+<script src="assets/js/data/chapitres/liste.js?v=20261122062623"></script>
+<script src="assets/js/data/visibilite.js?v=20261122062623"></script>
+<style>
+  .part{--k:var(--accent); background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; margin-bottom:14px; position:relative; overflow:hidden; scroll-margin-top:90px}
+  .part::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--k); box-shadow:0 0 12px var(--k)}
+  .part-head{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; margin-bottom:12px}
+  .part-head h3{margin:0; font-size:19px; flex:1 1 300px}
+  .klist{list-style:none; padding:0; margin:0 0 12px; display:grid; gap:6px}
+  .klist label{display:flex; gap:10px; align-items:flex-start; cursor:pointer; padding:8px 12px; border-radius:9px; background:var(--surface-2); border:1px solid var(--line)}
+  .klist label:hover{border-color:var(--k)}
+  .klist input{accent-color:var(--k); margin-top:4px; flex:none}
+  .klist input:checked + span{color:var(--muted); text-decoration:line-through; text-decoration-color:color-mix(in srgb, var(--k) 60%, transparent)}
+  .part details{margin:6px 0 10px}
+  .part summary{cursor:pointer; font-family:var(--f-mono); font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--k)}
+  .part details ul{margin:8px 0 0; padding-left:20px; color:var(--muted); font-size:15px}
+  .words{display:flex; flex-wrap:wrap; gap:6px}
+  .words a{font-family:var(--f-mono); font-size:12px; text-decoration:none; color:var(--ink); padding:3px 9px; border-radius:6px; border:1px solid var(--line-2); background:var(--bg)}
+  .words a:hover{border-color:var(--k); color:var(--k)}
+  .theme-title{display:flex; gap:12px; align-items:baseline; margin:34px 0 14px}
+  .theme-title .n{font-family:var(--f-mono); color:var(--accent); font-size:14px}
+  .meter{display:flex; align-items:center; gap:14px; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:12px 16px; margin-bottom:18px; font-family:var(--f-mono); font-size:13.5px}
+  .meter .progress{flex:1}
+</style>
+</head>
+<body>
+<main>
+  <header class="page-head">
+    <span class="eyebrow">Programme de 3e</span>
+    <h1>Les connaissances à maîtriser</h1>
+    <p class="lead">Tout ce que le programme attend en fin de 3e, classé par thème. Coche ce que tu maîtrises : ta progression est enregistrée sur cet appareil. Clique sur un mot pour voir sa définition.</p>
+  </header>
+
+  <div class="meter"><span>Ma progression</span><div class="progress"><div id="prog"></div></div><strong id="pct">0 %</strong>
+    <button class="btn small ghost" id="reset">Tout décocher</button></div>
+
+  <div class="toolbar">
+    <label class="search"><span class="sr-only">Rechercher</span><input id="q" type="search" placeholder="Rechercher une connaissance ou un mot…"></label>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="chips" id="chaps" style="margin:-8px 0 8px"></div>
+
+  <div id="list"></div>
+
+  <p class="count" style="margin-top:28px">Source : projet d'aménagement des programmes de technologie du cycle 4 (Conseil supérieur des programmes, juin 2025), niveau 3e. Ce projet n'engage pas encore le ministère.</p>
+</main>
+
+<script>
+  const P = window.PROGRAMME;
+  // seuls les chapitres ouverts aux élèves apparaissent comme « vus en classe »
+  const CHAPS_OUVERTS = new Set(U.chapitresVisibles().map(c => c.programme));
+  const ouverts = p => (p.chap || []).filter(c => CHAPS_OUVERTS.has(c));
+  const KEY = "connaissances-3e";
+  let done = {}; try { done = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(done)); } catch(e){} };
+  const state = { q:"", theme:"", chap:"" };
+  const total = P.reduce((t, th) => t + th.parties.reduce((u, p) => u + p.connaissances.length, 0), 0);
+  const id = (ti, pi, ki) => `${ti}.${pi}.${ki}`;
+
+  // filtres
+  function chips(){
+    U.$("#chips").innerHTML = [["", "Tous les thèmes"], ...P.map((t, i) => [String(i), `${i + 1}. ${t.court}`])]
+      .map(([v, l]) => `<button class="chip" data-v="${v}" aria-pressed="${state.theme === v}">${l}</button>`).join("");
+    const chaps = [...new Set(P.flatMap(t => t.parties.flatMap(p => ouverts(p))))];
+    U.$("#chaps").innerHTML = [["", "Tous"], ...chaps.map(c => [c, c])]
+      .map(([v, l]) => `<button class="chip" data-c="${U.esc(v)}" aria-pressed="${state.chap === v}">${v ? "Vu en classe : " + U.esc(l) : "Vu ou non en classe"}</button>`).join("");
+  }
+  U.$("#chips").onclick = e => { const b = e.target.closest(".chip"); if (b){ state.theme = b.dataset.v; chips(); render(); } };
+  U.$("#chaps").onclick = e => { const b = e.target.closest(".chip"); if (b){ state.chap = b.dataset.c; chips(); render(); } };
+  U.$("#q").addEventListener("input", e => { state.q = e.target.value.trim(); render(); });
+  U.$("#reset").onclick = () => { if (confirm("Décocher toutes les connaissances ?")){ done = {}; save(); render(); } };
+
+  function meter(){
+    const n = Object.values(done).filter(Boolean).length, p = Math.round(n / total * 100);
+    U.$("#prog").style.width = p + "%"; U.$("#pct").textContent = `${p} % · ${n}/${total}`;
+  }
+
+  function render(){
+    const nq = U.norm(state.q);
+    let html = "";
+    P.forEach((th, ti) => {
+      if (state.theme && state.theme !== String(ti)) return;
+      const parts = th.parties.map((p, pi) => ({ p, pi })).filter(({ p }) =>
+        (!state.chap || ouverts(p).includes(state.chap)) &&
+        (!nq || U.norm([p.titre, ...p.connaissances, ...p.attendus, ...(p.mots || [])].join(" ")).includes(nq)));
+      if (!parts.length) return;
+      html += `<h2 class="theme-title"><span class="n">0${ti + 1}</span>${U.esc(th.theme)}</h2>`;
+      html += parts.map(({ p, pi }) => `
+        <article class="part" style="--k:${U.themeColor(p.theme)}">
+          <div class="part-head"><h3>${U.highlight(p.titre, state.q)}</h3>
+            ${ouverts(p).map(c => { const ch = (window.CHAPITRES || []).find(x => x.programme === c); return `<a class="tag t5" href="${ch ? "chapitre.html?c=" + ch.id : "chapitre.html"}" style="text-decoration:none">✓ ${U.esc(c)}</a>`; }).join("")}</div>
+          <ul class="klist">${p.connaissances.map((k, ki) => `<li><label><input type="checkbox" data-id="${id(ti, pi, ki)}"${done[id(ti, pi, ki)] ? " checked" : ""}><span>${U.highlight(k, state.q)}</span></label></li>`).join("")}</ul>
+          <details><summary>Je dois savoir…</summary><ul>${p.attendus.map(a => `<li>${U.highlight(a, state.q)}</li>`).join("")}</ul></details>
+          ${p.mots?.length ? `<div class="words">${p.mots.map(m => `<a href="glossaire.html?q=${encodeURIComponent(m)}">${U.esc(m)}</a>`).join("")}</div>` : ""}
+        </article>`).join("");
+    });
+    U.$("#list").innerHTML = html || `<div class="empty">Aucune connaissance ne correspond.</div>`;
+    meter();
+  }
+  U.$("#list").addEventListener("change", e => {
+    const c = e.target.closest("input[data-id]"); if (!c) return;
+    done[c.dataset.id] = c.checked; save(); meter();
+  });
+  chips(); render();
+</script>
+</body>
+</html>

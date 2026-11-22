@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Découverte mBot</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout : établi technique. Robot vu de dessus à gauche (collant), fiche + simulateur à droite. Onglets Explorer / Classer / Quiz. */
+:root{
+  --bg:#EDF1F5; --surface:#FFFFFF; --surface-2:#F4F7FA; --ink:#13202F; --muted:#56687C; --line:#CDD7E1; --grid:rgba(29,99,194,.06);
+  --accent:#1D63C2; --accent-soft:#E1ECFA;
+  --capteur:#0B7F71; --capteur-soft:#DCF2EE; --action:#C2501A; --action-soft:#FBE5D9; --autre:#5E4FB0; --autre-soft:#EAE6F8;
+  --ok:#1C7F3A; --ok-soft:#DDF2E3; --ko:#BF2D38; --ko-soft:#FADFE1;
+  --chassis:#3A80D4; --chassis-hole:#2A62A6; --board:#22507F; --board-edge:#163A5F; --board-ink:#CFE0F2;
+  --wheel:#2A2F37; --tread:#454C57; --metal:#C8D0D9; --mesh:#8C96A3; --gear:#E2BC45; --cable:#1B1F25; --led-off:#E9EEF3;
+  --under:rgba(255,255,255,.22); --under-stroke:#E8F0FA;
+  --floor:#F6F5EF; --track:#1A1A1A; --floor-ink:#2B2B2B; --night:#05070A;
+  --blk-cap:#0A7365; --blk-act:#B24614; --blk-ctl:#8E6100; --blk-ink:#FFFFFF;
+  --f-display:"Chakra Petch","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E141B; --surface:#161F2A; --surface-2:#1B2633; --ink:#E4EBF2; --muted:#97A7B8; --line:#2B3947; --grid:rgba(120,170,230,.05);
+  --accent:#62A0F2; --accent-soft:#1A2D47;
+  --capteur:#45CDB8; --capteur-soft:#12302C; --action:#FF8E57; --action-soft:#3A2418; --autre:#A898F2; --autre-soft:#262042;
+  --ok:#55C878; --ok-soft:#143221; --ko:#FF6E77; --ko-soft:#3A1A1E;
+  --chassis:#3270BA; --chassis-hole:#1F4C82; --board:#1D466E; --board-edge:#10304E; --board-ink:#BBD2EA;
+  --wheel:#23272E; --tread:#3A414B; --metal:#AFB9C4; --mesh:#6F7985; --gear:#CDAA3B; --cable:#0A0C10; --led-off:#3A4654;
+  --under:rgba(255,255,255,.12); --under-stroke:#BFD3EA;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E141B; --surface:#161F2A; --surface-2:#1B2633; --ink:#E4EBF2; --muted:#97A7B8; --line:#2B3947; --grid:rgba(120,170,230,.05);
+  --accent:#62A0F2; --accent-soft:#1A2D47;
+  --capteur:#45CDB8; --capteur-soft:#12302C; --action:#FF8E57; --action-soft:#3A2418; --autre:#A898F2; --autre-soft:#262042;
+  --ok:#55C878; --ok-soft:#143221; --ko:#FF6E77; --ko-soft:#3A1A1E;
+  --chassis:#3270BA; --chassis-hole:#1F4C82; --board:#1D466E; --board-edge:#10304E; --board-ink:#BBD2EA;
+  --wheel:#23272E; --tread:#3A414B; --metal:#AFB9C4; --mesh:#6F7985; --gear:#CDAA3B; --cable:#0A0C10; --led-off:#3A4654;
+  --under:rgba(255,255,255,.12); --under-stroke:#BFD3EA;
+  color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{padding-block:28px 0}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(32px,5vw,48px);line-height:1.05;margin:6px 0 10px;text-wrap:balance}
+h1 span{color:var(--accent)}
+h2,h3{font-family:var(--f-display);text-wrap:balance}
+.lead{max-width:64ch;color:var(--muted);margin:0}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:14px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+nav.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-top:22px;border-bottom:2px solid var(--line)}
+nav.tabs button{font-family:var(--f-display);font-weight:600;font-size:17px;background:none;border:0;color:var(--muted);padding:10px 14px;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+main{padding-block:22px 56px}
+
+/* ---------- Explorer ---------- */
+.explore{display:grid;grid-template-columns:minmax(0,410px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:880px){.explore{grid-template-columns:minmax(0,1fr)}}
+.bench{position:sticky;top:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+@media (max-width:880px){.bench{position:static}}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.chip{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:5px 12px;font-size:14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+#robot{display:block;width:100%;max-width:380px;margin:0 auto;height:auto}
+#hoverCap{text-align:center;font-size:14px;color:var(--muted);margin:2px 0 10px;min-height:1.5em}
+.svg-note{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;fill:var(--muted)}
+.chassis{fill:var(--chassis)} .hole{fill:var(--chassis-hole)}
+.board{fill:var(--board);stroke:var(--board-edge);stroke-width:3}
+.board-t{font-family:var(--f-mono);font-size:11px;fill:var(--board-ink)}
+.chipc{fill:#14181E} .pin{fill:var(--metal)}
+.port{fill:#F1F3F5;stroke:#9AA4AF} .port-t{font-family:var(--f-mono);font-size:10px;font-weight:700;fill:#22303F}
+.wheel{fill:var(--wheel)} .tread{stroke:var(--tread);stroke-width:3}
+.gear{fill:var(--gear);stroke:rgba(0,0,0,.25)}
+.metal{fill:var(--metal);stroke:rgba(0,0,0,.2)} .mesh{fill:var(--mesh)}
+.m-pcb{fill:#1E5A93;stroke:#0F3A63}
+.tag-yellow{fill:#F2C51A} .tag-blue{fill:#2F8CE6}
+.under{fill:var(--under);stroke:var(--under-stroke);stroke-width:1.5;stroke-dasharray:5 4}
+.under-t{font-family:var(--f-mono);font-size:10px;fill:var(--under-stroke)}
+.ir{fill:#0E1116;stroke:var(--under-stroke)}
+.cable{fill:none;stroke:var(--cable);stroke-width:3;stroke-linecap:round;opacity:.75}
+.ledbody{stroke:rgba(0,0,0,.35);stroke-width:1.5;transition:fill .15s}
+.lsensor{fill:#2D3138;stroke:#0B0D10} .lsensor-eye{fill:#C9893A}
+.btncap{fill:#E8ECF0;stroke:#5B6470;stroke-width:2} .btnring{fill:#3B414A}
+.buzz{fill:#16191E;stroke:#000} .buzz-h{fill:#3A3F47}
+.part{cursor:pointer;outline:none}
+.part .hl{fill:transparent;stroke:transparent;stroke-width:2.5;stroke-dasharray:6 4;pointer-events:all}
+.part:hover .hl{stroke:var(--muted)}
+.part:focus-visible .hl{stroke:var(--accent);stroke-dasharray:none}
+.part.sel .hl{stroke:var(--accent);stroke-dasharray:none;stroke-width:3.5}
+.part{transition:opacity .2s}
+#robot.f-capteur .part:not(.cap), #robot.f-actionneur .part:not(.act){opacity:.22}
+.ringing{animation:ring .12s linear infinite}
+@keyframes ring{0%{transform:translate(0,0)}50%{transform:translate(1px,-1px)}100%{transform:translate(-1px,1px)}}
+
+.plist{display:grid;gap:10px;margin-top:4px}
+.plist h4{margin:0 0 4px;font-family:var(--f-mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.plist .row{display:flex;gap:6px;flex-wrap:wrap}
+.pbtn{border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 10px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.pbtn::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.pbtn.cap::before{background:var(--capteur)} .pbtn.act::before{background:var(--action)} .pbtn.oth::before{background:var(--autre)}
+.pbtn[aria-current="true"]{border-color:var(--accent);background:var(--accent-soft)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px}
+.fhead{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.badge{font-family:var(--f-mono);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:6px}
+.badge.capteur{background:var(--capteur-soft);color:var(--capteur)}
+.badge.actionneur{background:var(--action-soft);color:var(--action)}
+.badge.autre{background:var(--autre-soft);color:var(--autre)}
+.fn{font-size:14px;color:var(--muted)}
+.fn b{color:var(--ink)}
+.fiche h2{font-size:clamp(26px,3.4vw,34px);margin:10px 0 2px;line-height:1.1}
+.where{margin:0 0 12px;color:var(--muted);font-size:15px}
+.resume{font-size:17px;max-width:66ch;margin:0 0 16px}
+.specs{display:grid;grid-template-columns:minmax(120px,190px) minmax(0,1fr);margin:0 0 16px;border-top:1px solid var(--line)}
+.specs dt,.specs dd{margin:0;padding:8px 0;border-bottom:1px solid var(--line)}
+.specs dt{color:var(--muted);font-size:14px;padding-right:12px}
+@media (max-width:520px){.specs{grid-template-columns:minmax(0,1fr)}.specs dt{border-bottom:0;padding-bottom:0}}
+.blocline{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 18px}
+.blocline .k{font-size:14px;color:var(--muted)}
+.blk{display:inline-block;font-family:var(--f-body);font-weight:700;font-size:14px;color:var(--blk-ink);padding:7px 14px;border-radius:8px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18)}
+.blk.cap{background:var(--blk-cap);border-radius:999px} .blk.act{background:var(--blk-act)} .blk.ctl{background:var(--blk-ctl)}
+.sim{background:var(--surface-2);border:1.5px dashed var(--line);border-radius:12px;padding:16px;margin:0 0 18px}
+.sim-h{font-family:var(--f-mono);font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;font-weight:700}
+.sim label{display:block;font-size:15px;margin:12px 0 2px}
+.sim input[type=range]{width:100%;accent-color:var(--accent)}
+.scene{display:block;width:100%;height:auto;border-radius:8px;background:var(--surface);border:1px solid var(--line)}
+canvas.scene{aspect-ratio:2/1}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+.stat .k{display:block;font-size:13px;color:var(--muted)}
+.stat .v{display:block;font-family:var(--f-mono);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.stat.hot{border-color:var(--accent);background:var(--accent-soft)}
+.calc{font-family:var(--f-mono);font-size:14px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:12px 0 0;overflow-x:auto}
+.presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 12px;font-size:14px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:520px){.two{grid-template-columns:1fr}}
+.status{font-weight:700;margin:12px 0 8px}
+.vtable{width:100%;border-collapse:collapse;font-size:14px;margin-top:12px}
+.vtable th,.vtable td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.vtable td:first-child{font-family:var(--f-mono);font-weight:700}
+.vtable tr.on td{background:var(--accent-soft)}
+.tablewrap{overflow-x:auto}
+.meter{height:16px;background:var(--surface);border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-top:12px}
+.meter > div{height:100%;background:linear-gradient(90deg,#3a3320,#f2c51a);width:0}
+.bits{font-family:var(--f-mono);font-size:18px;letter-spacing:.12em}
+.bigbtn{display:block;margin:6px auto 10px;width:110px;height:110px;border-radius:50%;border:6px solid #3B414A;background:#E8ECF0;color:#22303F;font-family:var(--f-display);font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 6px 0 #3B414A;transition:transform .05s,box-shadow .05s;user-select:none;-webkit-user-select:none;touch-action:none}
+.bigbtn.down{transform:translateY(5px);box-shadow:0 1px 0 #3B414A;background:#cfd6dd}
+.mix{position:relative;height:150px;background:var(--night);border-radius:10px;overflow:hidden}
+.mix span{position:absolute;width:96px;height:96px;border-radius:50%;mix-blend-mode:screen}
+.ledbig{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.ledbig .dot{width:64px;height:64px;border-radius:50%;border:3px solid rgba(0,0,0,.3);flex:none}
+.keys{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;margin-top:12px}
+@media (max-width:520px){.keys{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.key{background:var(--surface);border:1.5px solid var(--line);border-radius:0 0 8px 8px;padding:18px 2px 8px;cursor:pointer;text-align:center;line-height:1.2}
+.key b{display:block;font-family:var(--f-display);font-size:16px}
+.key small{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.key:active,.key.on{background:var(--accent-soft);border-color:var(--accent)}
+.retenir{border-left:4px solid var(--accent);background:var(--accent-soft);padding:12px 16px;border-radius:0 10px 10px 0}
+.retenir b{font-family:var(--f-display)}
+.retenir p{margin:4px 0 0}
+.prevnext{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+
+/* ---------- Classer ---------- */
+.intro{max-width:70ch;margin:0 0 16px}
+.pool{background:var(--surface);border:1.5px dashed var(--line);border-radius:12px;padding:12px;display:flex;gap:8px;flex-wrap:wrap;min-height:64px;align-items:flex-start;cursor:pointer}
+.pool:empty::after{content:"Toutes les étiquettes sont placées. Clique sur « Vérifier »."; color:var(--muted);font-size:14px;padding:8px}
+.tag{border:1.5px solid var(--line);background:var(--surface-2);border-radius:8px;padding:6px 10px;font-size:14px;cursor:pointer;text-align:left}
+.tag.picked{border-color:var(--accent);background:var(--accent);color:#fff}
+.tag.ok{border-color:var(--ok);background:var(--ok-soft);color:var(--ink)}
+.tag.ko{border-color:var(--ko);background:var(--ko-soft);color:var(--ink)}
+.chain{margin-top:18px}
+.chain h3{margin:0 0 8px;font-size:19px}
+.chain h3 small{font-family:var(--f-body);font-weight:400;color:var(--muted);font-size:14px}
+.zones{display:grid;gap:8px;align-items:stretch}
+.zones.z3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.zones.z4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:760px){.zones.z3,.zones.z4{grid-template-columns:minmax(0,1fr)}}
+.zone{position:relative;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:10px;min-height:120px;display:flex;flex-direction:column;gap:6px;cursor:pointer;text-align:left}
+.zone.ready{border-color:var(--accent);border-style:dashed;background:var(--accent-soft)}
+.zone .zt{font-family:var(--f-display);font-weight:700;font-size:16px;display:flex;justify-content:space-between;gap:6px}
+.zone .zt span{font-family:var(--f-mono);font-size:11px;color:var(--muted);font-weight:500}
+.zone.info .zt{color:var(--capteur)} .zone.nrj .zt{color:var(--action)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;align-items:center}
+.result{margin-top:14px}
+.result ul{padding-left:20px;margin:6px 0 0}
+
+/* ---------- Quiz ---------- */
+.quiz{max-width:720px}
+.qprog{display:flex;gap:4px;margin-bottom:14px}
+.qprog i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.qprog i.ok{background:var(--ok)} .qprog i.ko{background:var(--ko)} .qprog i.cur{background:var(--accent)}
+.qnum{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.quiz h2{font-size:24px;margin:6px 0 14px;line-height:1.25}
+.opts{display:grid;gap:8px}
+.opt{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 14px;text-align:left;cursor:pointer;font-size:16px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.good{border-color:var(--ok);background:var(--ok-soft)}
+.opt.bad{border-color:var(--ko);background:var(--ko-soft)}
+.exp{margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line)}
+.score{font-family:var(--f-display);font-size:56px;font-weight:700;line-height:1;color:var(--accent)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Technologie · 3e · Robotique</div>
+    <h1>Découvre le <span>mBot</span></h1>
+    <p class="lead">Un robot, c’est des <b>capteurs</b> qui récupèrent des informations, une <b>carte</b> qui exécute un programme, et des <b>actionneurs</b> qui agissent. Clique sur chaque composant du robot, puis teste-le dans le simulateur.</p>
+    <div class="legend"><span><i style="background:var(--capteur)"></i>Capteur</span><span><i style="background:var(--action)"></i>Actionneur</span><span><i style="background:var(--autre)"></i>Pour comprendre</span></div>
+    <nav class="tabs" role="tablist" aria-label="Parties de l’activité">
+      <button role="tab" id="t-explorer" data-tab="explorer" aria-selected="true">1. Explorer le robot</button>
+      <button role="tab" id="t-classer" data-tab="classer" aria-selected="false">2. Chaînes d’information et d’énergie</button>
+      <button role="tab" id="t-quiz" data-tab="quiz" aria-selected="false">3. Quiz</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ===== EXPLORER ===== -->
+    <section id="tab-explorer" role="tabpanel" aria-labelledby="t-explorer">
+      <div class="explore">
+        <div class="bench">
+          <div class="filters" role="group" aria-label="Filtrer">
+            <button class="chip" data-f="tous" aria-pressed="true">Tout</button>
+            <button class="chip" data-f="capteur" aria-pressed="false">Capteurs</button>
+            <button class="chip" data-f="actionneur" aria-pressed="false">Actionneurs</button>
+          </div>
+          <svg id="robot" viewBox="0 0 400 432" role="group" aria-label="Le mBot vu de dessus, l’avant en haut">
+            <defs>
+              <pattern id="holes" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="2.6" class="hole"/></pattern>
+              <filter id="blur" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="5"/></filter>
+            </defs>
+            <text x="200" y="10" class="svg-note" text-anchor="middle">AVANT</text>
+            <text x="200" y="428" class="svg-note" text-anchor="middle">ARRIÈRE</text>
+            <rect x="70" y="80" width="260" height="330" rx="26" class="chassis"/>
+            <rect x="70" y="80" width="260" height="330" rx="26" fill="url(#holes)"/>
+            <rect x="180" y="64" width="40" height="20" rx="3" class="metal"/>
+
+            <g class="part oth" data-id="battery" tabindex="0" role="button" aria-label="Alimentation">
+              <rect class="hl" x="124" y="356" width="152" height="50" rx="8"/>
+              <rect x="130" y="362" width="140" height="38" rx="5" class="under"/>
+              <text x="200" y="385" class="under-t" text-anchor="middle">piles · dessous</text>
+            </g>
+
+            <g class="part cap" data-id="line" tabindex="0" role="button" aria-label="Suiveur de ligne">
+              <rect class="hl" x="146" y="86" width="108" height="50" rx="8"/>
+              <rect x="152" y="92" width="96" height="38" rx="5" class="under"/>
+              <rect x="152" y="92" width="8" height="38" class="tag-blue"/>
+              <circle cx="190" cy="119" r="5" class="ir"/><circle cx="214" cy="119" r="5" class="ir"/>
+              <text x="202" y="106" class="under-t" text-anchor="middle">dessous</text>
+            </g>
+
+            <g class="part act" data-id="motors" tabindex="0" role="button" aria-label="Moteurs et roues">
+              <rect class="hl" x="22" y="256" width="88" height="144" rx="10"/>
+              <rect class="hl" x="290" y="256" width="88" height="144" rx="10"/>
+              <rect x="74" y="296" width="28" height="62" rx="4" class="gear"/>
+              <rect x="298" y="296" width="28" height="62" rx="4" class="gear"/>
+              <rect x="28" y="262" width="44" height="132" rx="10" class="wheel"/>
+              <rect x="328" y="262" width="44" height="132" rx="10" class="wheel"/>
+              <g class="tread">
+                <line x1="34" y1="276" x2="66" y2="276"/><line x1="34" y1="292" x2="66" y2="292"/><line x1="34" y1="308" x2="66" y2="308"/><line x1="34" y1="324" x2="66" y2="324"/><line x1="34" y1="340" x2="66" y2="340"/><line x1="34" y1="356" x2="66" y2="356"/><line x1="34" y1="372" x2="66" y2="372"/>
+                <line x1="334" y1="276" x2="366" y2="276"/><line x1="334" y1="292" x2="366" y2="292"/><line x1="334" y1="308" x2="366" y2="308"/><line x1="334" y1="324" x2="366" y2="324"/><line x1="334" y1="340" x2="366" y2="340"/><line x1="334" y1="356" x2="366" y2="356"/><line x1="334" y1="372" x2="366" y2="372"/>
+              </g>
+            </g>
+
+            <g class="part oth" data-id="mcu" tabindex="0" role="button" aria-label="Carte mCore">
+              <rect class="hl" x="99" y="144" width="202" height="202" rx="12"/>
+              <rect x="105" y="150" width="190" height="190" rx="8" class="board"/>
+              <text x="200" y="206" class="board-t" text-anchor="middle">mCore</text>
+              <rect x="176" y="214" width="48" height="48" rx="3" class="chipc"/>
+              <g class="pin">
+                <rect x="170" y="220" width="6" height="3"/><rect x="170" y="230" width="6" height="3"/><rect x="170" y="240" width="6" height="3"/><rect x="170" y="250" width="6" height="3"/>
+                <rect x="224" y="220" width="6" height="3"/><rect x="224" y="230" width="6" height="3"/><rect x="224" y="240" width="6" height="3"/><rect x="224" y="250" width="6" height="3"/>
+              </g>
+              <rect x="115" y="322" width="34" height="16" rx="2" class="port"/><text x="132" y="334" class="port-t" text-anchor="middle">1</text>
+              <rect x="160" y="322" width="34" height="16" rx="2" class="port"/><text x="177" y="334" class="port-t" text-anchor="middle">2</text>
+              <rect x="205" y="322" width="34" height="16" rx="2" class="port"/><text x="222" y="334" class="port-t" text-anchor="middle">3</text>
+              <rect x="250" y="322" width="34" height="16" rx="2" class="port"/><text x="267" y="334" class="port-t" text-anchor="middle">4</text>
+            </g>
+
+            <path class="cable" d="M222 338 C 222 356, 300 356, 300 330 L 300 128 C 300 96, 262 92, 252 72"/>
+            <path class="cable" d="M177 338 C 177 356, 100 356, 100 330 L 100 140 C 100 118, 140 112, 152 112"/>
+
+            <g class="part cap" data-id="us" tabindex="0" role="button" aria-label="Capteur à ultrasons">
+              <rect class="hl" x="110" y="16" width="180" height="62" rx="10"/>
+              <rect x="116" y="28" width="168" height="40" rx="5" class="m-pcb"/>
+              <rect x="116" y="28" width="168" height="6" class="tag-yellow"/>
+              <circle cx="160" cy="48" r="22" class="metal"/><circle cx="160" cy="48" r="14" class="mesh"/>
+              <circle cx="240" cy="48" r="22" class="metal"/><circle cx="240" cy="48" r="14" class="mesh"/>
+            </g>
+
+            <g class="part act" data-id="led" tabindex="0" role="button" aria-label="LED RGB">
+              <circle class="hl" cx="126" cy="170" r="17"/><circle class="hl" cx="274" cy="170" r="17"/>
+              <circle id="ledLg" cx="126" cy="170" r="16" filter="url(#blur)" opacity="0"/>
+              <circle id="ledRg" cx="274" cy="170" r="16" filter="url(#blur)" opacity="0"/>
+              <circle id="ledL" cx="126" cy="170" r="8" class="ledbody" fill="var(--led-off)"/>
+              <circle id="ledR" cx="274" cy="170" r="8" class="ledbody" fill="var(--led-off)"/>
+            </g>
+
+            <g class="part cap" data-id="light" tabindex="0" role="button" aria-label="Capteur de luminosité">
+              <rect class="hl" x="186" y="154" width="28" height="28" rx="5"/>
+              <rect x="193" y="161" width="14" height="14" rx="2" class="lsensor"/>
+              <circle cx="200" cy="168" r="4" class="lsensor-eye"/>
+            </g>
+
+            <g class="part cap" data-id="button" tabindex="0" role="button" aria-label="Bouton poussoir">
+              <circle class="hl" cx="146" cy="296" r="17"/>
+              <rect x="135" y="285" width="22" height="22" rx="3" class="btnring"/>
+              <circle cx="146" cy="296" r="8" class="btncap"/>
+            </g>
+
+            <g class="part act" data-id="buzzer" tabindex="0" role="button" aria-label="Buzzer">
+              <circle class="hl" cx="258" cy="292" r="22"/>
+              <g id="buzzG"><circle cx="258" cy="292" r="15" class="buzz"/><circle cx="258" cy="292" r="3" class="buzz-h"/></g>
+            </g>
+          </svg>
+          <p id="hoverCap" aria-live="polite">Survole ou clique un composant.</p>
+          <div class="plist" id="plist"></div>
+        </div>
+        <div id="fiche" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- ===== CLASSER ===== -->
+    <section id="tab-classer" role="tabpanel" aria-labelledby="t-classer" hidden>
+      <div class="card">
+        <h2 style="margin:0 0 6px">Range chaque élément du mBot</h2>
+        <p class="intro">Clique sur une étiquette, puis sur la case de la fonction qu’elle remplit. Pour changer d’avis, clique à nouveau sur l’étiquette déplacée. Quand tout est placé, clique sur « Vérifier ».</p>
+        <div class="pool" id="pool" aria-label="Étiquettes à placer"></div>
+        <div class="chain">
+          <h3>Chaîne d’information <small>· gérer les informations</small></h3>
+          <div class="zones z3" id="zInfo"></div>
+        </div>
+        <div class="chain">
+          <h3>Chaîne d’énergie <small>· gérer l’énergie et produire le mouvement</small></h3>
+          <div class="zones z4" id="zNrj"></div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="cCheck">Vérifier</button>
+          <button class="btn" id="cReset">Recommencer</button>
+        </div>
+        <div class="result" id="cResult" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- ===== QUIZ ===== -->
+    <section id="tab-quiz" role="tabpanel" aria-labelledby="t-quiz" hidden>
+      <div class="card quiz" id="quiz"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const tok = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fr = (n, d=2) => n.toLocaleString('fr-FR', {maximumFractionDigits:d});
+const tabHidden = () => $('#tab-explorer').hidden;
+
+/* ---------- Son ---------- */
+let actx = null;
+function audio(){ try{ if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended') actx.resume(); }catch(e){ actx=null; } return actx; }
+function tone(f, dur){
+  const a = audio(); if(!a) return;
+  const o = a.createOscillator(), g = a.createGain(), t = a.currentTime;
+  o.type = 'square'; o.frequency.value = f;
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.05, t+0.01);
+  g.gain.setValueAtTime(0.05, t+Math.max(0.02, dur-0.04)); g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t+dur+0.02);
+  const bz = $('#buzzG'); bz.classList.add('ringing'); clearTimeout(tone._t); tone._t = setTimeout(()=>bz.classList.remove('ringing'), dur*1000);
+}
+
+/* ---------- LED du robot ---------- */
+const ledState = {L:[0,0,0], R:[0,0,0]};
+function applyLeds(){
+  ['L','R'].forEach(k=>{
+    const [r,g,b] = ledState[k], on = r||g||b, body = $('#led'+k), glow = $('#led'+k+'g');
+    body.setAttribute('fill', on ? `rgb(${r},${g},${b})` : 'var(--led-off)');
+    glow.setAttribute('fill', `rgb(${r},${g},${b})`);
+    glow.setAttribute('opacity', on ? (0.35 + 0.55*Math.max(r,g,b)/255).toFixed(2) : 0);
+  });
+}
+
+/* ================= SIMULATEURS ================= */
+function simUS(el){
+  el.innerHTML = `
+  <svg viewBox="0 0 600 150" class="scene" role="img" aria-label="Le robot envoie des ultrasons vers un mur">
+    <line x1="0" y1="131" x2="600" y2="131" stroke="var(--line)" stroke-width="2"/>
+    <rect x="8" y="80" width="54" height="42" rx="6" fill="var(--chassis)"/>
+    <rect x="60" y="68" width="10" height="50" rx="2" fill="#1E5A93"/>
+    <circle cx="72" cy="82" r="8" fill="var(--metal)"/><circle cx="72" cy="104" r="8" fill="var(--metal)"/>
+    <circle cx="22" cy="124" r="8" fill="var(--wheel)"/><circle cx="50" cy="124" r="8" fill="var(--wheel)"/>
+    <path id="usWave" d="M0 -18 A 24 24 0 0 1 0 18" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+    <path id="usWave2" d="M0 -12 A 16 16 0 0 1 0 12" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+    <g id="usWall"><rect x="0" y="22" width="16" height="109" fill="var(--muted)" opacity=".55"/><rect x="0" y="22" width="16" height="109" fill="none" stroke="var(--muted)"/></g>
+    <line id="usDim" x1="80" y1="14" x2="200" y2="14" stroke="var(--ink)" stroke-width="1.5" marker-start="url(#ar)" marker-end="url(#ar)"/>
+    <text id="usDimT" x="140" y="10" text-anchor="middle" font-family="var(--f-mono)" font-size="12" fill="var(--ink)"></text>
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="var(--ink)"/></marker></defs>
+  </svg>
+  <label for="usD">Déplace l’obstacle : <b id="usDv"></b></label>
+  <input type="range" id="usD" min="1" max="430" value="50">
+  <div class="stats">
+    <div class="stat"><span class="k">Durée de l’aller-retour du son</span><span class="v" id="usT"></span></div>
+    <div class="stat hot"><span class="k">Valeur reçue par le programme</span><span class="v" id="usV"></span></div>
+  </div>
+  <p class="calc" id="usCalc"></p>`;
+  const inp = $('#usD', el); let d = 50, phase = 0, last = performance.now(), raf;
+  const wx = () => 80 + Math.min(d, 430)/430*496;
+  function upd(){
+    d = +inp.value; const x = wx();
+    $('#usDv', el).textContent = d + ' cm';
+    $('#usWall', el).setAttribute('transform', `translate(${x},0)`);
+    $('#usDim', el).setAttribute('x2', x-2); $('#usDimT', el).setAttribute('x', (80+x)/2);
+    $('#usDimT', el).textContent = d + ' cm';
+    const tms = 2*(d/100)/340*1000;
+    if(d > 400){
+      $('#usT', el).textContent = 'pas d’écho';
+      $('#usV', el).textContent = '400';
+      $('#usCalc', el).textContent = 'L’obstacle est trop loin : l’écho est trop faible. Le capteur renvoie sa valeur maximale, 400 cm.';
+    } else {
+      $('#usT', el).textContent = fr(tms) + ' ms';
+      $('#usV', el).textContent = d < 3 ? 'peu fiable' : d + ' cm';
+      $('#usCalc', el).textContent = `d = v × t ÷ 2 = 340 m/s × ${fr(tms/1000,5)} s ÷ 2 ≈ ${fr(d/100,2)} m` + (d<3 ? '  · Trop près : sous 3 cm la mesure n’est plus fiable.' : '');
+    }
+  }
+  inp.addEventListener('input', upd); upd();
+  function loop(now){
+    raf = requestAnimationFrame(loop);
+    const dt = Math.min(now-last, 50); last = now; if(tabHidden()) return;
+    const period = 900 + Math.min(d,430)*7; phase = (phase + dt/period) % 1;
+    const x0 = 82, x1 = wx() - 2, far = d > 400;
+    let x, flip = false, op = 1;
+    if(phase < .5){ x = x0 + (x1-x0)*(phase/.5); if(far) op = 1 - phase/.5; }
+    else { x = x1 - (x1-x0)*((phase-.5)/.5); flip = true; if(far) op = 0; }
+    const tr = `translate(${x},88) scale(${flip?-1:1},1)`;
+    const w1 = $('#usWave', el), w2 = $('#usWave2', el);
+    w1.setAttribute('transform', tr); w1.setAttribute('opacity', op);
+    w2.setAttribute('transform', `translate(${x + (flip?10:-10)},88) scale(${flip?-1:1},1)`); w2.setAttribute('opacity', op*.6);
+    w1.setAttribute('stroke', flip ? 'var(--capteur)' : 'var(--accent)'); w2.setAttribute('stroke', flip ? 'var(--capteur)' : 'var(--accent)');
+  }
+  raf = requestAnimationFrame(loop);
+  return () => cancelAnimationFrame(raf);
+}
+
+function simLine(el){
+  el.innerHTML = `
+  <svg viewBox="0 0 600 230" class="scene" role="img" aria-label="Robot au-dessus d’une ligne noire, vu par transparence">
+    <rect width="600" height="230" fill="var(--floor)"/>
+    <rect x="275" y="0" width="50" height="230" fill="var(--track)"/>
+    <g id="lfBot">
+      <rect x="-80" y="30" width="160" height="190" rx="20" fill="var(--chassis)" opacity=".18" stroke="var(--chassis)" stroke-width="2" stroke-dasharray="6 5"/>
+      <rect x="-42" y="58" width="84" height="44" rx="6" fill="#1E5A93" opacity=".92"/>
+      <rect x="-42" y="58" width="8" height="44" fill="#2F8CE6"/>
+      <circle id="lfGl" cx="-24" cy="68" r="4"/><circle id="lfDl" cx="24" cy="68" r="4"/>
+      <circle id="lfG" cx="-12" cy="84" r="7" fill="#0E1116" stroke="#fff" stroke-width="2"/>
+      <circle id="lfD" cx="12" cy="84" r="7" fill="#0E1116" stroke="#fff" stroke-width="2"/>
+      <text x="-12" y="124" text-anchor="middle" font-family="var(--f-mono)" font-size="14" font-weight="700" fill="var(--floor-ink)" id="lfGt">G</text>
+      <text x="12" y="124" text-anchor="middle" font-family="var(--f-mono)" font-size="14" font-weight="700" fill="var(--floor-ink)" id="lfDt">D</text>
+      <path d="M0 16 l-8 12 h16z" fill="var(--chassis)"/>
+    </g>
+  </svg>
+  <label for="lfX">Décale le robot à gauche ou à droite de la ligne</label>
+  <input type="range" id="lfX" min="-150" max="150" step="2" value="0">
+  <div class="stats">
+    <div class="stat"><span class="k">Capteur gauche</span><span class="v" id="lfSG"></span></div>
+    <div class="stat"><span class="k">Capteur droit</span><span class="v" id="lfSD"></span></div>
+    <div class="stat hot"><span class="k">Valeur reçue par le programme</span><span class="v" id="lfV"></span></div>
+  </div>
+  <div class="tablewrap"><table class="vtable">
+    <thead><tr><th>Valeur</th><th>Gauche</th><th>Droit</th><th>Ce que le programme peut faire</th></tr></thead>
+    <tbody>
+      <tr data-v="0"><td>0</td><td>noir</td><td>noir</td><td>Le robot est sur la ligne : il avance.</td></tr>
+      <tr data-v="1"><td>1</td><td>noir</td><td>blanc</td><td>La ligne est à gauche : il tourne à gauche.</td></tr>
+      <tr data-v="2"><td>2</td><td>blanc</td><td>noir</td><td>La ligne est à droite : il tourne à droite.</td></tr>
+      <tr data-v="3"><td>3</td><td>blanc</td><td>blanc</td><td>Ligne perdue : il recule ou la cherche.</td></tr>
+    </tbody></table></div>
+  <p style="font-size:14px;color:var(--muted);margin:10px 0 0">Sur le vrai module, la petite LED bleue de chaque capteur s’allume quand il voit du blanc (la lumière est renvoyée).</p>`;
+  const inp = $('#lfX', el);
+  function upd(){
+    const off = +inp.value, c = 300 + off;
+    $('#lfBot', el).setAttribute('transform', `translate(${c},0)`);
+    const gBlack = Math.abs(c-12-300) < 25, dBlack = Math.abs(c+12-300) < 25;
+    const v = (gBlack?0:2) + (dBlack?0:1);
+    $('#lfGl', el).setAttribute('fill', gBlack ? '#334' : '#3DA5FF');
+    $('#lfDl', el).setAttribute('fill', dBlack ? '#334' : '#3DA5FF');
+    $('#lfSG', el).textContent = gBlack ? 'noir' : 'blanc';
+    $('#lfSD', el).textContent = dBlack ? 'noir' : 'blanc';
+    $('#lfGt', el).setAttribute('fill', gBlack ? '#fff' : 'var(--floor-ink)');
+    $('#lfDt', el).setAttribute('fill', dBlack ? '#fff' : 'var(--floor-ink)');
+    $('#lfV', el).textContent = v;
+    $$('.vtable tr[data-v]', el).forEach(tr => tr.classList.toggle('on', +tr.dataset.v === v));
+  }
+  inp.addEventListener('input', upd); upd();
+  return () => {};
+}
+
+function simLight(el){
+  el.innerHTML = `
+  <svg viewBox="0 0 600 130" class="scene" role="img" aria-label="Une lampe éclaire le capteur">
+    <defs><radialGradient id="lg"><stop offset="0" stop-color="#FFE27A"/><stop offset="1" stop-color="#FFE27A" stop-opacity="0"/></radialGradient></defs>
+    <circle id="lgGlow" cx="90" cy="65" r="80" fill="url(#lg)"/>
+    <circle cx="90" cy="60" r="22" id="lgBulb" stroke="var(--muted)" stroke-width="2"/>
+    <rect x="80" y="82" width="20" height="16" rx="3" fill="var(--muted)"/>
+    <g id="lgRays" stroke="#E0A800" stroke-width="3" stroke-linecap="round">
+      <line x1="150" y1="40" x2="460" y2="55"/><line x1="150" y1="65" x2="460" y2="65"/><line x1="150" y1="90" x2="460" y2="75"/>
+    </g>
+    <rect x="470" y="30" width="110" height="70" rx="6" fill="var(--board)"/>
+    <rect x="470" y="55" width="20" height="20" rx="2" fill="#2D3138"/><circle cx="480" cy="65" r="5" fill="#C9893A"/>
+    <text x="530" y="92" text-anchor="middle" font-family="var(--f-mono)" font-size="11" fill="var(--board-ink)">mCore</text>
+  </svg>
+  <label for="lgX">Éclairage de la pièce</label>
+  <input type="range" id="lgX" min="0" max="100" value="45">
+  <div class="presets">
+    <button class="btn" data-p="2">Nuit</button><button class="btn" data-p="18">Volets fermés</button><button class="btn" data-p="45">Salle de classe</button><button class="btn" data-p="96">Lampe torche collée</button>
+  </div>
+  <div class="meter" aria-hidden="true"><div id="lgM"></div></div>
+  <div class="stats">
+    <div class="stat hot"><span class="k">Valeur reçue (0 à 1023)</span><span class="v" id="lgV"></span></div>
+    <div class="stat"><span class="k">Le même nombre en binaire (10 bits)</span><span class="v bits" id="lgB"></span></div>
+    <div class="stat"><span class="k">Programme : si luminosité &lt; 200, allumer les phares</span><span class="v" id="lgP"></span></div>
+  </div>`;
+  const inp = $('#lgX', el);
+  function upd(){
+    const x = +inp.value, v = Math.round(1023*Math.pow(x/100, 0.75));
+    $('#lgGlow', el).setAttribute('opacity', (x/100).toFixed(2));
+    $('#lgBulb', el).setAttribute('fill', x < 3 ? 'var(--surface-2)' : `rgba(255,226,122,${0.25+0.75*x/100})`);
+    $('#lgRays', el).setAttribute('opacity', (x/100).toFixed(2));
+    $('#lgM', el).style.width = (v/1023*100) + '%';
+    $('#lgV', el).textContent = v;
+    $('#lgB', el).textContent = v.toString(2).padStart(10,'0').replace(/(\d)(?=(\d{5})+$)/g,'$1 ');
+    $('#lgP', el).textContent = v < 200 ? 'phares allumés' : 'phares éteints';
+  }
+  inp.addEventListener('input', upd);
+  $$('[data-p]', el).forEach(b => b.addEventListener('click', () => { inp.value = b.dataset.p; upd(); }));
+  upd();
+  return () => {};
+}
+
+function simButton(el){
+  el.innerHTML = `
+  <button class="bigbtn" id="bb" aria-label="Maintenir pour appuyer">Appuie</button>
+  <canvas id="bc" width="600" height="160" class="scene" style="aspect-ratio:600/160" aria-label="Chronogramme du signal du bouton"></canvas>
+  <div class="stats">
+    <div class="stat hot"><span class="k">bouton embarqué pressé ?</span><span class="v" id="bv">faux</span></div>
+    <div class="stat"><span class="k">Signal électrique</span><span class="v" id="bs">0</span></div>
+    <div class="stat"><span class="k">Nombre d’appuis</span><span class="v" id="bn">0</span></div>
+  </div>`;
+  const b = $('#bb', el), cv = $('#bc', el), c = cv.getContext('2d');
+  let down = false, count = 0, hist = [{t:performance.now(), v:0}], raf;
+  function set(v){
+    if(v === down) return; down = v; if(v) count++;
+    hist.push({t:performance.now(), v:v?1:0});
+    b.classList.toggle('down', v);
+    $('#bv', el).textContent = v ? 'vrai' : 'faux'; $('#bs', el).textContent = v ? '1' : '0'; $('#bn', el).textContent = count;
+  }
+  b.addEventListener('pointerdown', e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); set(true); });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev => b.addEventListener(ev, () => set(false)));
+  b.addEventListener('keydown', e => { if(e.key===' '||e.key==='Enter'){ e.preventDefault(); set(true); } });
+  b.addEventListener('keyup', e => { if(e.key===' '||e.key==='Enter'){ set(false); } });
+  const W = 600, H = 160, span = 6000, yH = 34, yL = 122, x0 = 70;
+  function draw(now){
+    raf = requestAnimationFrame(draw); if(tabHidden()) return;
+    c.clearRect(0,0,W,H); c.fillStyle = tok('--surface'); c.fillRect(0,0,W,H);
+    c.strokeStyle = tok('--line'); c.lineWidth = 1; c.setLineDash([4,4]);
+    [yH,yL].forEach(y => { c.beginPath(); c.moveTo(x0,y); c.lineTo(W-10,y); c.stroke(); }); c.setLineDash([]);
+    c.fillStyle = tok('--muted'); c.font = '12px ' + tok('--f-mono');
+    c.fillText('1 (vrai)', 8, yH+4); c.fillText('0 (faux)', 8, yL+4);
+    c.fillText('maintenant', W-86, H-6); c.fillText('il y a 6 s', x0, H-6);
+    while(hist.length > 2 && hist[1].t < now - span) hist.shift();
+    const X = t => x0 + (t - (now-span))/span*(W-10-x0);
+    c.strokeStyle = tok('--capteur'); c.lineWidth = 3; c.beginPath();
+    let px = x0, py = hist[0].v ? yH : yL; c.moveTo(px, py);
+    for(let i=1;i<hist.length;i++){ const x = Math.max(x0, X(hist[i].t)); c.lineTo(x, py); py = hist[i].v ? yH : yL; c.lineTo(x, py); }
+    c.lineTo(W-10, py); c.stroke();
+  }
+  raf = requestAnimationFrame(draw);
+  return () => cancelAnimationFrame(raf);
+}
+
+function simMotors(el){
+  const pre = [['Avancer',60,60],['Reculer',-60,-60],['Virage à gauche',20,70],['Virage à droite',70,20],['Pivoter sur place',60,-60],['Stop',0,0]];
+  el.innerHTML = `
+  <canvas id="mc" width="600" height="300" class="scene" aria-label="Le robot se déplace selon la vitesse des moteurs"></canvas>
+  <div class="presets">${pre.map(p=>`<button class="btn" data-l="${p[1]}" data-r="${p[2]}">${p[0]}</button>`).join('')}</div>
+  <div class="two">
+    <div><label for="mL">Moteur gauche : <b id="mLv"></b></label><input type="range" id="mL" min="-100" max="100" step="10" value="0"></div>
+    <div><label for="mR">Moteur droit : <b id="mRv"></b></label><input type="range" id="mR" min="-100" max="100" step="10" value="0"></div>
+  </div>
+  <p class="status" id="mS"></p>
+  <div class="blocline"><span class="k">Bloc équivalent</span><span class="blk act" id="mB"></span></div>
+  <button class="btn" id="mZ">Replacer le robot au centre</button>`;
+  const cv = $('#mc', el), c = cv.getContext('2d'), iL = $('#mL', el), iR = $('#mR', el);
+  let L = 0, R = 0, x = 300, y = 170, th = -Math.PI/2, trail = [], last = performance.now(), raf;
+  function upd(){
+    L = +iL.value; R = +iR.value;
+    $('#mLv', el).textContent = (L>0?'+':'') + L + ' %'; $('#mRv', el).textContent = (R>0?'+':'') + R + ' %';
+    let s;
+    if(!L && !R) s = 'Le robot est à l’arrêt.';
+    else if(L === R) s = L > 0 ? 'Les deux moteurs tournent pareil : le robot avance tout droit.' : 'Les deux moteurs tournent pareil en arrière : le robot recule tout droit.';
+    else if(L === -R) s = L > 0 ? 'Les moteurs tournent en sens inverse : le robot pivote sur place vers la droite.' : 'Les moteurs tournent en sens inverse : le robot pivote sur place vers la gauche.';
+    else if(L + R > 0) s = L > R ? 'Le moteur droit est plus lent : le robot tourne vers la droite.' : 'Le moteur gauche est plus lent : le robot tourne vers la gauche.';
+    else s = 'Le robot recule en tournant.';
+    $('#mS', el).textContent = s;
+    $('#mB', el).textContent = `régler la vitesse : moteur gauche ${L} %, moteur droit ${R} %`;
+  }
+  iL.addEventListener('input', upd); iR.addEventListener('input', upd);
+  $$('[data-l]', el).forEach(b => b.addEventListener('click', () => { iL.value = b.dataset.l; iR.value = b.dataset.r; upd(); }));
+  $('#mZ', el).addEventListener('click', () => { x = 300; y = 170; th = -Math.PI/2; trail = []; });
+  upd();
+  function arrow(px, py, len, col){
+    if(!len) return; c.strokeStyle = col; c.fillStyle = col; c.lineWidth = 3;
+    c.beginPath(); c.moveTo(px, py); c.lineTo(px, py - len); c.stroke();
+    const d = len > 0 ? -1 : 1; c.beginPath(); c.moveTo(px-5, py-len-d*6); c.lineTo(px+5, py-len-d*6); c.lineTo(px, py-len); c.closePath(); c.fill();
+  }
+  function frame(now){
+    raf = requestAnimationFrame(frame);
+    const dt = Math.min((now-last)/16.67, 3); last = now; if(tabHidden()) return;
+    const k = 0.022, v = (L+R)/2*k*dt; th += (L-R)*k/40*dt;
+    x += v*Math.cos(th); y += v*Math.sin(th);
+    if(x < -30) x = 630; if(x > 630) x = -30; if(y < -30) y = 330; if(y > 330) y = -30;
+    if(L || R){ trail.push([x,y]); if(trail.length > 500) trail.shift(); }
+    c.fillStyle = tok('--surface'); c.fillRect(0,0,600,300);
+    c.strokeStyle = tok('--line'); c.lineWidth = 1; c.beginPath();
+    for(let gx=0; gx<=600; gx+=40){ c.moveTo(gx,0); c.lineTo(gx,300); }
+    for(let gy=0; gy<=300; gy+=40){ c.moveTo(0,gy); c.lineTo(600,gy); } c.stroke();
+    c.fillStyle = tok('--accent');
+    for(let i=0;i<trail.length;i+=3){ c.globalAlpha = 0.15 + 0.5*i/trail.length; c.fillRect(trail[i][0]-1.5, trail[i][1]-1.5, 3, 3); }
+    c.globalAlpha = 1;
+    c.save(); c.translate(x,y); c.rotate(th + Math.PI/2);
+    c.fillStyle = tok('--chassis'); c.beginPath(); c.roundRect ? c.roundRect(-20,-28,40,54,7) : c.rect(-20,-28,40,54); c.fill();
+    c.fillStyle = tok('--board'); c.fillRect(-13,-14,26,26);
+    c.fillStyle = tok('--wheel'); c.fillRect(-29,0,9,24); c.fillRect(20,0,9,24);
+    c.fillStyle = tok('--metal'); c.beginPath(); c.arc(-7,-31,5,0,7); c.arc(7,-31,5,0,7); c.fill();
+    const col = tok('--action');
+    arrow(-38, 12, L*0.28, col); arrow(38, 12, R*0.28, col);
+    c.restore();
+  }
+  raf = requestAnimationFrame(frame);
+  return () => cancelAnimationFrame(raf);
+}
+
+function simLED(el){
+  const presets = [['Rouge',255,0,0],['Vert',0,255,0],['Bleu',0,0,255],['Jaune',255,255,0],['Cyan',0,255,255],['Magenta',255,0,255],['Blanc',255,255,255],['Éteinte',0,0,0]];
+  el.innerHTML = `
+  <div class="presets" role="group" aria-label="LED à commander" style="margin-top:0">
+    <button class="btn" data-w="tout" aria-pressed="true">Les deux</button><button class="btn" data-w="gauche" aria-pressed="false">Gauche</button><button class="btn" data-w="droite" aria-pressed="false">Droite</button>
+  </div>
+  <div class="two" style="margin-top:10px;align-items:center">
+    <div>
+      <label for="cr">Rouge : <b id="crv"></b></label><input type="range" id="cr" min="0" max="255" value="255" style="accent-color:#E0343A">
+      <label for="cg">Vert : <b id="cgv"></b></label><input type="range" id="cg" min="0" max="255" value="0" style="accent-color:#22A447">
+      <label for="cb">Bleu : <b id="cbv"></b></label><input type="range" id="cb" min="0" max="255" value="0" style="accent-color:#2F6FE0">
+    </div>
+    <div>
+      <div class="mix" aria-hidden="true"><span id="mxR" style="left:calc(50% - 76px);top:8px"></span><span id="mxG" style="left:calc(50% - 20px);top:8px"></span><span id="mxB" style="left:calc(50% - 48px);top:48px"></span></div>
+      <div class="ledbig" style="margin-top:10px"><div class="dot" id="ldot"></div><div><b>Couleur obtenue</b><br><span id="lrgb" style="font-family:var(--f-mono);font-size:14px"></span></div></div>
+    </div>
+  </div>
+  <div class="presets">${presets.map(p=>`<button class="btn" data-c="${p.slice(1).join(',')}">${p[0]}</button>`).join('')}</div>
+  <div class="blocline" style="margin:14px 0 0"><span class="k">Bloc équivalent</span><span class="blk act" id="lB"></span></div>
+  <p style="font-size:14px;color:var(--muted);margin:10px 0 0">Regarde aussi les LED sur le dessin du robot.</p>`;
+  let who = 'tout';
+  const r = $('#cr', el), g = $('#cg', el), b = $('#cb', el);
+  function upd(){
+    const v = [+r.value, +g.value, +b.value];
+    if(who !== 'droite') ledState.L = v.slice(); if(who !== 'gauche') ledState.R = v.slice();
+    applyLeds();
+    $('#crv', el).textContent = v[0]; $('#cgv', el).textContent = v[1]; $('#cbv', el).textContent = v[2];
+    $('#mxR', el).style.background = `rgb(${v[0]},0,0)`; $('#mxG', el).style.background = `rgb(0,${v[1]},0)`; $('#mxB', el).style.background = `rgb(0,0,${v[2]})`;
+    $('#ldot', el).style.background = `rgb(${v.join(',')})`;
+    $('#ldot', el).style.boxShadow = (v[0]||v[1]||v[2]) ? `0 0 24px rgb(${v.join(',')})` : 'none';
+    $('#lrgb', el).textContent = `R ${v[0]} · V ${v[1]} · B ${v[2]}`;
+    $('#lB', el).textContent = `allumer la LED ${who} en rouge ${v[0]}, vert ${v[1]}, bleu ${v[2]}`;
+  }
+  [r,g,b].forEach(i => i.addEventListener('input', upd));
+  $$('[data-w]', el).forEach(btn => btn.addEventListener('click', () => {
+    who = btn.dataset.w; $$('[data-w]', el).forEach(x => x.setAttribute('aria-pressed', x === btn));
+    const s = who === 'droite' ? ledState.R : ledState.L; r.value = s[0]; g.value = s[1]; b.value = s[2]; upd();
+  }));
+  $$('[data-c]', el).forEach(btn => btn.addEventListener('click', () => { const [a,bb,cc] = btn.dataset.c.split(','); r.value=a; g.value=bb; b.value=cc; upd(); }));
+  const s0 = ledState.L; if(s0[0]||s0[1]||s0[2]){ r.value=s0[0]; g.value=s0[1]; b.value=s0[2]; }
+  upd();
+  return () => {};
+}
+
+function simBuzzer(el){
+  const notes = [['do','C4',261.63],['ré','D4',293.66],['mi','E4',329.63],['fa','F4',349.23],['sol','G4',392.00],['la','A4',440.00],['si','B4',493.88],['do','C5',523.25]];
+  el.innerHTML = `
+  <div class="presets" role="group" aria-label="Durée" style="margin-top:0">
+    <span style="font-size:14px;color:var(--muted);align-self:center">Durée :</span>
+    <button class="btn" data-d="0.25" aria-pressed="true">0,25 temps</button><button class="btn" data-d="0.5" aria-pressed="false">0,5 temps</button><button class="btn" data-d="1" aria-pressed="false">1 temps</button>
+  </div>
+  <div class="keys">${notes.map((n,i)=>`<button class="key" data-i="${i}"><b>${n[0]}</b><small>${n[1]}</small></button>`).join('')}</div>
+  <canvas id="zc" width="600" height="150" class="scene" style="aspect-ratio:600/150;margin-top:12px" aria-label="Forme du signal envoyé au buzzer"></canvas>
+  <div class="stats">
+    <div class="stat hot"><span class="k">Fréquence</span><span class="v" id="zf">440 Hz</span></div>
+    <div class="stat"><span class="k">Vibrations pendant la note</span><span class="v" id="zn">—</span></div>
+  </div>
+  <div class="presets"><button class="btn primary" id="zm">Jouer « Au clair de la lune »</button></div>
+  <div class="blocline" style="margin:14px 0 0"><span class="k">Bloc équivalent</span><span class="blk act" id="zB"></span></div>
+  <p style="font-size:14px;color:var(--muted);margin:10px 0 0">Monte le son de l’ordinateur. Dans mBlock, 1 temps dure 1 seconde au tempo par défaut.</p>`;
+  let dur = 0.25, f = 440, name = 'A4';
+  const cv = $('#zc', el), c = cv.getContext('2d');
+  function draw(){
+    const W = 600, H = 150, win = 0.01; c.fillStyle = tok('--surface'); c.fillRect(0,0,W,H);
+    c.fillStyle = tok('--muted'); c.font = '12px ' + tok('--f-mono'); c.fillText('fenêtre de 10 ms', 8, H-8);
+    c.strokeStyle = tok('--action'); c.lineWidth = 3; c.beginPath();
+    const per = W/(f*win), top = 30, bot = 110; let x = 0, hi = true; c.moveTo(0, top);
+    while(x < W){ const nx = Math.min(W, x + per/2); c.lineTo(nx, hi?top:bot); if(nx < W){ hi = !hi; c.lineTo(nx, hi?top:bot); } x = nx; }
+    c.stroke();
+  }
+  function info(){
+    $('#zf', el).textContent = fr(f, 0) + ' Hz';
+    $('#zn', el).textContent = fr(Math.round(f*dur), 0);
+    $('#zB', el).textContent = `jouer la note ${name} pendant ${fr(dur)} temps`;
+    draw();
+  }
+  $$('[data-d]', el).forEach(b => b.addEventListener('click', () => { dur = +b.dataset.d; $$('[data-d]', el).forEach(x => x.setAttribute('aria-pressed', x === b)); info(); }));
+  function press(i, d){
+    const n = notes[i]; f = n[2]; name = n[1]; info(); tone(f, d);
+    const k = $(`.key[data-i="${i}"]`, el); k.classList.add('on'); setTimeout(() => k.classList.remove('on'), d*1000);
+  }
+  $$('.key', el).forEach(k => k.addEventListener('click', () => press(+k.dataset.i, dur)));
+  let timers = [];
+  $('#zm', el).addEventListener('click', () => {
+    timers.forEach(clearTimeout); timers = [];
+    const m = [[0,.4],[0,.4],[0,.4],[1,.4],[2,.8],[1,.8],[0,.4],[2,.4],[1,.4],[1,.4],[0,1]];
+    let t = 0; m.forEach(([i,d]) => { timers.push(setTimeout(() => press(i, d*0.9), t*1000)); t += d; });
+  });
+  info();
+  const mq = matchMedia('(prefers-color-scheme: dark)'); const re = () => draw(); mq.addEventListener && mq.addEventListener('change', re);
+  return () => { timers.forEach(clearTimeout); mq.removeEventListener && mq.removeEventListener('change', re); };
+}
+
+/* ================= DONNÉES ================= */
+const P = {
+  us:{nom:'Capteur à ultrasons', type:'capteur', fn:'Acquérir', ou:'À l’avant du robot : ce sont ses deux « yeux ».',
+    resume:'Il mesure la distance entre le robot et un obstacle placé devant lui. Comme une chauve-souris, il envoie un son très aigu, que nous n’entendons pas, et chronomètre le temps que met l’écho pour revenir.',
+    specs:[['Grandeur mesurée','Une distance, en centimètres'],['Principe','Un « œil » émet des ultrasons (40 000 Hz), l’autre capte l’écho renvoyé par l’obstacle'],['Signal reçu par la carte','Numérique : un nombre'],['Branchement','Port 3 de la carte mCore (étiquette jaune sur le module)'],['Plage de mesure','De 3 cm à 400 cm environ']],
+    bloc:'distance du capteur à ultrasons port 3 (cm)', bt:'cap',
+    retenir:'Le son va à environ 340 m/s dans l’air. Il fait un aller-retour, donc : distance = vitesse × durée ÷ 2.', sim:simUS},
+  line:{nom:'Suiveur de ligne', type:'capteur', fn:'Acquérir', ou:'Sous l’avant du robot, tourné vers le sol (en pointillés sur le dessin).',
+    resume:'Il permet au robot de suivre une ligne noire tracée sur un sol clair. Il possède deux petits capteurs côte à côte, un à gauche et un à droite, qui regardent le sol.',
+    specs:[['Ce qu’il détecte','Sol clair ou sol foncé, sous chacun des deux capteurs'],['Principe','Chaque capteur envoie de la lumière infrarouge : le blanc la renvoie, le noir l’absorbe'],['Signal reçu par la carte','Logique pour chaque capteur (noir ou blanc), réunis en une valeur de 0 à 3'],['Branchement','Port 2 de la carte mCore (étiquette bleue sur le module)'],['Hauteur conseillée','1 à 2 cm au-dessus du sol']],
+    bloc:'valeur du suiveur de ligne port 2', bt:'cap',
+    retenir:'0 : les deux capteurs voient du noir. 3 : les deux voient du blanc. 1 ou 2 : un seul capteur est sur la ligne, le robot doit corriger sa direction.', sim:simLine},
+  light:{nom:'Capteur de luminosité', type:'capteur', fn:'Acquérir', ou:'Sur la carte mCore, au milieu du bord avant.',
+    resume:'Il mesure la quantité de lumière qu’il reçoit. Le robot peut ainsi savoir s’il fait jour ou nuit, ou réagir à une lampe torche.',
+    specs:[['Grandeur mesurée','L’intensité de la lumière'],['Principe','Un composant dont la tension électrique change selon la lumière reçue'],['Signal reçu par la carte','Analogique, converti en nombre par la carte'],['Branchement','Intégré à la carte mCore (on dit « embarqué »)'],['Valeurs','De 0 (noir complet) à 1023 (très lumineux)']],
+    bloc:'luminosité du capteur de lumière embarqué', bt:'cap',
+    retenir:'Un signal analogique varie de façon continue. La carte le transforme en un nombre entier entre 0 et 1023, écrit avec 10 bits (2¹⁰ = 1024 valeurs possibles).', sim:simLight},
+  button:{nom:'Bouton poussoir', type:'capteur', fn:'Acquérir', ou:'Sur la carte mCore, à l’arrière gauche.',
+    resume:'C’est le capteur le plus simple : il indique si quelqu’un appuie dessus ou non. On s’en sert souvent pour démarrer un programme.',
+    specs:[['Ce qu’il détecte','L’appui de l’utilisateur'],['Principe','Un contact électrique se ferme quand on appuie'],['Signal reçu par la carte','Logique (tout ou rien) : 1 = appuyé, 0 = relâché'],['Branchement','Intégré à la carte mCore (embarqué)'],['Valeurs','vrai ou faux']],
+    bloc:'bouton embarqué pressé ?', bt:'cap',
+    retenir:'Un signal logique n’a que deux états : 0 ou 1, vrai ou faux, oui ou non.', sim:simButton},
+  motors:{nom:'Moteurs et roues', type:'actionneur', fn:'Convertir', ou:'Les deux roues sur les côtés, avec un moteur (en jaune) contre chaque roue.',
+    resume:'Deux moteurs à courant continu font tourner les roues. En réglant la vitesse de chaque moteur séparément, le robot avance, recule ou tourne.',
+    specs:[['Énergie reçue','Électrique (venant des piles)'],['Énergie produite','Mécanique (rotation)'],['Commande','Une vitesse de −100 % à +100 % pour chaque moteur ; le signe indique le sens'],['Branchement','Bornes M1 et M2 de la carte mCore'],['Transmission','Un réducteur (engrenages) diminue la vitesse et augmente la force, puis la roue fait avancer le robot']],
+    bloc:'régler la vitesse : moteur gauche 50 %, moteur droit 50 %', bt:'act',
+    retenir:'Même vitesse sur les deux moteurs : le robot va tout droit. Vitesses différentes : il tourne du côté du moteur le plus lent.', sim:simMotors},
+  led:{nom:'LED RGB', type:'actionneur', fn:'Communiquer', ou:'Sur la carte mCore, aux deux coins avant.',
+    resume:'Deux LED de couleur donnent des informations à l’utilisateur. Chaque LED RGB contient en fait trois petites LED : une rouge (R), une verte (G pour green) et une bleue (B).',
+    specs:[['Énergie reçue','Électrique'],['Énergie produite','Lumineuse'],['Commande','Une intensité de 0 à 255 pour le rouge, le vert et le bleu'],['Branchement','Intégrées à la carte mCore (embarquées)'],['Couleurs possibles','256 × 256 × 256, soit environ 16,7 millions']],
+    bloc:'allumer la LED tout en rouge 255, vert 0, bleu 0', bt:'act',
+    retenir:'En mélangeant de la lumière rouge, verte et bleue, on obtient toutes les couleurs : c’est la synthèse additive. Les trois au maximum donnent du blanc.', sim:simLED},
+  buzzer:{nom:'Buzzer', type:'actionneur', fn:'Communiquer', ou:'Sur la carte mCore : le cylindre noir à l’arrière droit.',
+    resume:'Il produit des sons et des notes de musique pour prévenir l’utilisateur : un bip au démarrage, une alarme, une mélodie…',
+    specs:[['Énergie reçue','Électrique'],['Énergie produite','Sonore (il fait vibrer l’air)'],['Commande','La fréquence de la note (en hertz) et sa durée'],['Branchement','Intégré à la carte mCore (embarqué)'],['Exemple','La note la (A4) fait vibrer l’air 440 fois par seconde : 440 Hz']],
+    bloc:'jouer la note C4 pendant 0,25 temps', bt:'act',
+    retenir:'Plus la fréquence est élevée, plus le son est aigu. Plus elle est basse, plus le son est grave.', sim:simBuzzer},
+  mcu:{nom:'Carte mCore', type:'autre', fn:'Traiter', ou:'La carte électronique au centre du robot.',
+    resume:'C’est le « cerveau » du robot. Son microcontrôleur exécute le programme : il lit les valeurs des capteurs, prend des décisions et commande les actionneurs.',
+    specs:[['Microcontrôleur','ATmega328P, le même que sur la carte Arduino Uno'],['Fonction','Traiter les informations'],['Ports','4 ports RJ25 numérotés de 1 à 4 pour brancher des modules'],['Moteurs','Un circuit de commande (pont en H) distribue l’énergie aux moteurs M1 et M2'],['Programmation','mBlock (blocs) ou Arduino (texte)']],
+    bloc:'si ‹ bouton embarqué pressé ? › alors …', bt:'ctl',
+    retenir:'Capteurs → carte et programme → actionneurs. Sans programme, le robot ne fait rien : un capteur n’est pas relié directement à un actionneur.', sim:null},
+  battery:{nom:'Alimentation', type:'autre', fn:'Alimenter', ou:'Sous le robot, à l’arrière (en pointillés sur le dessin).',
+    resume:'Un boîtier de 4 piles AA, ou une batterie au lithium, fournit l’énergie électrique à la carte, aux capteurs et aux actionneurs.',
+    specs:[['Source','4 piles AA de 1,5 V, soit 6 V environ'],['Autre possibilité','Une batterie au lithium rechargeable de 3,7 V'],['Interrupteur','Sur la carte mCore, pour allumer le robot'],['Énergie fournie','Électrique']],
+    bloc:null, retenir:'Quand les piles faiblissent, les moteurs tournent moins vite et certaines mesures deviennent fausses.', sim:null}
+};
+const ORDER = ['us','line','light','button','motors','led','buzzer','mcu','battery'];
+const TL = {capteur:'Capteur', actionneur:'Actionneur', autre:'Pour comprendre'};
+const CL = {capteur:'cap', actionneur:'act', autre:'oth'};
+
+/* ---------- Liste des composants ---------- */
+const groups = [['Capteurs','capteur'],['Actionneurs','actionneur'],['Pour comprendre','autre']];
+$('#plist').innerHTML = groups.map(([t,ty]) => `<div><h4>${t}</h4><div class="row">${ORDER.filter(k=>P[k].type===ty).map(k=>`<button class="pbtn ${CL[ty]}" data-id="${k}">${P[k].nom}</button>`).join('')}</div></div>`).join('');
+
+let cur = null, cleanup = null;
+function show(id){
+  if(cleanup){ try{ cleanup(); }catch(e){} cleanup = null; }
+  cur = id; const p = P[id], i = ORDER.indexOf(id);
+  const prev = ORDER[(i-1+ORDER.length)%ORDER.length], next = ORDER[(i+1)%ORDER.length];
+  $('#fiche').innerHTML = `
+  <article class="card fiche">
+    <div class="fhead"><span class="badge ${p.type}">${TL[p.type]}</span><span class="fn">Fonction : <b>${p.fn}</b></span></div>
+    <h2>${p.nom}</h2>
+    <p class="where">Où ? ${p.ou}</p>
+    <p class="resume">${p.resume}</p>
+    <dl class="specs">${p.specs.map(s=>`<dt>${s[0]}</dt><dd>${s[1]}</dd>`).join('')}</dl>
+    ${p.bloc ? `<div class="blocline"><span class="k">Dans mBlock</span><span class="blk ${p.bt}">${p.bloc}</span></div>` : ''}
+    ${p.sim ? `<section class="sim"><div class="sim-h">Simulateur · à toi de tester</div><div id="simBody"></div></section>` : ''}
+    <div class="retenir"><b>À retenir</b><p>${p.retenir}</p></div>
+    <nav class="prevnext"><button class="btn" data-go="${prev}">← ${P[prev].nom}</button><button class="btn" data-go="${next}">${P[next].nom} →</button></nav>
+  </article>`;
+  if(p.sim) cleanup = p.sim($('#simBody'));
+  $$('#robot .part').forEach(g => g.classList.toggle('sel', g.dataset.id === id));
+  $$('.pbtn').forEach(b => b.setAttribute('aria-current', b.dataset.id === id));
+  $$('[data-go]').forEach(b => b.addEventListener('click', () => { show(b.dataset.go); if(innerWidth <= 880) $('#fiche').scrollIntoView({behavior:'smooth'}); }));
+}
+$$('#robot .part').forEach(g => {
+  g.addEventListener('click', () => show(g.dataset.id));
+  g.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); show(g.dataset.id); } });
+  const cap = () => { const p = P[g.dataset.id]; $('#hoverCap').textContent = `${p.nom} · ${TL[p.type].toLowerCase()}`; };
+  g.addEventListener('mouseenter', cap); g.addEventListener('focus', cap);
+  g.addEventListener('mouseleave', () => { $('#hoverCap').textContent = 'Survole ou clique un composant.'; });
+});
+$$('.pbtn').forEach(b => b.addEventListener('click', () => show(b.dataset.id)));
+$$('.filters .chip').forEach(c => c.addEventListener('click', () => {
+  $$('.filters .chip').forEach(x => x.setAttribute('aria-pressed', x === c));
+  const r = $('#robot'); r.classList.remove('f-capteur','f-actionneur'); if(c.dataset.f !== 'tous') r.classList.add('f-'+c.dataset.f);
+}));
+show('us');
+
+/* ================= CLASSER ================= */
+const ZONES = [
+  {id:'acq', nom:'Acquérir', ch:'info'}, {id:'tra', nom:'Traiter', ch:'info'}, {id:'com', nom:'Communiquer', ch:'info'},
+  {id:'ali', nom:'Alimenter', ch:'nrj'}, {id:'dis', nom:'Distribuer', ch:'nrj'}, {id:'con', nom:'Convertir', ch:'nrj'}, {id:'tsm', nom:'Transmettre', ch:'nrj'}];
+const ITEMS = [
+  {id:'a', nom:'Moteurs à courant continu', z:'con', e:'Les moteurs convertissent l’énergie électrique en énergie mécanique.'},
+  {id:'b', nom:'Capteur à ultrasons', z:'acq', e:'Il acquiert la distance d’un obstacle.'},
+  {id:'c', nom:'Buzzer', z:'com', e:'Il communique une information à l’utilisateur par un son.'},
+  {id:'d', nom:'Piles (4 × AA)', z:'ali', e:'Les piles alimentent tout le robot en énergie électrique.'},
+  {id:'e', nom:'Bouton poussoir', z:'acq', e:'Il acquiert une information : l’utilisateur appuie ou non.'},
+  {id:'f', nom:'Microcontrôleur de la carte mCore', z:'tra', e:'Il exécute le programme : il traite les informations.'},
+  {id:'g', nom:'Réducteurs et roues', z:'tsm', e:'Ils transmettent le mouvement des moteurs jusqu’au sol.'},
+  {id:'h', nom:'Suiveur de ligne', z:'acq', e:'Il acquiert la couleur du sol sous le robot.'},
+  {id:'i', nom:'LED RGB', z:'com', e:'Elles communiquent une information à l’utilisateur par la lumière.'},
+  {id:'j', nom:'Circuit de commande des moteurs (pont en H)', z:'dis', e:'Il distribue l’énergie aux moteurs selon les ordres du programme.'},
+  {id:'k', nom:'Capteur de luminosité', z:'acq', e:'Il acquiert l’intensité de la lumière.'}];
+let place = {}, picked = null, checked = false;
+function cInit(){ place = {}; ITEMS.forEach(it => place[it.id] = null); picked = null; checked = false; $('#cResult').innerHTML = ''; cRender(); }
+function tagHTML(it){
+  const st = checked && place[it.id] ? (place[it.id] === it.z ? ' ok' : ' ko') : '';
+  return `<button class="tag${picked===it.id?' picked':''}${st}" data-t="${it.id}">${it.nom}</button>`;
+}
+function cRender(){
+  $('#pool').innerHTML = ITEMS.filter(it => !place[it.id]).map(tagHTML).join('');
+  const zh = z => `<div class="zone ${z.ch}${picked?' ready':''}" data-z="${z.id}" role="button" tabindex="0" aria-label="Case ${z.nom}"><div class="zt">${z.nom}<span>${ITEMS.filter(it=>place[it.id]===z.id).length || ''}</span></div>${ITEMS.filter(it => place[it.id] === z.id).map(tagHTML).join('')}</div>`;
+  $('#zInfo').innerHTML = ZONES.filter(z=>z.ch==='info').map(zh).join('');
+  $('#zNrj').innerHTML = ZONES.filter(z=>z.ch==='nrj').map(zh).join('');
+  $$('#tab-classer .tag').forEach(t => t.addEventListener('click', e => { e.stopPropagation(); picked = picked === t.dataset.t ? null : t.dataset.t; cRender(); const n = $(`#tab-classer .tag[data-t="${picked}"]`); n && n.focus(); }));
+  $$('#tab-classer .zone').forEach(z => {
+    const drop = () => { if(!picked) return; place[picked] = z.dataset.z; picked = null; checked = false; $('#cResult').innerHTML=''; cRender(); };
+    z.addEventListener('click', drop);
+    z.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); drop(); } });
+  });
+}
+$('#pool').addEventListener('click', e => { if(e.target.closest('.tag')) return; if(picked && place[picked]){ place[picked] = null; picked = null; checked = false; cRender(); } });
+$('#cCheck').addEventListener('click', () => {
+  checked = true; picked = null; cRender();
+  const placed = ITEMS.filter(it => place[it.id]), good = placed.filter(it => place[it.id] === it.z), left = ITEMS.length - placed.length;
+  const bad = placed.filter(it => place[it.id] !== it.z);
+  let h = `<p style="font-family:var(--f-display);font-size:22px;font-weight:700;margin:0">${good.length} / ${ITEMS.length} bien placés</p>`;
+  if(left) h += `<p style="margin:4px 0">Il reste ${left} étiquette${left>1?'s':''} à placer.</p>`;
+  if(bad.length) h += `<p style="margin:8px 0 0"><b>À corriger</b> (en rouge) :</p><ul>${bad.map(it=>`<li><b>${it.nom}</b> n’est pas dans « ${ZONES.find(z=>z.id===place[it.id]).nom} ». Indice : ${it.e.replace(/^(\S+ \S+).*$/, '$1…')}</li>`).join('')}</ul>`;
+  if(good.length === ITEMS.length) h += `<p style="margin:6px 0 0">Bravo, tout est juste ! Les capteurs <b>acquièrent</b>, la carte <b>traite</b>, les LED et le buzzer <b>communiquent</b>, et les moteurs <b>convertissent</b> l’énergie.</p>`;
+  $('#cResult').innerHTML = h;
+});
+$('#cReset').addEventListener('click', cInit);
+cInit();
+
+/* ================= QUIZ ================= */
+const Q = [
+  {q:'Le capteur à ultrasons du mBot mesure…', o:['la lumière','une distance','la température','la couleur du sol'], a:1, e:'Il mesure la distance d’un obstacle grâce à l’écho d’un son très aigu.'},
+  {q:'À quoi sert un capteur ?', o:['À produire un mouvement','À stocker l’énergie','À prélever une information sur l’environnement','À exécuter le programme'], a:2, e:'Un capteur acquiert une information (distance, lumière, appui…) et la transmet à la carte.'},
+  {q:'Parmi ces composants du mBot, lequel est un actionneur ?', o:['Le bouton poussoir','Le capteur de luminosité','Le suiveur de ligne','Le moteur'], a:3, e:'Le moteur agit sur le monde réel : il fait bouger le robot. Les trois autres sont des capteurs.'},
+  {q:'Le bouton poussoir envoie un signal…', o:['logique : 0 ou 1','analogique : de 0 à 1023','sonore','lumineux'], a:0, e:'Il n’a que deux états : appuyé (1, vrai) ou relâché (0, faux).'},
+  {q:'Entre quelles valeurs varie le capteur de luminosité embarqué ?', o:['0 et 1','0 et 100','0 et 255','0 et 1023'], a:3, e:'La carte convertit le signal analogique en un nombre sur 10 bits : de 0 à 1023.'},
+  {q:'Le suiveur de ligne renvoie la valeur 0. Que se passe-t-il sous le robot ?', o:['Les deux capteurs voient du blanc','Les deux capteurs voient du noir','Seul le capteur gauche voit du noir','Le capteur est débranché'], a:1, e:'0 signifie que les deux capteurs sont au-dessus de la ligne noire : le robot est bien centré.'},
+  {q:'L’écho revient au capteur à ultrasons 5,9 ms après l’émission. À quelle distance se trouve l’obstacle ? (v = 340 m/s)', o:['10 cm','50 cm','1 m','2 m'], a:2, e:'d = 340 × 0,0059 ÷ 2 ≈ 1,0 m. On divise par 2 car le son fait l’aller et le retour.'},
+  {q:'Moteur gauche à +50 %, moteur droit à −50 %. Que fait le robot ?', o:['Il avance tout droit','Il pivote sur place vers la droite','Il pivote sur place vers la gauche','Il recule'], a:1, e:'La roue gauche avance et la droite recule : le robot tourne sur lui-même vers la droite.'},
+  {q:'Quelles couleurs faut-il mélanger dans une LED RGB pour obtenir du jaune ?', o:['Rouge et bleu','Vert et bleu','Rouge et vert','Les trois au maximum'], a:2, e:'En synthèse additive, rouge + vert = jaune. Les trois au maximum donnent du blanc.'},
+  {q:'On remplace la note do4 (262 Hz) par la note do5 (523 Hz). Le son devient…', o:['plus aigu','plus grave','plus fort','plus long'], a:0, e:'La fréquence double : le son est plus aigu (une octave plus haut).'},
+  {q:'Un moteur électrique convertit…', o:['de l’énergie mécanique en énergie électrique','de l’énergie électrique en énergie mécanique','de la lumière en électricité','un son en mouvement'], a:1, e:'Il reçoit de l’énergie électrique et produit un mouvement de rotation.'},
+  {q:'Quel élément traite les informations venant des capteurs ?', o:['Les piles','Le buzzer','Le microcontrôleur de la carte mCore','Les roues'], a:2, e:'Le microcontrôleur exécute le programme : il lit les capteurs et commande les actionneurs.'}];
+let qi = 0, res = [], answered = false;
+function qRender(){
+  const box = $('#quiz');
+  const prog = `<div class="qprog" aria-hidden="true">${Q.map((_,i)=>`<i class="${res[i]===true?'ok':res[i]===false?'ko':i===qi?'cur':''}"></i>`).join('')}</div>`;
+  if(qi >= Q.length){
+    const s = res.filter(Boolean).length;
+    const msg = s >= 11 ? 'Excellent, tu connais ton mBot par cœur !' : s >= 8 ? 'Très bien ! Relis les fiches des questions ratées.' : s >= 5 ? 'C’est un bon début. Retourne explorer le robot puis recommence.' : 'Prends le temps d’explorer chaque composant et de tester les simulateurs, puis réessaie.';
+    box.innerHTML = prog + `<div class="qnum">Résultat</div><div class="score">${s} / ${Q.length}</div><p style="font-size:18px">${msg}</p><button class="btn primary" id="qAgain">Recommencer le quiz</button>`;
+    $('#qAgain').addEventListener('click', () => { qi = 0; res = []; answered = false; qRender(); });
+    return;
+  }
+  const q = Q[qi]; answered = false;
+  box.innerHTML = prog + `<div class="qnum">Question ${qi+1} sur ${Q.length}</div><h2>${q.q}</h2>
+    <div class="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}</div>
+    <div id="qFb" aria-live="polite"></div>`;
+  $$('.opt', box).forEach(b => b.addEventListener('click', () => {
+    if(answered) return; answered = true;
+    const i = +b.dataset.i, ok = i === q.a; res[qi] = ok;
+    $$('.opt', box).forEach(x => { x.disabled = true; if(+x.dataset.i === q.a) x.classList.add('good'); });
+    if(!ok) b.classList.add('bad');
+    $('#qFb').innerHTML = `<div class="exp"><b style="color:${ok?'var(--ok)':'var(--ko)'}">${ok?'Bonne réponse.':'Pas tout à fait.'}</b> ${q.e}</div>
+      <div class="actions"><button class="btn primary" id="qNext">${qi+1 < Q.length ? 'Question suivante' : 'Voir mon score'}</button></div>`;
+    $$('.qprog i', box)[qi].className = ok ? 'ok' : 'ko';
+    $('#qNext').addEventListener('click', () => { qi++; qRender(); $('#quiz').scrollIntoView({block:'nearest'}); });
+    $('#qNext').focus();
+  }));
+}
+qRender();
+
+/* ================= ONGLETS ================= */
+const TABS = ['explorer','classer','quiz'];
+function setTab(t){
+  if(!TABS.includes(t)) t = 'explorer';
+  TABS.forEach(x => { $('#tab-'+x).hidden = x !== t; $('#t-'+x).setAttribute('aria-selected', x === t); });
+}
+$$('nav.tabs button').forEach(b => b.addEventListener('click', () => { const t = b.dataset.tab; if(location.hash !== '#'+t) location.hash = t; else setTab(t); }));
+addEventListener('hashchange', () => setTab(location.hash.slice(1)));
+setTab(location.hash.slice(1));
+})();
+</script>

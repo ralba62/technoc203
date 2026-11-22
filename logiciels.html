@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logiciels — TechnoC203</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css?v=20261122062623">
+<script src="assets/js/site.js?v=20261122062623"></script>
+<script src="assets/js/data/logiciels.js?v=20261122062623"></script>
+</head>
+<body>
+<main>
+  <header class="page-head">
+    <span class="eyebrow">Logiciels</span>
+    <h1>Les logiciels gratuits utiles</h1>
+    <p class="lead">Pour la techno et la bureautique, à la maison comme au collège. Tous sont gratuits ; ceux marqués « Libre » sont aussi open source. Télécharge-les toujours depuis le site officiel.</p>
+  </header>
+
+  <div class="toolbar">
+    <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <span class="sr-only">Rechercher un logiciel</span><input id="q" type="search" placeholder="Rechercher un logiciel…"></label>
+    <div class="chips" id="plats" aria-label="Filtrer par système"></div>
+  </div>
+  <div class="chips" id="cats" style="margin:-8px 0 18px" aria-label="Filtrer par catégorie"></div>
+  <p class="count" id="count"></p>
+  <div id="list"></div>
+</main>
+
+<script>
+  const L = window.LOGICIELS, C = window.CATS_LOGICIELS, P = window.PLATEFORMES;
+  const state = { q:"", cat:"", plat:"" };
+
+  function chips(el, entries, key, all){
+    el.innerHTML = [["", all], ...entries].map(([v, l]) => `<button class="chip" data-v="${v}" aria-pressed="${state[key] === v}">${l}</button>`).join("");
+    el.onclick = e => { const b = e.target.closest(".chip"); if (!b) return; state[key] = b.dataset.v; chips(el, entries, key, all); render(); };
+  }
+  chips(U.$("#plats"), Object.entries(P), "plat", "Tous les systèmes");
+  chips(U.$("#cats"), Object.entries(C).map(([k, c]) => [k, U.icon(c.icone) + " " + c.label]), "cat", "Toutes les catégories");
+  U.$("#q").addEventListener("input", e => { state.q = e.target.value.trim(); render(); });
+
+  const card = l => `<article class="card hoverable">
+    <div class="card-title">${U.logo(l.logo, C[l.cat]?.icone)}<h3>${U.highlight(l.nom, state.q)}</h3></div>
+    <p>${U.highlight(l.desc, state.q)}</p>
+    <div class="card-foot">
+      ${l.plateformes.map(p => `<span class="tag">${P[p]}</span>`).join("")}
+      ${l.libre ? `<span class="tag t5">libre</span>` : `<span class="tag t3">gratuit</span>`}
+      <span style="margin-left:auto">${U.linkBtn(l.url, "Site officiel")}</span>
+    </div></article>`;
+
+  function render(){
+    const nq = U.norm(state.q);
+    const items = L.filter(l => (!state.cat || l.cat === state.cat)
+      && (!state.plat || l.plateformes.includes(state.plat) || (state.plat !== "web" && l.plateformes.includes("web")))
+      && (!nq || U.norm(l.nom + " " + l.desc).includes(nq)));
+    U.$("#count").textContent = `${items.length} logiciel${items.length > 1 ? "s" : ""}` + (state.plat && state.plat !== "web" ? " (les outils en ligne fonctionnent sur tous les systèmes)" : "");
+    U.$("#list").innerHTML = items.length ? Object.keys(C).map(c => {
+      const g = items.filter(l => l.cat === c);
+      return g.length ? `<section style="margin-bottom:30px"><h2 style="display:flex;gap:10px;align-items:center"><span style="color:var(--accent)">${U.icon(C[c].icone)}</span>${C[c].label}</h2><div class="grid">${g.map(card).join("")}</div></section>` : "";
+    }).join("") : `<div class="empty">Aucun logiciel ne correspond.</div>`;
+  }
+  render();
+</script>
+</body>
+</html>

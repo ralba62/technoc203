@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glossaire — TechnoC203</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css?v=20261122062623">
+<script src="assets/js/site.js?v=20261122062623"></script>
+<script src="assets/js/data/glossaire.js?v=20261122062623"></script>
+</head>
+<body>
+<main>
+  <header class="page-head">
+    <span class="eyebrow">Glossaire</span>
+    <h1>Les mots de la techno</h1>
+    <p class="lead">Le vocabulaire à connaître en 3e. Cherche un mot, filtre par thème ou révise en mode flash.</p>
+  </header>
+
+  <div class="toolbar">
+    <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <span class="sr-only">Rechercher un mot</span><input id="q" type="search" placeholder="Rechercher un mot ou une définition…"></label>
+    <button class="btn ghost" id="flashBtn" aria-pressed="false">Mode révision</button>
+  </div>
+  <div class="chips" id="themes" style="margin:-8px 0 16px"></div>
+  <nav class="alpha" id="alpha" aria-label="Index alphabétique"></nav>
+  <p class="count" id="count"></p>
+  <div id="list"></div>
+</main>
+
+<script>
+  const G = [...window.GLOSSAIRE].sort((a, b) => a.mot.localeCompare(b.mot, "fr"));
+  const state = { q:"", theme:"", flash:false };
+  const letterOf = m => U.norm(m.mot)[0].toUpperCase();
+
+  const themesEl = U.$("#themes");
+  function chips(){
+    themesEl.innerHTML = [["", "Tous les thèmes"], ...Object.entries(THEMES).map(([k, t]) => [k, t.label])]
+      .map(([v, l]) => `<button class="chip" data-v="${v}" aria-pressed="${state.theme === v}">${l}</button>`).join("");
+  }
+  themesEl.onclick = e => { const b = e.target.closest(".chip"); if (!b) return; state.theme = b.dataset.v; chips(); render(); };
+  chips();
+  U.$("#q").addEventListener("input", e => { state.q = e.target.value.trim(); render(); });
+  U.$("#flashBtn").addEventListener("click", e => {
+    state.flash = !state.flash; e.target.setAttribute("aria-pressed", state.flash);
+    e.target.textContent = state.flash ? "Afficher les définitions" : "Mode révision"; render();
+  });
+
+  function term(m){
+    const def = state.flash
+      ? `<button class="btn small ghost reveal">Voir la définition</button><div hidden><p>${U.esc(m.def)}</p>${m.ex ? `<p class="ex">${U.esc(m.ex)}</p>` : ""}</div>`
+      : `<p>${U.highlight(m.def, state.q)}</p>${m.ex ? `<p class="ex">${U.highlight(m.ex, state.q)}</p>` : ""}`;
+    return `<article class="term" style="--k:${U.themeColor(m.theme)}"><div class="term-head"><h3>${U.highlight(m.mot, state.q)}</h3>${U.themeTag(m.theme)}</div>${def}</article>`;
+  }
+
+  function render(){
+    const nq = U.norm(state.q);
+    const items = G.filter(m => (!state.theme || m.theme === state.theme) && (!nq || U.norm(m.mot + " " + m.def + " " + (m.ex || "")).includes(nq)));
+    const letters = [...new Set(items.map(letterOf))];
+    U.$("#alpha").innerHTML = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(L => letters.includes(L) ? `<a href="#l-${L}">${L}</a>` : `<span>${L}</span>`).join("");
+    U.$("#count").textContent = `${items.length} mot${items.length > 1 ? "s" : ""}`;
+    U.$("#list").innerHTML = items.length
+      ? letters.map(L => `<section class="letter-group" id="l-${L}"><h2>${L}</h2><div class="terms">${items.filter(m => letterOf(m) === L).map(term).join("")}</div></section>`).join("")
+      : `<div class="empty">Aucun mot trouvé. Essaie avec un autre mot-clé.</div>`;
+  }
+  // lien depuis la page Connaissances : glossaire.html?q=mot
+  const qp = new URLSearchParams(location.search).get("q");
+  if (qp){ state.q = qp; U.$("#q").value = qp; }
+  U.$("#list").addEventListener("click", e => {
+    const b = e.target.closest(".reveal"); if (!b) return;
+    b.nextElementSibling.hidden = false; b.remove();
+  });
+  render();
+</script>
+</body>
+</html>

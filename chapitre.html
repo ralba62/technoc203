@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapitres — TechnoC203</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css?v=20261122062623">
+<script src="assets/js/site.js?v=20261122062623"></script>
+<script src="assets/js/data/connaissances.js?v=20261122062623"></script>
+<script src="assets/js/data/chapitres/liste.js?v=20261122062623"></script>
+<script src="assets/js/data/visibilite.js?v=20261122062623"></script>
+<script src="assets/js/verrou.js?v=20261122062623"></script>
+<script src="assets/js/data/corrections.js?v=20261122062623"></script>
+<style>
+  .prob{--k:var(--accent); border:1px solid color-mix(in srgb, var(--k) 40%, transparent); background:color-mix(in srgb, var(--k) 8%, var(--surface)); border-radius:14px; padding:16px 20px; margin:18px 0 6px; font-size:18px; font-family:var(--f-display); font-weight:500}
+  .prob small{display:block; font-family:var(--f-mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--k); margin-bottom:4px}
+  .jump{display:flex; flex-wrap:wrap; gap:6px; margin:22px 0 8px}
+  .absent{display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:center; background:var(--surface); border:1px dashed color-mix(in srgb, var(--energie) 60%, transparent); border-radius:14px; padding:16px 20px; margin:26px 0 0}
+  .absent .ico-big{width:44px; height:44px; border-radius:12px; display:grid; place-items:center; color:var(--energie); background:color-mix(in srgb, var(--energie) 14%, transparent)}
+  .absent .ico-big svg{width:22px; height:22px}
+  .absent ol{margin:6px 0 0; padding-left:20px; color:var(--muted); font-size:15px}
+  @media (max-width:760px){ .absent{grid-template-columns:1fr} }
+  .chap-progress{min-width:170px; font-family:var(--f-mono); font-size:13px; text-align:right}
+  .chap-progress .progress{margin-top:6px}
+  .soft{display:grid; gap:12px; grid-template-columns:repeat(auto-fill, minmax(min(100%, 300px), 1fr))}
+  .act{--k:var(--accent); background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:16px; overflow:hidden; scroll-margin-top:90px}
+  .act.done{border-color:color-mix(in srgb, var(--ok) 50%, transparent)}
+  .act-head{display:flex; gap:14px; align-items:flex-start; padding:18px 22px; border-bottom:1px solid var(--line); background:linear-gradient(90deg, color-mix(in srgb, var(--k) 8%, transparent), transparent 60%)}
+  .act-num{font-family:var(--f-mono); font-weight:700; font-size:13px; color:var(--k); border:1px solid color-mix(in srgb, var(--k) 45%, transparent); border-radius:8px; padding:4px 9px; flex:none; margin-top:2px}
+  .act-head{flex-wrap:wrap}
+  .act-head > div{flex:1 1 0; min-width:0}
+  .act-head h3{margin:0 0 4px}
+  @media (max-width:600px){
+    .act-head{padding:16px; gap:10px 12px}
+    .act-head > div{flex-basis:calc(100% - 60px)}
+    .act-done{order:3; margin-left:52px}
+    .act-body{padding:14px 16px 16px}
+    .absent, .prob{padding:14px 16px}
+  }
+  .act-head p{margin:0; color:var(--muted); font-size:15px}
+  .act-done{margin-left:auto; display:flex; gap:8px; align-items:center; font-family:var(--f-mono); font-size:12.5px; color:var(--muted); cursor:pointer; white-space:nowrap}
+  .act-done input{accent-color:var(--ok); width:18px; height:18px}
+  .act-body{padding:16px 22px 18px}
+  .btns{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px}
+  .btn.doc{background:transparent; color:var(--ink); border-color:var(--line-2); box-shadow:none}
+  .btn.doc:hover{border-color:var(--k); color:var(--k)}
+  .steps{margin:0; padding:0; list-style:none; counter-reset:s; display:grid; gap:8px}
+  .steps li{counter-increment:s; display:grid; grid-template-columns:30px 1fr; gap:10px; align-items:start; font-size:15.5px}
+  .steps li::before{content:counter(s); font-family:var(--f-mono); font-weight:700; font-size:13px; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; color:var(--k); border:1px solid color-mix(in srgb, var(--k) 45%, transparent)}
+  .act details{margin-top:12px; border-top:1px dashed var(--line-2); padding-top:10px}
+  .act summary{cursor:pointer; font-family:var(--f-mono); font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--k)}
+  .act .retenir{margin-top:10px}
+  .label{font-family:var(--f-mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 8px}
+  .klist{list-style:none; padding:0; margin:0; display:grid; gap:6px}
+  .klist label{display:flex; gap:10px; align-items:flex-start; cursor:pointer; padding:9px 12px; border-radius:9px; background:var(--surface); border:1px solid var(--line)}
+  .klist input{accent-color:var(--ok); margin-top:4px}
+  .klist small{display:block; color:var(--muted); font-family:var(--f-mono); font-size:11.5px}
+  .words{display:flex; flex-wrap:wrap; gap:6px}
+  .words a{font-family:var(--f-mono); font-size:12.5px; text-decoration:none; color:var(--ink); padding:4px 10px; border-radius:6px; border:1px solid var(--line-2); background:var(--surface)}
+  .words a:hover{border-color:var(--accent); color:var(--accent)}
+  .partie{margin:30px 0 14px; padding:16px 20px; border-radius:14px; border:1px solid color-mix(in srgb, var(--k) 40%, transparent); background:color-mix(in srgb, var(--k) 10%, var(--surface)); scroll-margin-top:90px}
+  .partie h3{font-size:21px; margin:0 0 6px}
+  .partie p{margin:0; color:var(--muted); font-size:15.5px}
+  .act details.corr summary{color:var(--ok)}
+  .unlock{margin-top:10px}
+  .unlock p{margin:0 0 8px; font-size:14.5px; color:var(--muted)}
+  .unlock-row{display:flex; gap:8px; flex-wrap:wrap}
+  .unlock input{font:600 15px var(--f-mono); letter-spacing:.06em; text-transform:uppercase; color:var(--ink); background:var(--bg); border:1px solid var(--line-2); border-radius:9px; padding:7px 12px; flex:1 1 180px; max-width:260px}
+  .unlock input:focus{outline:0; border-color:var(--ok); box-shadow:0 0 0 3px color-mix(in srgb, var(--ok) 20%, transparent)}
+  .unlock-msg{margin:6px 0 0 !important; font-family:var(--f-mono); font-size:13px !important}
+  .unlock-msg.ko{color:var(--ko) !important}
+  .pager{display:flex; justify-content:space-between; gap:12px; margin-top:40px}
+  .statut{font-family:var(--f-mono)}
+</style>
+</head>
+<body>
+<main id="app"></main>
+
+<script>
+  const TOUS = U.prepChapitres(), C = U.chapitresVisibles(), P = window.PROGRAMME || [];
+  const APERCU = U.apercuProf();
+  const badgeMasque = () => `<span class="tag masque">masqué aux élèves</span>`;
+  const STATUT = { "termine":["terminé","t5"], "en-cours":["en cours","t2"], "a-venir":["à venir",""] };
+  const statutTag = s => { const [l, c] = STATUT[s] || ["", ""]; return l ? `<span class="tag statut ${c}">${l}</span>` : ""; };
+  const store = key => { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch(e){ return {}; } };
+  const save = (key, v) => { try { localStorage.setItem(key, JSON.stringify(v)); } catch(e){} };
+  const ACT = "activites-faites", KNOW = "connaissances-3e";
+  const btn = (l, cls = "btn small doc") => U.linkBtn(l.url, l.label, cls);
+
+  // connaissances du programme liées à un chapitre (même identifiants que la page Connaissances)
+  function connaissancesDe(ch){
+    const out = [];
+    P.forEach((th, ti) => th.parties.forEach((p, pi) => {
+      if ((p.chap || []).includes(ch.programme)) p.connaissances.forEach((k, ki) => out.push({ id:`${ti}.${pi}.${ki}`, k, partie:p.titre }));
+    }));
+    return out;
+  }
+  // activités visibles, avec leur position d'origine (sert à mémoriser « faite »)
+  const visibles = ch => ch.activites.map((act, i) => ({ act, i })).filter(({ act }) => act._ouvert || APERCU);
+  function avancement(ch){
+    const done = store(ACT), vs = visibles(ch), n = vs.filter(({ i }) => done[`${ch.id}.${i}`]).length;
+    return { n, total: vs.length, pct: vs.length ? Math.round(n / vs.length * 100) : 0 };
+  }
+
+  /* ---------- Liste des chapitres ---------- */
+  function renderListe(){
+    document.title = "Chapitres — TechnoC203";
+    U.$("#app").innerHTML = `
+      <header class="page-head">
+        <span class="eyebrow">Chapitres</span>
+        <h1>Les chapitres de l'année</h1>
+        <p class="lead">Chaque chapitre regroupe tout : les activités, les fiches et logiciels à utiliser, le bilan, les connaissances du programme et le vocabulaire. Absent ? Tu peux faire le chapitre chez toi, étape par étape.</p>
+      </header>
+      <div class="grid">${C.length ? "" : `<div class="empty">Aucun chapitre n'est encore ouvert.</div>`}${C.map((ch, i) => {
+        const a = avancement(ch);
+        return `<a class="card" href="chapitre.html?c=${ch.id}" style="--c:${U.themeColor(ch.theme)}">
+          <span class="card-num">${String(i + 1).padStart(2, "0")}</span>
+          <div class="card-icon">${U.icon(ch.icone)}</div>
+          <span class="eyebrow" style="margin-bottom:4px">${U.esc(ch.num)}</span>
+          <h3>${U.esc(ch.titre)}</h3>
+          <p>${U.esc(ch.problematique)}</p>
+          <div class="card-foot">${statutTag(ch.statut)}${ch._ouvert ? "" : badgeMasque()}<span class="tag">${a.total} activités</span>
+            <span class="tag" style="margin-left:auto">${a.n}/${a.total} faites</span></div>
+        </a>`;
+      }).join("")}</div>
+      <p style="margin-top:26px"><a class="btn ghost" href="connaissances.html">Voir tout le programme de 3e</a></p>`;
+  }
+
+  /* ---------- Un chapitre ---------- */
+  function renderChapitre(ch){
+    document.title = `${ch.num} : ${ch.titre} — TechnoC203`;
+    const idx = C.indexOf(ch), k = U.themeColor(ch.theme);
+    const done = store(ACT), known = store(KNOW);
+    const conn = connaissancesDe(ch);
+    const a = avancement(ch);
+
+    U.$("#app").innerHTML = `
+      <p class="no-print"><a href="chapitre.html" style="font-family:var(--f-mono); font-size:14px; text-decoration:none">← tous les chapitres</a></p>
+      <header class="page-head">
+        <span class="eyebrow">${U.esc(ch.num)} ${statutTag(ch.statut)} ${ch._ouvert ? "" : badgeMasque()}</span>
+        <h1>${U.esc(ch.titre)}</h1>
+        <p class="lead">${U.esc(ch.situation)}</p>
+        <div class="prob" style="--k:${k}"><small>Problématique</small>${U.esc(ch.problematique)}</div>
+      </header>
+
+      <section class="absent no-print">
+        <div class="ico-big">${ICONS.book}</div>
+        <div><strong>Absent ou en retard ? Fais le chapitre chez toi.</strong>
+          <ol><li>Ouvre les logiciels du chapitre.</li><li>Pour chaque activité, télécharge la fiche et suis les étapes.</li>
+          <li>Lis le bilan « Je retiens » <em>après</em> avoir essayé, puis recopie-le.</li><li>Coche l'activité, puis les connaissances que tu maîtrises.</li></ol></div>
+        <div class="chap-progress">Mon avancement<div class="progress"><div id="chapProg" style="width:${a.pct}%"></div></div><span id="chapTxt">${a.n}/${a.total} activités</span></div>
+      </section>
+
+      <nav class="jump chips no-print">
+        <a class="chip" href="#logiciels">Logiciels</a>${ch.parties ? ch.parties.map((p, pi) => visibles(ch).some(({ act }) => act._partie === pi) ? `<a class="chip" href="#partie${pi + 1}">Partie ${pi + 1}</a>` : "").join("") : `<a class="chip" href="#activites">Activités</a>`}
+        ${conn.length ? `<a class="chip" href="#connaissances">Connaissances</a>` : ""}<a class="chip" href="#vocabulaire">Vocabulaire</a>
+        ${ch.entrainement?.length ? `<a class="chip" href="#entrainement">S'entraîner</a>` : ""}
+      </nav>
+
+      <section class="section" id="logiciels" style="margin-top:20px; scroll-margin-top:90px">
+        <h2>Logiciels et outils</h2>
+        <div class="soft">${ch.logiciels.map(l => `<article class="card" style="--c:${k}; padding:18px">
+          <div class="card-title">${l.logo ? U.logo(l.logo, l.icone) : `<div class="card-icon" style="margin:0">${U.icon(l.icone || "terminal")}</div>`}<h3>${U.esc(l.nom)}</h3></div>
+          <p>${U.esc(l.note)}</p>
+          <div class="card-foot">${U.linkBtn(l.url, l.url && /^https?:/.test(l.url) ? "Ouvrir le site" : "Ouvrir")}</div></article>`).join("")}</div>
+      </section>
+
+      <section class="section" id="activites" style="scroll-margin-top:90px">
+        <h2>${ch.parties ? "Les parties du projet" : "Les activités"}</h2>
+        ${visibles(ch).length ? "" : `<div class="empty">Les activités de ce chapitre seront bientôt ouvertes.</div>`}
+        ${visibles(ch).map(({ act, i }, j, arr) => `
+        ${ch.parties && (j === 0 || arr[j - 1].act._partie !== act._partie) ? `<div class="partie" id="partie${act._partie + 1}" style="--k:${k}">
+          <h3>${U.esc(ch.parties[act._partie].titre)}</h3>${ch.parties[act._partie].note ? `<p>${ch.parties[act._partie].note}</p>` : ""}</div>` : ""}
+        <article class="act${done[`${ch.id}.${i}`] ? " done" : ""}" id="a${i + 1}" style="--k:${k}">
+          <div class="act-head">
+            <span class="act-num">${ch.parties ? `${act._partie + 1}.${act._num}` : `A${i + 1}`}</span>
+            <div><h3>${U.esc(act.titre)} ${act._ouvert ? "" : badgeMasque()}</h3>${act.objectif ? `<p>${U.esc(act.objectif)}</p>` : ""}</div>
+            <label class="act-done no-print"><input type="checkbox" data-act="${ch.id}.${i}"${done[`${ch.id}.${i}`] ? " checked" : ""}> faite</label>
+          </div>
+          <div class="act-body">
+            ${(act.docs?.length || act.outils?.length) ? `<div class="btns">${(act.docs || []).map(d => btn(d, "btn small")).join("")}${(act.outils || []).map(o => btn(o)).join("")}</div>` : ""}
+            ${act.chezMoi?.length ? `<p class="label">Faire l'activité étape par étape</p><ol class="steps">${act.chezMoi.map(s => `<li><span>${s}</span></li>`).join("")}</ol>` : ""}
+            ${act.retenir?.length ? `<details><summary>Je retiens — à lire après avoir fait l'activité</summary>
+              <div class="retenir" style="--k:${k}"><ul>${act.retenir.map(r => `<li>${r}</li>`).join("")}</ul></div></details>` : ""}
+            ${(() => {
+              const cleA = Verrou.cleActivite(ch.id, act.titre);
+              if ((window.CORRECTIONS || {})[cleA]) return `<details class="corr"><summary>🔒 Correction — protégée par un code</summary>
+                <form class="unlock" data-cle="${cleA}"><p>Ton professeur te donne le code quand tu as terminé l'activité.</p>
+                  <div class="unlock-row"><input type="text" name="code" placeholder="Code de la correction" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Code de la correction">
+                  <button class="btn small" type="submit">Débloquer</button></div><p class="unlock-msg" aria-live="polite"></p></form>
+                <div class="btns liens-corr" style="margin:10px 0 0"></div></details>`;
+              const cs = [].concat(act.corrections || [], act.correction || []);
+              return cs.length ? `<details class="corr"><summary>Correction — à ouvrir seulement après avoir essayé !</summary><div class="btns" style="margin:10px 0 0">${cs.map(c => btn(c)).join("")}</div></details>` : "";
+            })()}
+          </div>
+        </article>`).join("")}
+      </section>
+
+      ${conn.length ? `<section class="section" id="connaissances" style="scroll-margin-top:90px">
+        <h2>Les connaissances du programme</h2>
+        <p class="lead" style="font-size:16px">Ce que tu dois maîtriser à la fin du chapitre. Coche quand c'est acquis : c'est enregistré aussi dans la page <a href="connaissances.html">Connaissances</a>.</p>
+        <ul class="klist">${conn.map(c => `<li><label><input type="checkbox" data-k="${c.id}"${known[c.id] ? " checked" : ""}><span>${U.esc(c.k)}<small>${U.esc(c.partie)}</small></span></label></li>`).join("")}</ul>
+      </section>` : ""}
+
+      <section class="section" id="vocabulaire" style="scroll-margin-top:90px">
+        <h2>Le vocabulaire du chapitre</h2>
+        <div class="words">${ch.mots.map(m => `<a href="glossaire.html?q=${encodeURIComponent(m)}">${U.esc(m)}</a>`).join("")}</div>
+      </section>
+
+      ${ch.entrainement?.length ? `<section class="section" id="entrainement" style="scroll-margin-top:90px">
+        <h2>S'entraîner</h2><div class="btns">${ch.entrainement.map(e => btn(e, "btn")).join("")}</div></section>` : ""}
+
+      <nav class="pager no-print">
+        ${idx > 0 ? `<a class="btn ghost" href="chapitre.html?c=${C[idx - 1].id}">← ${U.esc(C[idx - 1].num)}</a>` : "<span></span>"}
+        ${idx < C.length - 1 ? `<a class="btn ghost" href="chapitre.html?c=${C[idx + 1].id}">${U.esc(C[idx + 1].num)} : ${U.esc(C[idx + 1].titre)} →</a>` : ""}
+      </nav>`;
+
+    U.$("#app").addEventListener("change", e => {
+      const t = e.target;
+      if (t.dataset.act){
+        const d = store(ACT); d[t.dataset.act] = t.checked; save(ACT, d);
+        t.closest(".act").classList.toggle("done", t.checked);
+        const a = avancement(ch); U.$("#chapProg").style.width = a.pct + "%"; U.$("#chapTxt").textContent = `${a.n}/${a.total} activités`;
+      }
+      if (t.dataset.k){ const d = store(KNOW); d[t.dataset.k] = t.checked; save(KNOW, d); }
+    });
+
+    /* ---- corrections verrouillées : le bon code déchiffre les liens ---- */
+    const CODES = "codes-corrections";
+    async function ouvrir(form, code, silencieux){
+      const msg = U.$(".unlock-msg", form), zone = form.parentElement.querySelector(".liens-corr");
+      try {
+        const liens = await Verrou.dechiffrer(Verrou.normaliser(code), window.CORRECTIONS[form.dataset.cle]);
+        zone.innerHTML = liens.map(l => btn(l)).join("");
+        form.hidden = true;
+        form.parentElement.querySelector("summary").textContent = "🔓 Correction — débloquée";
+        const d = store(CODES); d[form.dataset.cle] = code; save(CODES, d);
+      } catch(e){
+        if (!silencieux){ msg.textContent = "Code incorrect. Vérifie l'orthographe ou demande à ton professeur."; msg.className = "unlock-msg ko"; }
+      }
+    }
+    U.$("#app").addEventListener("submit", e => {
+      const form = e.target.closest(".unlock"); if (!form) return;
+      e.preventDefault();
+      const code = form.code.value.trim(); if (!code) return;
+      const msg = U.$(".unlock-msg", form); msg.textContent = "Vérification…"; msg.className = "unlock-msg";
+      ouvrir(form, code);
+    });
+    // corrections déjà débloquées sur cet appareil
+    const deja = store(CODES);
+    U.$$(".unlock").forEach(f => { if (deja[f.dataset.cle]) ouvrir(f, deja[f.dataset.cle], true); });
+  }
+
+  const id = new URLSearchParams(location.search).get("c");
+  const ch = C.find(x => x.id === id);
+  if (ch) renderChapitre(ch);
+  else if (TOUS.some(x => x.id === id)) U.$("#app").innerHTML = `<header class="page-head"><span class="eyebrow">Chapitres</span><h1>Ce chapitre n'est pas encore ouvert</h1>
+    <p class="lead">Ton professeur l'ouvrira quand vous commencerez à le travailler en classe.</p></header><a class="btn" href="chapitre.html">Voir les chapitres ouverts</a>`;
+  else renderListe();
+  if (ch && location.hash) setTimeout(() => document.getElementById(location.hash.slice(1))?.scrollIntoView(), 50);
+</script>
+</body>
+</html>

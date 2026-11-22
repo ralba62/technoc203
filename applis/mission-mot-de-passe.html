@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mission Mot de Passe</title>
+<style>
+  :root{
+    --bg:#0b1324; --bg2:#111c33; --card:#16233f; --card2:#1c2c4f; --line:#2b3d66;
+    --txt:#eef3ff; --muted:#9fb0d3; --acc:#22d3ee; --acc2:#a78bfa;
+    --ok:#22c55e; --ko:#ef4444; --warn:#f59e0b; --yel:#facc15;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:radial-gradient(1200px 600px at 80% -10%, #1b2b55 0%, var(--bg) 60%) fixed, var(--bg);
+       color:var(--txt); font:18px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; min-height:100vh}
+  header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+         padding:10px 20px;background:rgba(11,19,36,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+  .brand{font-size:22px;cursor:pointer;white-space:nowrap}
+  .brand b{color:var(--acc)}
+  #agents{color:var(--muted);font-size:16px;flex:1;min-width:120px}
+  #progress{display:flex;gap:6px}
+  .dot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:700;
+       border:2px solid var(--line);color:var(--muted);background:var(--bg2);cursor:default}
+  .dot.open{border-color:var(--acc);color:var(--acc);cursor:pointer}
+  .dot.done{background:var(--ok);border-color:var(--ok);color:#06240f;cursor:pointer}
+  .score{font-weight:800;font-size:20px;color:var(--yel);white-space:nowrap}
+  .warn{background:#3b2a07;color:#ffe3a3;text-align:center;padding:6px 12px;font-size:15px;border-bottom:1px solid #5e450f}
+  main{max-width:1100px;margin:0 auto;padding:24px 16px 60px}
+  footer{text-align:center;color:var(--muted);font-size:14px;padding:16px;border-top:1px solid var(--line)}
+  button{font:inherit;cursor:pointer}
+  .link{background:none;border:none;color:var(--acc);text-decoration:underline;padding:0}
+  .btn{background:var(--acc);color:#04202a;border:none;border-radius:10px;padding:10px 18px;font-weight:700}
+  .btn:hover{filter:brightness(1.1)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+  .btn.alt{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
+  .btn.big{font-size:20px;padding:14px 26px}
+  .btn-hint{background:none;border:1px dashed var(--yel);color:var(--yel);border-radius:10px;padding:6px 14px;font-size:15px}
+  input[type=text],input:not([type]){font:inherit;background:#0a1222;color:var(--txt);border:2px solid var(--line);
+       border-radius:10px;padding:10px 14px;min-width:0}
+  input:focus{outline:none;border-color:var(--acc)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  .row input{flex:1;min-width:200px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:16px}
+  .card.intro{background:linear-gradient(135deg,#17284d,#1a2147)}
+  h1{margin:0;font-size:30px;line-height:1.2}
+  h2{margin:0 0 10px;font-size:24px}
+  .kicker{color:var(--acc);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:14px}
+  .small{font-size:15px;color:var(--muted)}
+  code,.code{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0a1222;border:1px solid var(--line);border-radius:6px;padding:1px 7px;color:var(--acc)}
+  .defi-head{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+  .defi-head .big{font-size:54px}
+  .step-head{display:flex;justify-content:space-between;gap:10px;font-weight:800;color:var(--acc2);margin-bottom:8px}
+  .step-head .pts{color:var(--yel);white-space:nowrap}
+  .step.done{background:#12301f;border-color:#1f6b3d}
+  .step.done .step-head{color:#86efac}
+  .step.current{box-shadow:0 0 0 2px var(--acc)}
+  .q{font-size:19px}
+  .summary{color:#cfe9d8}
+  .summary .explain{display:block;margin-top:6px;color:var(--muted);font-size:16px}
+  .opts{display:grid;gap:10px;margin-top:12px}
+  .opt{text-align:left;background:var(--card2);color:var(--txt);border:2px solid var(--line);border-radius:12px;padding:12px 16px}
+  .opt:hover:not(:disabled){border-color:var(--acc)}
+  .opt.wrong{border-color:var(--ko);background:#3a1620;opacity:.7}
+  .opt.right{border-color:var(--ok);background:#12301f}
+  .multi label{display:flex;gap:10px;align-items:center;background:var(--card2);border:2px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer}
+  .multi input{width:20px;height:20px}
+  .hint{background:#3a3110;border-left:4px solid var(--yel);color:#fff1b8;border-radius:8px;padding:8px 12px;margin-top:10px;font-size:16px}
+  .fb{margin-top:10px;font-weight:700;min-height:1.5em}
+  .fb.ko,.mini-fb.ko{color:#fca5a5}
+  .fb.ok,.mini-fb.ok{color:#86efac}
+  .mini-fb{margin-top:8px;font-weight:700;min-height:1.4em}
+  .actions-row{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
+  .extra:empty{display:none}
+  .extra{margin:12px 0}
+  .shake{animation:shake .4s}
+  @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+  /* Accueil / carte */
+  .hero{text-align:center;padding:30px 20px}
+  .hero .emoji{font-size:80px}
+  .hero h1{font-size:40px}
+  .names{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:20px 0}
+  .names input{width:260px}
+  .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;text-align:left;margin:20px 0}
+  .rules div{background:var(--card2);border-radius:12px;padding:12px 14px;font-size:16px}
+  .map{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+  .tile{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:18px;text-align:left;color:var(--txt);position:relative}
+  .tile .em{font-size:44px}
+  .tile h3{margin:6px 0 4px;font-size:22px}
+  .tile.open{border-color:var(--acc);cursor:pointer}
+  .tile.open:hover{transform:translateY(-2px)}
+  .tile.locked{opacity:.45;cursor:not-allowed}
+  .tile.done{border-color:var(--ok);cursor:pointer}
+  .tile .badge{position:absolute;top:14px;right:14px;font-size:14px;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--bg2)}
+  .tile.done .badge{background:var(--ok);color:#06240f}
+  .tile.open .badge{background:var(--acc);color:#04202a}
+
+  /* Fin de défi */
+  .reward{text-align:center;background:linear-gradient(135deg,#123a2a,#14305a);border-color:var(--ok)}
+  .secret{display:inline-block;font:800 34px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;color:var(--yel);
+          background:#0a1222;border:2px dashed var(--yel);border-radius:14px;padding:8px 24px;margin:10px 0}
+  .retenir{background:#0f1d3a;border-left:5px solid var(--acc);border-radius:10px;padding:12px 16px;text-align:left;margin:14px 0}
+
+  /* Simulateur */
+  .sim{background:#0f1a33;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .sim input[type=range]{width:100%;accent-color:var(--acc)}
+  .sets{display:flex;flex-wrap:wrap;gap:8px 18px;margin:10px 0}
+  .sets label{display:flex;gap:6px;align-items:center;cursor:pointer}
+  .sets input{width:18px;height:18px;accent-color:var(--acc)}
+  .sim-out{display:grid;gap:4px;font-size:19px;margin:8px 0}
+  .sim-out b{color:var(--yel)}
+
+  /* Top 10 */
+  .top-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin:10px 0}
+  .slot{background:var(--card2);border:2px solid var(--line);border-radius:10px;padding:8px 12px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .slot.ok{border-color:var(--ok);background:#12301f;color:#bbf7d0}
+  .slot.pop{animation:pop .5s}
+  @keyframes pop{50%{transform:scale(1.08)}}
+
+  /* Enquête Lucas */
+  .split{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start}
+  .aside{position:sticky;top:120px}
+  .profile{background:#fff;color:#1d2433;border-radius:16px;overflow:hidden;font-size:15px}
+  .profile .ph{background:linear-gradient(135deg,#f97316,#ec4899);height:56px}
+  .profile .who{display:flex;gap:10px;align-items:center;padding:0 14px;margin-top:-26px}
+  .profile .av{width:58px;height:58px;border-radius:50%;background:#fde68a;border:3px solid #fff;display:grid;place-items:center;font-size:30px}
+  .profile .nm{margin-top:24px;font-weight:800}
+  .profile .bio{padding:6px 14px;color:#4b5563}
+  .post{border-top:1px solid #e5e7eb;padding:8px 14px}
+  .post .dt{font-size:12px;color:#6b7280}
+  .post .cm{font-size:13px;color:#6b7280;margin-top:3px}
+  .login{background:#0f1a33;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .login-title{font-size:22px;font-weight:800}
+  .clue{background:#1e2a4a;border-radius:10px;padding:8px 12px;margin-top:8px;color:#dbe7ff}
+  .login.open{border-color:var(--ok);background:#12301f}
+
+  /* Domino */
+  .news{background:#3a1018;border:2px solid var(--ko);border-radius:12px;padding:12px 16px;margin-top:12px}
+  .leak{font-family:ui-monospace,Menlo,Consolas,monospace;background:#000;color:#4ade80;border-radius:8px;padding:8px 12px;margin-top:8px;font-size:15px}
+  .dominos{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:12px}
+  .dom{background:var(--card2);border:2px solid var(--line);border-radius:14px;padding:14px 10px;text-align:center;color:var(--txt);transition:transform .5s, background .3s}
+  .dom .ic{font-size:36px}
+  .dom .nm{font-weight:800}
+  .dom .ds{font-size:13px;color:var(--muted);min-height:2.6em}
+  .dom .st{font-weight:800;margin-top:6px;font-size:15px}
+  .dom.try{cursor:pointer;border-color:var(--acc)}
+  .dom.try:hover{transform:translateY(-3px)}
+  .dom.wait{animation:blink .6s infinite}
+  @keyframes blink{50%{opacity:.5}}
+  .dom.fallen{background:#4a1220;border-color:var(--ko);transform:rotate(-7deg) translateY(6px)}
+  .dom.fallen .st{color:#fca5a5}
+  .dom.safe{background:#12301f;border-color:var(--ok)}
+  .dom.safe .st{color:#86efac}
+
+  /* Testeur */
+  .tester{background:#0f1a33;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .tester input{width:100%;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:20px}
+  .meter{height:16px;background:#0a1222;border-radius:999px;margin:12px 0 6px;overflow:hidden;border:1px solid var(--line)}
+  .meter .bar{height:100%;width:0;border-radius:999px;transition:width .3s, background .3s}
+  .lvl{font-weight:800;font-size:22px}
+  .crit{list-style:none;padding:0;margin:10px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:4px 16px;font-size:16px}
+  .genpw{font:800 26px ui-monospace,Menlo,Consolas,monospace;color:var(--yel);word-break:break-all;margin:8px 0}
+
+  /* Modal / toast */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:grid;place-items:center;z-index:50;padding:16px}
+  .modal.hidden{display:none}
+  .modal .box{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:20px 22px;max-width:900px;width:100%;max-height:90vh;overflow:auto}
+  table{border-collapse:collapse;width:100%;font-size:15px}
+  td,th{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  th{background:var(--card2)}
+  .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(120px);background:var(--ok);color:#06240f;
+         font-weight:800;padding:12px 22px;border-radius:999px;transition:transform .35s;z-index:60;font-size:20px}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .slots{display:flex;gap:10px;justify-content:center;margin:18px 0 6px}
+  .sl{width:52px;height:62px;display:grid;place-items:center;font:800 32px ui-monospace,Menlo,Consolas,monospace;color:var(--yel);
+      background:#0a1222;border:2px solid var(--line);border-radius:12px}
+  .sl.ok{border-color:var(--ok);color:#86efac}
+  .final-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+  .final-list div{background:var(--card2);border-radius:12px;padding:10px;text-align:center}
+  .final-list b{display:block;font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--yel);font-size:20px}
+  @media (max-width:820px){ .split{grid-template-columns:1fr} .aside{position:static} h1{font-size:26px} }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand" onclick="goHome()">🔐 Mission <b>Mot de Passe</b></div>
+  <div id="agents"></div>
+  <div id="progress"></div>
+  <div id="score" class="score">⭐ 0 pt</div>
+</header>
+<div class="warn">⚠️ Règle n°1 de l'agent : ne tape JAMAIS un vrai mot de passe dans cette appli. Invente toujours !</div>
+<main id="app"></main>
+<footer>
+  <button class="link" onclick="openProf()">🎓 Espace professeur</button>
+  · Tout reste sur cet ordinateur : rien n'est envoyé sur Internet.
+</footer>
+<div id="modal" class="modal hidden"></div>
+<div id="toast" class="toast"></div>
+
+<script>
+/* =========================================================
+   Réglages
+   ========================================================= */
+const PROF_CODE = 'techno3e';          // code de l'espace professeur
+const KEY = 'mission-mdp-v1';           // clé de sauvegarde locale
+const TRIES = 1e10;                     // essais par seconde (10 milliards)
+const YEAR = 31557600;                  // secondes dans une année
+
+/* =========================================================
+   Sauvegarde
+   ========================================================= */
+function freshState(){ return {names:['',''], started:false, steps:{}, unlockAll:false, vault:{open:false, errors:0, hints:0, earned:0}}; }
+function load(){ try{ const r = localStorage.getItem(KEY); if(r) return JSON.parse(r); }catch(e){} return null; }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+let S = load() || freshState();
+if (!S.vault) S.vault = {open:false, errors:0, hints:0, earned:0};
+const VAULT_WORD = 'secret', VAULT_POINTS = 15;
+const VAULT_HINTS = ['Le mot de passe du coffre est caché dans vos 6 codes secrets, notés sur la fiche.','Prenez la 1re lettre de chaque code, du défi 1 au défi 6.','C\'est un mot de 6 lettres qui veut dire « caché ».'];
+function vaultEarn(){ return Math.max(5, VAULT_POINTS - 2*S.vault.errors - 3*S.vault.hints); }
+let profOK = false;
+
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fr = n => n.toLocaleString('fr-FR');
+
+function st(id){ return S.steps[id] || (S.steps[id] = {done:false, errors:0, hints:0, earned:0, data:{}}); }
+function earn(step){ const t = st(step.id); return Math.max(Math.ceil(step.points*0.2), step.points - 2*t.errors - 3*t.hints); }
+function totalScore(){ return DEFIS.flatMap(d=>d.steps).reduce((a,s)=> a + (st(s.id).done ? st(s.id).earned : 0), 0) + (S.vault.open ? S.vault.earned : 0); }
+function maxScore(){ return DEFIS.flatMap(d=>d.steps).reduce((a,s)=> a + s.points, 0) + VAULT_POINTS; }
+function defiDone(n){ return DEFIS[n-1].steps.every(s => st(s.id).done); }
+function unlocked(n){ return S.unlockAll || n===1 || defiDone(n-1); }
+
+/* =========================================================
+   Outils de calcul
+   ========================================================= */
+function plural(n, w){ return fr(n) + ' ' + w + (n > 1 ? 's' : ''); }
+function dec1(x){ return x < 10 ? x.toLocaleString('fr-FR',{maximumFractionDigits:1}) : fr(Math.round(x)); }
+function fmtDuration(s){
+  if (s < 1e-3) return "moins d'un millième de seconde ⚡";
+  if (s < 1)    return "moins d'une seconde ⚡";
+  if (s < 60)   return plural(Math.round(s), 'seconde');
+  if (s < 3600) return plural(Math.round(s/60), 'minute');
+  if (s < 86400) return plural(Math.round(s/3600), 'heure');
+  if (s < YEAR) return plural(Math.round(s/86400), 'jour');
+  const y = s / YEAR;
+  if (y < 1e6)  return fr(Math.round(y)) + (Math.round(y) > 1 ? ' ans' : ' an');
+  if (y < 1e9)  { const v = y/1e6; return dec1(v) + (v < 2 ? ' million' : ' millions') + " d'années"; }
+  if (y < 1e12) { const v = y/1e9; return dec1(v) + (v < 2 ? ' milliard' : ' milliards') + " d'années"; }
+  return "plus de mille milliards d'années 🤯";
+}
+function fmtBig(n){
+  if (n < 1e15) return fr(Math.round(n));
+  const e = Math.floor(Math.log10(n)); const m = n / Math.pow(10, e);
+  return '≈ ' + m.toLocaleString('fr-FR',{maximumFractionDigits:1}) + ' × 10<sup>' + e + '</sup>';
+}
+
+/* Estimation (simplifiée) de la robustesse d'un mot de passe */
+const TOP10 = ['123456','123456789','azerty','12345678','password','motdepasse','000000','marseille','soleil','loulou'];
+const COMMON = TOP10.concat(['qwerty','azertyuiop','12345','1234','123','111111','1234567','abc123','iloveyou','jetaime',
+  'bonjour','doudou','chouchou','princesse','football','admin','welcome','password1','azerty123','coucou','loveyou',
+  'nicolas','camille','chocolat','motdepasse1','123123','654321','qwertyuiop','test','pikachu','minecraft']);
+const WORDS = ['password','motdepasse','passe','azerty','qwerty','soleil','marseille','paris','loulou','bonjour','football',
+  'foot','chocolat','princesse','doudou','chouchou','admin','iloveyou','jetaime','coucou','lucas','ines','rocky','jade',
+  'biarritz','pikachu','minecraft','fortnite','roblox','naruto','maman','papa','love','amour','test','chat','chien','pass','secret'];
+function analyse(pw){
+  const len = pw.length;
+  const c = { lower:/[a-z]/.test(pw), upper:/[A-Z]/.test(pw), digit:/[0-9]/.test(pw), symbol:/[^a-zA-Z0-9]/.test(pw) };
+  const cs = 26*c.lower + 26*c.upper + 10*c.digit + 32*c.symbol;
+  const lb = cs ? Math.log2(cs) : 0;
+  let bits = len * lb;
+  const low = pw.toLowerCase();
+  const deleet = low.replace(/@/g,'a').replace(/4/g,'a').replace(/0/g,'o').replace(/3/g,'e').replace(/1/g,'i').replace(/\$/g,'s').replace(/5/g,'s');
+  let common = false;
+  const usedWords = WORDS.filter(w => low.includes(w) || deleet.includes(w));
+  usedWords.forEach(w => { bits -= Math.max(0, w.length*lb - 11); });
+  const seq = (low.match(/0123|1234|2345|3456|4567|5678|6789|7890|abcd|bcde|cdef|azer|zert|qwer|wxcv|asdf/g) || []).length;
+  bits -= 8*seq;
+  const year = /(19[5-9]\d|20[0-3]\d)/.test(pw); if (year) bits -= 8;
+  const rep = (pw.match(/(.)\1{2,}/g) || []).length; bits -= 6*rep;
+  const stripped = deleet.replace(/[^a-z]+$/,'');
+  if (COMMON.includes(low) || COMMON.includes(deleet) || (stripped.length>2 && COMMON.includes(stripped))) { bits = Math.min(bits, 8); common = true; }
+  bits = Math.max(0, bits);
+  const seconds = Math.pow(2, bits) / TRIES;
+  let i = seconds < 3600 ? 0 : seconds < YEAR ? 1 : seconds < 1000*YEAR ? 2 : seconds < 1e6*YEAR ? 3 : 4;
+  if (i === 4 && len < 12) i = 3;
+  if (!len) i = -1;
+  const LV = [['Très faible','#ef4444'],['Faible','#f97316'],['Moyen','#facc15'],['Fort','#84cc16'],['Très fort','#22c55e']];
+  return { len, bits, seconds, i, name: i<0 ? '—' : LV[i][0], color: i<0 ? '#334' : LV[i][1],
+           crit: { len12: len>=12, lower:c.lower, upper:c.upper, digit:c.digit, symbol:c.symbol,
+                   clean: len>0 && !common && usedWords.length===0 && !seq && !year && !rep } };
+}
+
+/* Méthode de la phrase secrète */
+function phraseToPw(ph){
+  return ph.trim().split(/\s+/).filter(Boolean).map(t => {
+    if (/^\d+$/.test(t)) return t;                                   // un nombre est gardé en entier
+    if (!/[\p{L}\p{N}]/u.test(t)) return t.replace(/[,.'"«»()\-]/g,''); // un symbole seul (! ? #…) est gardé
+    const first = t.match(/[\p{L}\p{N}]/u)[0];                         // 1re lettre du mot
+    const tail = (t.match(/[!?#@&$%*+=]+$/) || [''])[0];                // symbole collé à la fin
+    return first + tail;
+  }).join('');
+}
+
+/* =========================================================
+   Composants réutilisables
+   ========================================================= */
+function simulator(el, stt){
+  const d = stt.data;
+  if (d.len === undefined) d.len = 8;
+  if (!d.sets) d.sets = {l:true, u:false, d:false, s:false};
+  el.innerHTML = `<div class="sim">
+    <div><b>🧮 Simulateur d'attaque par force brute</b></div>
+    <label>Longueur du mot de passe : <b class="lenv"></b> caractères</label>
+    <input type="range" min="1" max="20" class="len" value="${d.len}">
+    <div class="sets">
+      <label><input type="checkbox" data-k="l"> minuscules (26)</label>
+      <label><input type="checkbox" data-k="u"> MAJUSCULES (26)</label>
+      <label><input type="checkbox" data-k="d"> chiffres (10)</label>
+      <label><input type="checkbox" data-k="s"> symboles ! ? # @… (32)</label>
+    </div>
+    <div class="sim-out">
+      <div>🔣 Caractères possibles : <b class="cs"></b></div>
+      <div>🔢 Combinaisons : <b class="combos"></b></div>
+      <div>⏱️ Temps pour tout tester : <b class="time"></b></div>
+    </div>
+    <div class="small">Ordinateur de pirate qui teste 10 milliards de mots de passe par seconde.</div>
+  </div>`;
+  $$('.sets input', el).forEach(cb => { cb.checked = !!d.sets[cb.dataset.k]; });
+  const upd = () => {
+    const cs = 26*d.sets.l + 26*d.sets.u + 10*d.sets.d + 32*d.sets.s;
+    $('.lenv', el).textContent = d.len;
+    $('.cs', el).textContent = cs || 'coche au moins un type !';
+    if (!cs){ $('.combos', el).textContent='—'; $('.time', el).textContent='—'; return; }
+    const n = Math.pow(cs, d.len);
+    $('.combos', el).innerHTML = `${cs}<sup>${d.len}</sup> = ${fmtBig(n)}`;
+    $('.time', el).textContent = fmtDuration(n / TRIES);
+  };
+  $('.len', el).addEventListener('input', e => { d.len = +e.target.value; save(); upd(); });
+  $$('.sets input', el).forEach(cb => cb.addEventListener('change', () => { d.sets[cb.dataset.k] = cb.checked; save(); upd(); }));
+  upd();
+}
+
+function tester(el, onChange){
+  el.innerHTML = `<div class="tester">
+    <div><b>📊 Testeur de mot de passe</b> <span class="small">(estimation simplifiée)</span></div>
+    <input class="pw" placeholder="Invente un mot de passe pour le tester…" autocomplete="off" spellcheck="false">
+    <div class="meter"><div class="bar"></div></div>
+    <div class="lvl">—</div>
+    <div class="small time">Temps estimé pour le pirate : —</div>
+    <ul class="crit"></ul>
+  </div>`;
+  const inp = $('.pw', el);
+  const upd = () => {
+    const a = analyse(inp.value);
+    $('.bar', el).style.width = Math.min(100, a.bits/90*100) + '%';
+    $('.bar', el).style.background = a.color;
+    $('.lvl', el).textContent = a.name; $('.lvl', el).style.color = a.color;
+    $('.time', el).textContent = 'Temps estimé pour le pirate : ' + (a.len ? fmtDuration(a.seconds) : '—');
+    const k = (ok, t) => `<li>${ok ? '✅' : '⬜'} ${t}</li>`;
+    $('.crit', el).innerHTML = k(a.crit.len12,'Au moins 12 caractères (' + a.len + ')') + k(a.crit.lower,'Des minuscules') +
+      k(a.crit.upper,'Des MAJUSCULES') + k(a.crit.digit,'Des chiffres') + k(a.crit.symbol,'Des symboles (! ? # @ …)') +
+      k(a.crit.clean,'Aucun mot courant, prénom, année ou suite (1234, azer…)');
+    if (onChange) onChange(a, inp.value);
+  };
+  inp.addEventListener('input', upd); upd();
+  return inp;
+}
+
+const LUCAS_PROFILE = `<div class="profile">
+  <div class="ph"></div>
+  <div class="who"><div class="av">😎</div><div class="nm">Lucas M. <span style="color:#6b7280;font-weight:400">@lucas_m13</span></div></div>
+  <div class="bio">📍 Marseille · ⚽ Fan de l'OM · 🛹 skate · 🎮 BlockCraft<br>Profil <b>public</b> · 312 abonnés</div>
+  <div class="post"><div class="dt">12 mars 2025</div>🎂 14 ans aujourd'hui !!! Merci pour tous vos messages ❤️
+    <div class="cm">💬 Mamie : Joyeux anniversaire mon grand !</div></div>
+  <div class="post"><div class="dt">2 avril 2025</div>Rocky a ENCORE mangé ma chaussure 😂🐶 #MonChien #BergerAustralien</div>
+  <div class="post"><div class="dt">20 mai 2025</div>Mamie m'a offert le maillot de l'OM floqué avec mon numéro préféré : le 10 ! ⚽🔵⚪</div>
+  <div class="post"><div class="dt">8 juin 2025</div>Speedy, la tortue de ma sœur, s'est encore échappée 🐢💨</div>
+  <div class="post"><div class="dt">15 juillet 2025</div>Vacances à Biarritz avec ma petite sœur Jade 🌊🏄 Meilleur endroit du monde !
+    <div class="cm">💬 Thomas : t'as trop de chance !!</div></div>
+  <div class="post"><div class="dt">3 septembre 2025</div>Rentrée en 3eB au collège… 😴</div>
+</div>
+<p class="small">🔎 Profil fictif inventé pour l'activité.</p>`;
+
+function lockStep(id, service, icon, clue, answer, hints, tip){
+  return { id, points:15, type:'custom', title:`Compte ${service}`, hints,
+    text:`Trouve le mot de passe du compte <b>${service}</b> de Lucas. ${tip||''}`,
+    widget:(el, api) => {
+      el.innerHTML = `<div class="login"><div class="login-title">${icon} ${service}</div>
+        <div class="small">Identifiant : lucas_m13</div>
+        <div class="clue">💬 Indice de mot de passe laissé par Lucas : « ${clue} »</div>
+        <div class="row"><input class="ans" placeholder="Mot de passe" autocomplete="off" spellcheck="false"><button class="btn">Se connecter</button></div>
+        <div class="mini-fb"></div></div>`;
+      const inp = $('.ans', el), fb = $('.mini-fb', el), box = $('.login', el);
+      const go = () => {
+        const v = inp.value.toLowerCase().replace(/\s/g,'');
+        if (!v) return;
+        if (v === answer){ box.classList.add('open'); fb.className='mini-fb ok'; fb.textContent='🔓 ACCÈS AUTORISÉ !'; api.complete(); }
+        else { api.error(); fb.className='mini-fb ko'; fb.textContent='❌ Accès refusé (−2 pts). Relis l\'indice et le profil.'; box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake'); }
+      };
+      $('.btn', el).onclick = go; inp.onkeydown = e => { if (e.key === 'Enter') go(); };
+    },
+    summary:() => `Mot de passe trouvé : <code>${answer}</code>` };
+}
+
+const ACCOUNTS = [
+  {k:'pixel', nm:'PixelZone',      ic:'🎮', ds:'Site de jeux (piraté)'},
+  {k:'mail',  nm:'MailExpress',    ic:'📧', ds:'Sa messagerie'},
+  {k:'ent',   nm:'ENT du collège', ic:'🏫', ds:'Notes, devoirs, messages'},
+  {k:'insta', nm:'InstaPic',       ic:'📸', ds:'Son réseau social'},
+  {k:'shop',  nm:'ShopNow',        ic:'🛒', ds:'Boutique : carte bancaire des parents enregistrée !'},
+  {k:'cloud', nm:'CloudPhotos',    ic:'☁️', ds:'Toutes ses photos'}
+];
+function dominoWidget(same){
+  return (el, api, stt) => {
+    const tried = stt.data.tried || (stt.data.tried = []);
+    const draw = () => {
+      el.innerHTML = `<div class="dominos">${ACCOUNTS.map(a => {
+        let cls = 'dom', s = '';
+        if (a.k === 'pixel'){ cls += ' fallen'; s = '💀 PIRATÉ (fuite)'; }
+        else if (tried.includes(a.k)){ cls += same ? ' fallen' : ' safe'; s = same ? '🔓 ACCÈS AUTORISÉ' : '🔒 ACCÈS REFUSÉ'; }
+        else { cls += ' try'; s = '👉 Clique pour essayer'; }
+        return `<button class="${cls}" data-k="${a.k}"><div class="ic">${a.ic}</div><div class="nm">${a.nm}</div><div class="ds">${a.ds}</div><div class="st">${s}</div></button>`;
+      }).join('')}</div><div class="mini-fb small">Comptes essayés : ${tried.length} / 5</div>`;
+      $$('.dom.try', el).forEach(b => b.onclick = () => {
+        b.classList.remove('try'); b.classList.add('wait'); $('.st', b).textContent = '⏳ Essai de « Ines2010! »…';
+        $$('.dom.try', el).forEach(x => x.disabled = true);
+        setTimeout(() => {
+          tried.push(b.dataset.k); save(); draw();
+          if (tried.length === 5) setTimeout(api.complete, 700);
+        }, 800);
+      });
+    };
+    draw();
+  };
+}
+
+/* =========================================================
+   Les 6 défis
+   ========================================================= */
+const DEFIS = [
+{ n:1, emoji:'🔒', title:'Le cadenas', code:'SERRURE-72',
+  intro:`Un pirate qui ne sait rien de toi peut essayer <b>toutes les combinaisons possibles</b>, une par une : c'est l'<b>attaque par force brute</b>.
+         Un ordinateur puissant peut tester environ <b>10 milliards</b> de mots de passe par seconde. Combien de temps résistera ton mot de passe ?`,
+  retenir:`Chaque caractère en plus <b>multiplie</b> le nombre de combinaisons. Un mot de passe <b>long</b> et qui mélange les <b>4 types de caractères</b> résiste à la force brute.`,
+  steps:[
+    { id:'d1s1', points:10, type:'input', title:'Le code du cadenas',
+      text:`Un cadenas a un code de <b>4 chiffres</b> (chaque chiffre va de 0 à 9). Combien y a-t-il de combinaisons possibles ?`,
+      placeholder:'Nombre de combinaisons', hints:['Pour chaque chiffre, il y a 10 possibilités (0, 1, 2… 9).','On multiplie : 10 × 10 × 10 × 10 = ?'],
+      check:v => ['10000','10^4'].includes(v.replace(/[\s.  ]/g,'')),
+      answer:'10 × 10 × 10 × 10 = 10<sup>4</sup> = 10 000 combinaisons',
+      explain:"L'ordinateur du pirate les teste toutes en un millionième de seconde !" },
+    { id:'d1s2', points:10, type:'qcm', title:'6 lettres minuscules',
+      text:`Un mot de passe de <b>6 lettres minuscules</b> (de a à z). Combien y a-t-il de combinaisons possibles ?`,
+      options:['6 × 26 = 156','26 × 26 × 26 × 26 × 26 × 26 = 26⁶ ≈ 309 millions','6²⁶'], correct:1,
+      hints:['Il y a 26 possibilités pour la 1re lettre, 26 pour la 2e…','C\'est comme pour le cadenas : on multiplie 26 par lui-même 6 fois.'],
+      explain:'309 millions, ça paraît énorme… mais l\'ordinateur les teste toutes en 0,03 seconde !' },
+    { id:'d1s3', points:10, type:'qcm', title:'Avec le simulateur',
+      text:`Utilise le simulateur. Combien de temps faut-il pour tester tous les mots de passe de <b>8 caractères</b> qui utilisent <b>les 4 types</b> (minuscules, majuscules, chiffres, symboles) ?
+            <br><span class="small">📝 Note aussi le temps pour 8 minuscules seulement, et pour 12 caractères avec les 4 types : c'est demandé sur la fiche.</span>`,
+      extra:simulator, options:['21 secondes','environ 7 jours','environ 16 000 ans'], correct:1,
+      hints:['Règle la longueur sur 8, puis coche les 4 cases.','Lis la ligne « Temps pour tout tester ».'],
+      explain:'Avec 8 minuscules seulement : 21 secondes. Avec les 4 types : 7 jours. Avec 12 caractères et les 4 types : 1,5 million d\'années !' },
+    { id:'d1s4', points:10, type:'input', title:'Objectif 1 000 ans',
+      text:`Toujours avec <b>les 4 types</b> de caractères : quelle est la <b>longueur minimale</b> pour qu'il faille <b>plus de 1 000 ans</b> au pirate ?`,
+      extra:simulator, placeholder:'Nombre de caractères',
+      hints:['Coche les 4 types, puis augmente la longueur un caractère à la fois.','Avec 10 caractères, c\'est environ 171 ans… et avec un de plus ?'],
+      check:v => v.replace(/\D/g,'') === '11',
+      answer:'11 caractères (environ 16 000 ans)',
+      explain:'Passer de 10 à 11 caractères multiplie le temps par 94 ! Les spécialistes conseillent au moins 12 caractères.' }
+  ],
+  prof:'1) 10 000 · 2) 26⁶ ≈ 309 millions · 3) environ 7 jours (8 minuscules : 21 s ; 12 car. 4 types : 1,5 million d\'années) · 4) 11 caractères' },
+
+{ n:2, emoji:'🏆', title:'Le top 10 des pires', code:'ECLAIR-35',
+  intro:`Beaucoup de gens choisissent des mots de passe très simples. Les pirates possèdent des listes de <b>millions de mots de passe déjà connus</b> et les essaient en premier.
+         Voici 10 mots de passe parmi les plus utilisés en France <span class="small">(d'après plusieurs classements publiés ces dernières années ; l'ordre varie selon les études)</span>. <b>Retrouvez-en au moins 6 !</b>`,
+  retenir:`Un mot de passe courant (123456, azerty, soleil…) ou un simple mot du dictionnaire est trouvé en <b>moins d'une seconde</b> : c'est l'<b>attaque par dictionnaire</b>.`,
+  steps:[
+    { id:'d2s1', points:30, type:'custom', title:'Retrouve les pires mots de passe',
+      text:`Propose des mots de passe. S'ils sont dans la liste, ils apparaissent ! Les mauvaises propositions ne coûtent rien.`,
+      hints:['Plusieurs sont de simples suites de chiffres (de longueurs différentes).','Regarde la première ligne de lettres de ton clavier…','Pense à « mot de passe »… en français et en anglais !','Une grande ville du Sud avec un célèbre club de foot ; ce qui brille dans le ciel en été ; un surnom affectueux qui se répète.'],
+      widget:(el, api, stt) => {
+        const found = stt.data.found || (stt.data.found = []);
+        const draw = (pop) => {
+          el.innerHTML = `<div class="top-grid">${TOP10.map((w,i)=>`<div class="slot ${found.includes(i)?'ok':''} ${pop===i?'pop':''}">${i+1}. ${found.includes(i)?esc(w):'❓❓❓❓'}</div>`).join('')}</div>
+            <div class="row"><input class="ans" placeholder="Propose un mot de passe…" autocomplete="off" spellcheck="false"><button class="btn">Tester</button></div>
+            <div class="mini-fb"></div><div class="small">Trouvés : <b>${found.length}</b> / 10 — objectif : 6</div>`;
+          const inp = $('.ans', el), fb = $('.mini-fb', el);
+          const go = () => {
+            const v = inp.value.toLowerCase().replace(/[\s\-_]/g,''); if (!v) return;
+            const i = TOP10.indexOf(v);
+            if (i < 0){ fb.className='mini-fb ko'; fb.textContent = '« ' + inp.value + ' » n\'est pas dans cette liste… essaie encore !'; inp.value=''; inp.focus(); return; }
+            if (found.includes(i)){ fb.className='mini-fb'; fb.textContent='Déjà trouvé !'; inp.value=''; return; }
+            found.push(i); save(); draw(i); $('.ans', el).focus();
+            $('.mini-fb', el).className='mini-fb ok'; $('.mini-fb', el).textContent='✅ Bien vu, il est dans la liste !';
+            if (found.length >= 6) api.complete();
+          };
+          $('.btn', el).onclick = go; inp.onkeydown = e => { if (e.key==='Enter') go(); };
+        };
+        draw();
+      },
+      summary:() => 'La liste : ' + TOP10.map(w=>`<code>${w}</code>`).join(' ') },
+    { id:'d2s2', points:10, type:'qcm', title:'Combien de temps ?',
+      text:'Combien de temps faut-il à un pirate pour trouver le mot de passe « 123456 » ?',
+      options:["Moins d'une seconde",'Environ 1 heure','Environ 3 jours'], correct:0,
+      hints:['Les pirates commencent toujours par tester les mots de passe de leur liste.'],
+      explain:'Il fait partie des tout premiers essayés : il est trouvé instantanément.' },
+    { id:'d2s3', points:10, type:'qcm', title:'Le nom de l\'attaque',
+      text:'Comment s\'appelle l\'attaque qui consiste à essayer une liste de mots de passe courants et de mots connus ?',
+      options:['L\'attaque par dictionnaire','L\'hameçonnage (phishing)','L\'attaque par virus'], correct:0,
+      hints:['Le pirate utilise une sorte de « livre » rempli de mots…'],
+      explain:'Le pirate essaie tous les mots de sa liste, comme s\'il lisait un dictionnaire.' }
+  ],
+  prof:'1) 6 mots parmi : ' + TOP10.join(', ') + ' · 2) Moins d\'une seconde · 3) Attaque par dictionnaire' },
+
+{ n:3, emoji:'🕵️', title:'L\'enquête Lucas', code:'CIBLE-91', aside:LUCAS_PROFILE,
+  intro:`Lucas, 14 ans, publie beaucoup de choses sur son <b>profil public</b> (à gauche). Ses parents vous demandent de tester la sécurité de ses comptes.
+         Pour chaque compte, Lucas a laissé un <b>indice de mot de passe</b>. Observez bien son profil : tout y est… mais attention aux pièges !
+         <br><span class="small">✍️ Écris les mots de passe en minuscules, sans espace.</span>`,
+  retenir:`Tout ce que tu publies peut servir à deviner tes mots de passe : c'est l'<b>ingénierie sociale</b>. N'utilise <b>jamais</b> d'informations personnelles (prénom, date de naissance, animal, ville, club…).`,
+  steps:[
+    lockStep('d3s1','BlockCraft','🎮','Le nom de mon chien + mon année de naissance','rocky2011',
+      ['Lucas a deux animaux à la maison… mais un seul chien ! Regarde ses publications.','Le 12 mars 2025, Lucas a eu 14 ans. Calcule 2025 − 14.','Le mot de passe s\'écrit : nom du chien + année, sans espace.']),
+    lockStep('d3s2','MailExpress (messagerie)','📧','Le prénom de ma sœur + mon numéro préféré','jade10',
+      ['Lucas parle de sa sœur dans une publication de vacances.','Son numéro préféré est floqué sur un maillot de foot.','Le mot de passe s\'écrit : prénom + numéro, sans espace.']),
+    lockStep('d3s3','InstaPic (réseau social)','📸','Ma ville de vacances préférée + mon anniversaire (JJMM)','biarritz1203',
+      ['Où Lucas est-il parti en vacances ? (attention, ce n\'est pas là où il habite)','JJMM veut dire : le jour sur 2 chiffres, puis le mois sur 2 chiffres.','Il est né un 12 mars : JJMM = 1203.']),
+    { id:'d3s4', points:15, type:'multi', title:'Le rapport d\'enquête',
+      text:'Quelles informations ne faut-il <b>JAMAIS</b> utiliser dans un mot de passe ? <span class="small">(plusieurs réponses)</span>',
+      options:['Le nom de son animal','Sa date de naissance','Le prénom d\'un proche','Les initiales d\'une phrase inventée qu\'on est seul à connaître','Le nom d\'une ville où l\'on est allé'], correct:[0,1,2,4],
+      hints:['Une seule de ces propositions n\'est PAS une information personnelle trouvable sur Internet.'],
+      answer:'Animal, date de naissance, prénom d\'un proche, ville : à éviter. La phrase inventée, elle, est une bonne méthode.',
+      explain:'Toutes ces infos se trouvent sur les réseaux sociaux en quelques minutes.' },
+    { id:'d3s5', points:10, type:'qcm', title:'Le nom de la technique',
+      text:'Utiliser les informations publiques d\'une personne pour deviner son mot de passe ou la manipuler, c\'est…',
+      options:['l\'ingénierie sociale','la force brute','le chiffrement'], correct:0,
+      hints:['Le pirate ne s\'attaque pas à la machine… mais à l\'humain !'],
+      explain:'Le pirate exploite ce que la personne révèle d\'elle-même.' }
+  ],
+  prof:'1) rocky2011 · 2) jade10 · 3) biarritz1203 · 4) animal, date, prénom proche, ville (pas la phrase inventée) · 5) ingénierie sociale' },
+
+{ n:4, emoji:'💥', title:'L\'effet domino', code:'RICOCHET-58',
+  intro:`Inès utilise <b>le même mot de passe partout</b> : <code>Ines2010!</code> Elle le trouve solide : une majuscule, des chiffres, un symbole… Mais un jour, une alerte tombe :
+    <div class="news">🚨 <b>ALERTE</b> — Le site de jeux <b>PixelZone</b> a été piraté ! Les adresses mail et les mots de passe de 2 millions de joueurs ont été publiés sur Internet.
+      <div class="leak">&gt; fuite_pixelzone.txt<br>…<br>ines.b@mailexpress.exemple : Ines2010!<br>…</div></div>`,
+  retenir:`<b>Un mot de passe = un seul compte.</b> Si un site est piraté, seul ce compte tombe. Protège surtout ta <b>messagerie</b> : elle permet de récupérer tous les autres comptes.`,
+  steps:[
+    { id:'d4s1', points:10, type:'custom', title:'Tu es le pirate',
+      text:'Tu as récupéré le mot de passe d\'Inès dans la fuite. Essaie-le sur ses autres comptes : <b>clique sur chaque compte</b>.',
+      widget:dominoWidget(true), summary:() => 'Les comptes sont tombés les uns après les autres, comme des dominos !' },
+    { id:'d4s2', points:10, type:'input', title:'Le bilan des dégâts',
+      text:'Combien de comptes d\'Inès le pirate contrôle-t-il maintenant <b>au total</b> ?', placeholder:'Nombre de comptes',
+      hints:['N\'oublie pas le site PixelZone !'],
+      check:v => ['6','six'].includes(v.trim().toLowerCase()), answer:'6 comptes sur 6',
+      explain:'Une seule fuite a suffi pour tout perdre : jeux, mails, ENT, photos… et même la carte bancaire des parents !' },
+    { id:'d4s3', points:10, type:'custom', title:'Rembobinons ⏪',
+      text:'Cette fois, Inès a utilisé <b>un mot de passe différent pour chaque compte</b>. Rejoue l\'attaque avec le mot de passe de la fuite.',
+      widget:dominoWidget(false), summary:() => 'Le pirate n\'a pu ouvrir aucun autre compte.' },
+    { id:'d4s4', points:10, type:'input', title:'Nouveau bilan',
+      text:'Combien de comptes ont été piratés cette fois ?', placeholder:'Nombre de comptes', hints:['Le site PixelZone, lui, reste piraté…'],
+      check:v => ['1','un'].includes(v.trim().toLowerCase()), answer:'1 seul compte (PixelZone)',
+      explain:'Les mots de passe différents ont arrêté l\'effet domino.' },
+    { id:'d4s5', points:10, type:'qcm', title:'Le compte le plus précieux',
+      text:'Pourquoi la <b>messagerie</b> est-elle le compte le plus important à protéger ?',
+      options:['Parce qu\'on y reçoit des publicités','Parce qu\'avec elle, le pirate peut cliquer sur « mot de passe oublié » et récupérer TOUS les autres comptes','Parce que c\'est toujours le compte le plus ancien'], correct:1,
+      hints:['Que se passe-t-il quand tu cliques sur « J\'ai oublié mon mot de passe » sur un site ?'],
+      explain:'Les liens de réinitialisation arrivent dans la messagerie : qui la contrôle, contrôle tout.' }
+  ],
+  prof:'1) clic sur les 5 comptes · 2) 6 · 3) clic sur les 5 comptes · 4) 1 · 5) « mot de passe oublié » → récupère tous les comptes' },
+
+{ n:5, emoji:'📊', title:'Le testeur', code:'ECHELLE-26',
+  intro:`Le testeur estime le temps qu'il faudrait à un pirate pour trouver un mot de passe, en tenant compte de la force brute <b>et</b> du dictionnaire.
+         <br>⚠️ <b>Inventez</b> des mots de passe : ne tapez jamais un vrai !`,
+  retenir:`Un mot de passe robuste : <b>au moins 12 caractères</b>, <b>les 4 types</b> de caractères, <b>aucun mot courant</b> ni information personnelle.`,
+  steps:[
+    { id:'d5s1', points:20, type:'custom', title:'Mission « Très fort »',
+      text:'Fabrique un mot de passe que le testeur classe <b>« Très fort »</b>, puis valide-le. <span class="small">(Il n\'est pas enregistré.)</span>',
+      hints:['Plus il est long, mieux c\'est : vise au moins 12 caractères.','Mélange les 4 types : minuscules, MAJUSCULES, chiffres et symboles (! ? # @ …).','Évite les mots connus, les prénoms, les années et les suites comme 1234.'],
+      widget:(el, api) => {
+        const w = document.createElement('div'); el.appendChild(w);
+        const r = document.createElement('div'); r.className='actions-row';
+        r.innerHTML = '<button class="btn" disabled>Valider ce mot de passe</button>'; el.appendChild(r);
+        const b = $('button', r);
+        tester(w, a => { b.disabled = a.i !== 4; });
+        b.onclick = () => api.complete();
+      },
+      summary:() => 'Mission réussie : vous avez fabriqué un mot de passe « Très fort ».' },
+    { id:'d5s2', points:10, type:'qcm', title:'Le plus robuste',
+      text:'Lequel de ces mots de passe est le plus robuste ? <span class="small">Tu peux les essayer dans le testeur.</span>',
+      extra:(el)=>tester(el), options:['P@ssw0rd','Lucas2011!','Ma-tortue-mange-7-fraises!'], correct:2,
+      hints:['Teste les trois dans le testeur et compare les temps.'],
+      explain:'P@ssw0rd est dans toutes les listes de pirates, Lucas2011! contient un prénom et une année. La phrase est longue et variée.' },
+    { id:'d5s3', points:10, type:'qcm', title:'L\'astuce du 0',
+      text:'Remplacer les « o » par des « 0 » ou les « a » par des « @ » (comme dans P@ssw0rd), est-ce suffisant pour être protégé ?',
+      options:['Oui, c\'est impossible à deviner','Non, les pirates connaissent ces astuces et les testent automatiquement'], correct:1,
+      hints:['Regarde ce que le testeur dit de « P@ssw0rd »…'],
+      explain:'Les logiciels des pirates essaient automatiquement ces remplacements.' }
+  ],
+  prof:'1) mot de passe « Très fort » (≥ 12 car., 4 types, sans mot courant) · 2) Ma-tortue-mange-7-fraises! · 3) Non' },
+
+{ n:6, emoji:'💬', title:'La phrase secrète', code:'TIGROU-43',
+  intro:`Un mot de passe fort, c'est bien… mais il faut <b>s'en souvenir</b> ! L'astuce des agents : inventer une <b>phrase</b> et garder la <b>première lettre de chaque mot</b>.
+    On garde les <b>majuscules</b>, les <b>nombres</b> et les <b>symboles</b> (! ? # …).
+    <div class="retenir">Exemple : « <b>M</b>on <b>c</b>hat <b>T</b>igrou <b>m</b>ange <b>2</b> <b>s</b>ouris <b>p</b>ar <b>j</b>our <b>!</b> » → <code>McTm2spj!</code></div>`,
+  retenir:`La <b>phrase secrète</b> donne un mot de passe fort <b>et</b> facile à retenir. On peut aussi utiliser un <b>gestionnaire de mots de passe</b> et activer la <b>double authentification</b>.`,
+  steps:[
+    { id:'d6s1', points:15, type:'input', title:'À toi de transformer',
+      text:'Transforme la phrase « Le samedi je joue au Basket avec mes 3 cousins ! » en mot de passe.', placeholder:'Mot de passe obtenu',
+      hints:['Écris la 1re lettre de chaque mot : L, s, j, j…','Garde la majuscule de « Basket », le chiffre 3 et le « ! » final.'],
+      check:v => { const x = v.replace(/\s/g,''); if (x === 'LsjjaBam3c!') return true;
+                   if (x.toLowerCase() === 'lsjjabam3c!') return 'Presque ! Attention aux majuscules : on garde seulement celles de la phrase.'; return false; },
+      answer:'<code>LsjjaBam3c!</code>', explain:'11 caractères, 4 types, aucun mot du dictionnaire… et facile à retenir avec la phrase !' },
+    { id:'d6s2', points:20, type:'custom', title:'Ta phrase secrète',
+      text:'Invente <b>ta propre phrase</b> (pas une vraie que tu utilises !). L\'appli la transforme en mot de passe. Objectif : <b>au moins 12 caractères</b> et un niveau <b>« Fort »</b> ou mieux.',
+      hints:['Il faut au moins 12 mots (ou des nombres) dans ta phrase.','Ajoute une majuscule (un prénom, une ville…), un nombre et un « ! » ou un « ? ».'],
+      widget:(el, api) => {
+        el.innerHTML = `<input class="ph" style="width:100%" placeholder="Ex. : Chaque mardi à 8 heures mon prof de Techno boit 3 cafés ?" autocomplete="off" spellcheck="false">
+          <div class="small" style="margin-top:8px">Mot de passe obtenu :</div><div class="genpw">—</div>
+          <div class="meter"><div class="bar"></div></div><div class="lvl">—</div><div class="small tm"></div>
+          <div class="actions-row"><button class="btn" disabled>Valider ma phrase secrète</button></div>`;
+        const inp = $('.ph', el), b = $('.btn', el);
+        inp.addEventListener('input', () => {
+          const pw = phraseToPw(inp.value), a = analyse(pw);
+          $('.genpw', el).textContent = pw || '—';
+          $('.bar', el).style.width = Math.min(100, a.bits/90*100) + '%'; $('.bar', el).style.background = a.color;
+          $('.lvl', el).textContent = a.name + (pw ? ' · ' + pw.length + ' caractères' : ''); $('.lvl', el).style.color = a.color;
+          $('.tm', el).textContent = pw ? 'Temps estimé pour le pirate : ' + fmtDuration(a.seconds) : '';
+          b.disabled = !(pw.length >= 12 && a.i >= 3);
+        });
+        b.onclick = () => api.complete();
+      },
+      summary:() => 'Votre phrase secrète donne un mot de passe fort. (Elle n\'est pas enregistrée.)' },
+    { id:'d6s3', points:10, type:'qcm', title:'Encore plus de protection',
+      text:'En plus d\'un mot de passe fort et unique, que peux-tu activer pour protéger encore mieux un compte important ?',
+      options:['La double authentification : un code envoyé sur ton téléphone en plus du mot de passe','Le mode sombre','Les notifications'], correct:0,
+      hints:['Il s\'agit d\'une deuxième vérification, en plus du mot de passe.'],
+      explain:'Même si le pirate a ton mot de passe, il lui manque le code reçu sur ton téléphone. Et pour retenir des dizaines de mots de passe différents, il existe les gestionnaires de mots de passe.' }
+  ],
+  prof:'1) LsjjaBam3c! · 2) phrase personnelle donnant ≥ 12 car. et niveau Fort · 3) Double authentification' }
+];
+
+/* =========================================================
+   Affichage
+   ========================================================= */
+const app = $('#app');
+let current = 0;
+
+function updateHeader(){
+  $('#agents').innerHTML = S.started ? '🕶️ Agents : <b>' + esc(S.names.filter(Boolean).join(' & ')) + '</b>' : '';
+  $('#score').textContent = '⭐ ' + totalScore() + ' pts';
+  $('#progress').innerHTML = DEFIS.map(d => {
+    const cls = defiDone(d.n) ? 'done' : unlocked(d.n) ? 'open' : '';
+    return `<div class="dot ${cls}" title="Défi ${d.n} : ${esc(d.title)}" data-n="${d.n}">${defiDone(d.n) ? '✓' : d.n}</div>`;
+  }).join('');
+  $$('#progress .dot').forEach(dt => dt.onclick = () => { const n = +dt.dataset.n; if (S.started && unlocked(n)) openDefi(n); });
+}
+
+function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(()=>el.classList.remove('show'), 1800); }
+
+function goHome(){
+  current = 0; updateHeader();
+  if (!S.started) return renderWelcome();
+  const all = DEFIS.every(d => defiDone(d.n));
+  app.innerHTML = `<div class="card intro"><h2>🗺️ La carte des défis</h2>
+      <div>Débloquez les 6 défis dans l'ordre. Chaque défi réussi vous donne un <b>code secret</b> à recopier sur votre fiche. Gardez-les bien : <b>il faudra les 6 codes pour ouvrir le coffre-fort final</b> 🔐 !</div></div>
+    <div class="map">${DEFIS.map(d => {
+      const done = defiDone(d.n), op = unlocked(d.n);
+      const cls = done ? 'done' : op ? 'open' : 'locked';
+      const badge = done ? '✓ Réussi' : op ? 'À jouer' : '🔒 Verrouillé';
+      return `<button class="tile ${cls}" data-n="${d.n}" ${op?'':'disabled'}><span class="badge">${badge}</span>
+        <div class="em">${d.emoji}</div><div class="kicker">Défi ${d.n}</div><h3>${esc(d.title)}</h3></button>`;
+    }).join('')}</div>
+    ${all ? `<div style="text-align:center;margin-top:20px"><button class="btn big" onclick="renderFinal()">${S.vault.open ? '🏁 Voir le bilan de mission' : '🔐 Ouvrir le coffre-fort final'}</button></div>` : ''}`;
+  $$('.tile').forEach(t => t.onclick = () => { const n = +t.dataset.n; if (unlocked(n)) openDefi(n); });
+  window.scrollTo(0,0);
+}
+
+function renderWelcome(){
+  app.innerHTML = `<div class="card hero">
+    <div class="emoji">🕶️</div>
+    <div class="kicker">Briefing top secret</div>
+    <h1>Mission Mot de Passe</h1>
+    <p>Agents, vous faites partie d'une équipe de <b>hackers éthiques</b> : des experts qui testent la sécurité des comptes pour mieux les protéger.
+       Votre mission : comprendre comment les pirates trouvent les mots de passe… et apprendre à les battre !</p>
+    <div class="rules">
+      <div>🎯 <b>6 défis</b> à débloquer dans l'ordre.</div>
+      <div>🔑 Chaque défi réussi donne un <b>code secret</b> à recopier sur la fiche : les 6 codes ouvriront le <b>coffre-fort final</b> !</div>
+      <div>⭐ Gagnez un max de points : une erreur = <b>−2 pts</b>, un indice = <b>−3 pts</b>.</div>
+      <div>🤝 Travaillez en <b>binôme</b> : discutez avant de répondre !</div>
+    </div>
+    <div class="names">
+      <input id="n1" placeholder="Prénom de l'agent 1" maxlength="20">
+      <input id="n2" placeholder="Prénom de l'agent 2" maxlength="20">
+    </div>
+    <button class="btn big" id="go">🚀 Commencer la mission</button>
+    <div class="mini-fb ko" id="nfb"></div>
+  </div>`;
+  $('#go').onclick = () => {
+    const a = $('#n1').value.trim(), b = $('#n2').value.trim();
+    if (!a && !b){ $('#nfb').textContent = 'Écrivez au moins un prénom.'; return; }
+    S.names = [a, b]; S.started = true; save(); goHome();
+  };
+}
+
+function openDefi(n){
+  current = n; const d = DEFIS[n-1];
+  app.innerHTML = `<div class="defi-head"><span class="big">${d.emoji}</span><div><div class="kicker">Défi ${n} / 6</div><h1>${esc(d.title)}</h1></div></div>
+    ${d.aside ? `<div class="split"><aside class="aside">${d.aside}</aside><div><div class="card intro">${d.intro}</div><div id="steps"></div></div></div>`
+              : `<div class="card intro">${d.intro}</div><div id="steps"></div>`}`;
+  const box = $('#steps');
+  for (let i = 0; i < d.steps.length; i++){
+    if (i > 0 && !st(d.steps[i-1].id).done) break;
+    const el = document.createElement('div'); box.appendChild(el);
+    renderStep(d.steps[i], el, i+1);
+  }
+  if (defiDone(n)){
+    const r = document.createElement('div'); r.className = 'card reward';
+    const next = n < 6 ? `<button class="btn big" onclick="openDefi(${n+1})">Défi suivant ▶</button>` : `<button class="btn big" onclick="renderFinal()">🔐 Le coffre-fort final</button>`;
+    r.innerHTML = `<h2>🎉 Défi ${n} réussi !</h2>
+      <div>Votre code secret, à recopier sur la fiche (il vous servira pour ouvrir le coffre-fort final !) :</div><div class="secret">${d.code}</div>
+      <div class="retenir">📌 <b>À retenir :</b> ${d.retenir}</div>
+      <div class="actions-row" style="justify-content:center"><button class="btn alt" onclick="goHome()">🗺️ Carte des défis</button>${next}</div>`;
+    box.appendChild(r);
+  }
+  updateHeader();
+}
+
+function scrollToCurrent(){
+  const el = $('.step.current') || $('.reward');
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderStep(s, el, num){
+  const t = st(s.id);
+  if (t.done){
+    el.className = 'card step done';
+    const ans = s.summary ? s.summary(t) : s.answer ? s.answer : s.options[s.correct];
+    el.innerHTML = `<div class="step-head"><span>✅ Étape ${num} — ${s.title}</span><span class="pts">+${t.earned} pts</span></div>
+      <div class="summary">${ans}${s.explain ? `<span class="explain">💡 ${s.explain}</span>` : ''}</div>`;
+    return;
+  }
+  el.className = 'card step current';
+  el.innerHTML = `<div class="step-head"><span>Étape ${num} — ${s.title}</span><span class="pts">${earn(s)} pts possibles</span></div>
+    <div class="q">${s.text}</div><div class="extra"></div><div class="body"></div><div class="hints"></div><div class="fb"></div>
+    <div class="actions-row"><button class="btn-hint">💡 Indice (−3 pts)</button></div>`;
+  const fb = $('.fb', el), hz = $('.hints', el), hb = $('.btn-hint', el), body = $('.body', el);
+  const refreshPts = () => { $('.pts', el).textContent = earn(s) + ' pts possibles'; };
+  const hints = s.hints || [];
+  const drawHints = () => {
+    hz.innerHTML = hints.slice(0, t.hints).map((x,i) => `<div class="hint">💡 Indice ${i+1} : ${x}</div>`).join('');
+    hb.style.display = t.hints < hints.length ? '' : 'none';
+  };
+  hb.onclick = () => { t.hints++; save(); drawHints(); refreshPts(); };
+  drawHints();
+  if (s.extra) s.extra($('.extra', el), t);
+
+  const api = {
+    complete(){
+      if (t.done) return;
+      t.earned = earn(s); t.done = true; save(); updateHeader();
+      toast('✅ +' + t.earned + ' pts');
+      setTimeout(() => { openDefi(current); setTimeout(scrollToCurrent, 50); }, 900);
+    },
+    error(msg){ t.errors++; save(); refreshPts(); if (msg){ fb.className='fb ko'; fb.textContent = msg; } }
+  };
+
+  if (s.type === 'input'){
+    body.innerHTML = `<div class="row"><input class="ans" placeholder="${esc(s.placeholder||'Ta réponse')}" autocomplete="off" spellcheck="false"><button class="btn">Valider</button></div>`;
+    const inp = $('.ans', body);
+    const go = () => {
+      if (!inp.value.trim()) return;
+      const r = s.check(inp.value);
+      if (r === true){ fb.className='fb ok'; fb.textContent='✅ Bonne réponse !'; inp.disabled = true; api.complete(); }
+      else { api.error(); fb.className='fb ko'; fb.textContent = '❌ ' + (typeof r === 'string' ? r : 'Pas tout à fait… Réessaie !') + ' (−2 pts)'; body.classList.remove('shake'); void body.offsetWidth; body.classList.add('shake'); }
+    };
+    $('.btn', body).onclick = go; inp.onkeydown = e => { if (e.key==='Enter') go(); };
+  }
+  else if (s.type === 'qcm'){
+    body.innerHTML = `<div class="opts">${s.options.map((o,i)=>`<button class="opt" data-i="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}</div>`;
+    $$('.opt', body).forEach(b => b.onclick = () => {
+      const i = +b.dataset.i;
+      if (i === s.correct){ b.classList.add('right'); $$('.opt', body).forEach(x=>x.disabled=true); fb.className='fb ok'; fb.textContent='✅ Bonne réponse !'; api.complete(); }
+      else { b.classList.add('wrong'); b.disabled = true; api.error(); fb.className='fb ko'; fb.textContent='❌ Non… Réessaie ! (−2 pts)'; }
+    });
+  }
+  else if (s.type === 'multi'){
+    body.innerHTML = `<div class="opts multi">${s.options.map((o,i)=>`<label><input type="checkbox" value="${i}"> ${o}</label>`).join('')}</div>
+      <div class="actions-row"><button class="btn">Valider</button></div>`;
+    $('.btn', body).onclick = () => {
+      const sel = $$('input:checked', body).map(x => +x.value).sort().join(',');
+      if (!sel) return;
+      if (sel === [...s.correct].sort().join(',')){ fb.className='fb ok'; fb.textContent='✅ Rapport d\'enquête validé !'; api.complete(); }
+      else { api.error(); fb.className='fb ko'; fb.textContent='❌ Il y a une erreur ou un oubli… Réessaie ! (−2 pts)'; }
+    };
+  }
+  else if (s.type === 'custom'){
+    s.widget(body, api, t);
+  }
+}
+
+function renderVault(){
+  current = 0; updateHeader();
+  const v = S.vault;
+  app.innerHTML = `<div class="card hero vault">
+    <div class="emoji" id="vic">🔐</div><div class="kicker">Dernière épreuve</div>
+    <h1>Le coffre-fort final</h1>
+    <p>Bravo, les 6 défis sont réussis ! Il reste à ouvrir le coffre-fort qui contient votre <b>rang d'agent</b>.<br>
+       Son mot de passe est caché dans les <b>6 codes secrets</b> que vous avez notés sur votre fiche… <b>Regardez-les bien !</b></p>
+    <div class="slots">${Array.from({length:6},(_,i)=>`<span class="sl">?</span>`).join('')}</div>
+    <div class="row" style="justify-content:center"><input class="ans" id="vin" maxlength="12" placeholder="Mot de passe du coffre" autocomplete="off" spellcheck="false" style="max-width:320px;text-align:center;letter-spacing:.2em"><button class="btn" id="vgo">Ouvrir</button></div>
+    <div class="mini-fb" id="vfb"></div>
+    <div id="vh" style="text-align:left;max-width:640px;margin:0 auto"></div>
+    <div class="actions-row" style="justify-content:center"><button class="btn-hint" id="vhb">💡 Indice (−3 pts)</button></div>
+    <p class="small">Bonus : <b id="vpts">${vaultEarn()}</b> pts possibles · une erreur = −2 pts, un indice = −3 pts</p>
+  </div>`;
+  const inp = $('#vin'), fb = $('#vfb');
+  const drawH = () => { $('#vh').innerHTML = VAULT_HINTS.slice(0, v.hints).map((x,i)=>`<div class="hint">💡 Indice ${i+1} : ${x}</div>`).join('');
+                        $('#vhb').style.display = v.hints < VAULT_HINTS.length ? '' : 'none'; $('#vpts').textContent = vaultEarn(); };
+  const slots = () => { const t = inp.value.toUpperCase(); $$('.sl').forEach((e,i)=> e.textContent = t[i] || '?'); };
+  $('#vhb').onclick = () => { v.hints++; save(); drawH(); };
+  inp.addEventListener('input', slots);
+  const go = () => {
+    const t = inp.value.trim().toLowerCase(); if (!t) return;
+    if (t === VAULT_WORD){
+      v.earned = vaultEarn(); v.open = true; save(); updateHeader();
+      $('#vic').textContent = '🔓'; $$('.sl').forEach(e=>e.classList.add('ok'));
+      fb.className = 'mini-fb ok'; fb.textContent = '✅ Le coffre s\'ouvre ! +' + v.earned + ' pts';
+      toast('🔓 Coffre ouvert ! +' + v.earned + ' pts');
+      setTimeout(renderFinal, 1600);
+    } else {
+      v.errors++; save(); drawH();
+      fb.className = 'mini-fb ko'; fb.textContent = '❌ Le coffre reste fermé… (−2 pts)';
+      const b = $('.slots'); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+    }
+  };
+  $('#vgo').onclick = go; inp.onkeydown = e => { if (e.key === 'Enter') go(); };
+  drawH(); window.scrollTo(0,0); inp.focus();
+}
+
+function renderFinal(){
+  if (!S.vault.open) return renderVault();
+  current = 0; updateHeader();
+  const sc = totalScore(), mx = maxScore(), r = sc / mx;
+  const rank = r >= .85 ? '🏆 Experts en cybersécurité' : r >= .6 ? '🥈 Agents confirmés' : '🥉 Apprentis agents';
+  app.innerHTML = `<div class="card hero">
+    <div class="emoji">🏁</div><div class="kicker">Mission accomplie</div>
+    <h1>Bravo, ${esc(S.names.filter(Boolean).join(' & ') || 'agents')} !</h1>
+    <p style="font-size:24px">Score : <b style="color:var(--yel)">${sc} / ${mx} pts</b> — Rang : <b>${rank}</b></p>
+    <div>Vos codes secrets — leurs premières lettres forment le mot <b style="color:var(--yel)">SECRET</b> :</div>
+    <div class="final-list">${DEFIS.map(d=>`<div>${d.emoji} Défi ${d.n}<b>${defiDone(d.n)?d.code:'—'}</b></div>`).join('')}</div>
+    <div class="retenir"><b>🛡️ Les 5 règles d'or de l'agent</b><ol style="margin:6px 0 0">
+      <li>Un mot de passe <b>long</b> : au moins 12 caractères.</li>
+      <li>Qui <b>mélange</b> minuscules, MAJUSCULES, chiffres et symboles.</li>
+      <li><b>Aucun mot courant</b> ni information personnelle (prénom, date, animal…).</li>
+      <li><b>Un mot de passe différent</b> pour chaque compte, surtout pour la messagerie.</li>
+      <li>Une <b>phrase secrète</b> pour le retenir, et la <b>double authentification</b> quand c'est possible.</li>
+    </ol></div>
+    <p>📝 Recopiez votre score et votre rang sur la fiche, puis complétez le bilan.</p>
+    <button class="btn alt" onclick="goHome()">🗺️ Retour à la carte</button>
+  </div>`;
+  window.scrollTo(0,0);
+}
+
+/* =========================================================
+   Espace professeur
+   ========================================================= */
+function openProf(){
+  const m = $('#modal'); m.classList.remove('hidden');
+  if (!profOK){
+    m.innerHTML = `<div class="box" style="max-width:420px"><h2>🎓 Espace professeur</h2>
+      <div class="row"><input id="pc" type="password" placeholder="Code professeur"><button class="btn" id="pcb">Entrer</button></div>
+      <div class="mini-fb ko" id="pcf"></div><div class="actions-row"><button class="btn alt" id="pcx">Fermer</button></div></div>`;
+    const go = () => { if ($('#pc').value.trim() === PROF_CODE){ profOK = true; openProf(); } else $('#pcf').textContent = 'Code incorrect.'; };
+    $('#pcb').onclick = go; $('#pc').onkeydown = e => { if (e.key==='Enter') go(); };
+    $('#pcx').onclick = closeModal; setTimeout(()=>$('#pc').focus(), 50);
+    return;
+  }
+  const sc = totalScore(), mx = maxScore();
+  m.innerHTML = `<div class="box"><h2>🎓 Espace professeur</h2>
+    <p>Binôme : <b>${esc(S.names.filter(Boolean).join(' & ') || '—')}</b> · Score : <b>${sc} / ${mx}</b></p>
+    <table><tr><th>Défi</th><th>Code</th><th>État</th><th>Réponses attendues</th></tr>
+      ${DEFIS.map(d => `<tr><td>${d.emoji} ${d.n}. ${esc(d.title)}</td><td><code>${d.code}</code></td><td>${defiDone(d.n)?'✅ réussi':'—'}</td><td>${esc(d.prof)}</td></tr>`).join('')}
+      <tr><td>🔐 Coffre-fort final</td><td><code>SECRET</code></td><td>${S.vault.open?'✅ ouvert':'—'}</td><td>1re lettre de chaque code : S·E·C·R·E·T (bonus ${VAULT_POINTS} pts)</td></tr>
+    </table>
+    <div class="actions-row">
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="ua" ${S.unlockAll?'checked':''} style="width:20px;height:20px"> Débloquer tous les défis (démonstration au tableau)</label>
+    </div>
+    <div class="actions-row">
+      <button class="btn alt" id="rs">🔄 Réinitialiser (nouveau binôme)</button>
+      <button class="btn" id="cl">Fermer</button>
+    </div>
+    <p class="small">Différenciation : chaque étape propose 1 à 4 indices progressifs (−3 pts chacun). Une erreur coûte 2 pts. Chaque étape garde au moins 20 % de ses points.</p></div>`;
+  $('#ua').onchange = e => { S.unlockAll = e.target.checked; save(); updateHeader(); if (!current) goHome(); };
+  $('#rs').onclick = () => { if (confirm('Effacer toute la progression de ce poste ?')){ S = freshState(); save(); profOK = false; closeModal(); goHome(); } };
+  $('#cl').onclick = closeModal;
+}
+function closeModal(){ $('#modal').classList.add('hidden'); }
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+goHome();
+</script>
+</body>
+</html>

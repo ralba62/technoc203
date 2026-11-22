@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sujets DNB — TechnoC203</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css?v=20261122062623">
+<script src="assets/js/site.js?v=20261122062623"></script>
+<script src="assets/js/data/dnb.js?v=20261122062623"></script>
+</head>
+<body>
+<main id="app"></main>
+
+<script>
+  const S = window.SUJETS_DNB;
+  const app = U.$("#app");
+  const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+  /* ---------- Liste des sujets ---------- */
+  function renderList(){
+    document.title = "Sujets DNB — TechnoC203";
+    app.innerHTML = `
+      <header class="page-head">
+        <span class="eyebrow">Brevet</span>
+        <h1>S'entraîner au DNB</h1>
+        <p class="lead">Des sujets d'entraînement interactifs sur le modèle de la partie technologie de l'épreuve de sciences. Lis les documents, réponds, puis valide pour voir la correction.</p>
+      </header>
+      <div class="grid">
+        ${S.map((s, i) => `<a class="card" href="#${s.id}" style="--c:${U.themeColor(s.theme)}">
+          <span class="card-num">#${String(i + 1).padStart(2, "0")}</span>
+          <div class="card-icon">${U.icon(THEMES[s.theme]?.icon)}</div>
+          <h3>${U.esc(s.titre)}</h3>
+          <p>${U.esc(s.contexte)}</p>
+          <div class="card-foot">${U.themeTag(s.theme)} ${s.source ? `<span class="tag t2">${U.esc(s.source)}</span>` : `<span class="tag">entraînement</span>`} <span class="tag">${U.esc(s.duree)}</span> <span class="tag">${s.questions.reduce((t, q) => t + q.pts, 0)} pts</span>${s.pdf ? ` <span class="tag">PDF</span>` : ""}</div>
+        </a>`).join("")}
+      </div>
+      <p class="count" style="margin-top:22px">Les sujets marqués « DNB » sont adaptés de sujets officiels du brevet, en version interactive. Les autres sont des sujets d'entraînement rédigés pour la classe.</p>`;
+  }
+
+  /* ---------- Un sujet ---------- */
+  function renderSujet(full, part){
+    // part = "4" → seulement les questions « Question 4… » et les documents qu'elles utilisent
+    let s = full;
+    if (part){
+      const re = new RegExp(`^Question ${part.replace(".", "\\.")}(\\.|\\s)`);
+      const qs = full.questions.map((q, i) => ({ ...q, _n: i + 1 })).filter(q => re.test(q.enonce));
+      if (qs.length){
+        s = { ...full, questions: qs };
+      } else part = null;
+    }
+    document.title = s.titre + (part ? ` (question ${part})` : "") + " — DNB TechnoC203";
+    const total = s.questions.reduce((t, q) => t + q.pts, 0);
+    const score = {}; // index question -> points obtenus
+    const inline = s.questions.some(q => q.docs), vus = new Set();
+
+    app.innerHTML = `
+      <p class="no-print"><a href="#" style="font-family:var(--f-mono);font-size:14px;text-decoration:none">← tous les sujets</a></p>
+      <header class="page-head">
+        <span class="eyebrow">${U.esc(s.source || "Sujet d'entraînement")} · ${U.esc(s.duree)} · ${total} points</span>
+        <h1>${U.esc(s.titre)}</h1>
+        <p class="lead">${U.esc(s.contexte)}</p>
+        ${s.pdf ? `<p class="no-print" style="margin-top:14px"><a class="btn" href="${U.esc(s.pdf)}" download>${ICONS.doc} Télécharger le sujet (PDF)</a></p>` : ""}
+        ${part ? `<div style="margin-top:16px; padding:12px 16px; border-radius:10px; border:1px solid var(--accent); background:color-mix(in srgb, var(--accent) 8%, transparent)">Tu fais seulement la <b>question ${U.esc(part)}</b> de ce sujet. <a href="#${s.id}">Faire tout le sujet →</a></div>` : ""}
+      </header>
+      ${inline ? "" : s.documents.map(doc).join("")}
+      <h2 style="margin-top:28px">Questions</h2>
+      <div id="qs">${s.questions.map((q, i) => {
+        // un document s'affiche juste avant la première question qui l'utilise
+        const avant = inline ? (q.docs || []).filter(d => !vus.has(d)).map(d => { vus.add(d); return doc(s.documents[d]); }).join("") : "";
+        return avant + question(q, i);
+      }).join("")}</div>
+      <div class="scorebar">
+        <span>Score : <strong id="score">0</strong> / ${total}</span>
+        <div class="progress" aria-hidden="true"><div id="prog"></div></div>
+        <span id="done">0 / ${s.questions.length} questions</span>
+        <button class="btn small" id="reset">Recommencer</button>
+      </div>`;
+
+    const update = () => {
+      const pts = Object.values(score).reduce((a, b) => a + b, 0);
+      U.$("#score").textContent = String(pts).replace(".", ",");
+      U.$("#prog").style.width = (pts / total * 100) + "%";
+      U.$("#done").textContent = `${Object.keys(score).length} / ${s.questions.length} questions`;
+    };
+    U.$("#reset").onclick = () => renderSujet(full, part);
+
+    U.$$(".question", app).forEach((el, i) => {
+      const q = s.questions[i], fb = U.$(".feedback", el), btn = U.$(".check", el);
+      const lock = () => { U.$$("input,select,textarea", el).forEach(x => x.disabled = true); btn.remove(); };
+
+      btn.addEventListener("click", () => {
+        if (q.type === "qcm"){
+          const sel = U.$("input:checked", el);
+          if (!sel) return alert("Choisis une réponse.");
+          const ok = +sel.value === q.bonne;
+          U.$$(".option", el).forEach((o, k) => { if (k === q.bonne) o.classList.add("good"); else if (o.contains(sel)) o.classList.add("bad"); });
+          score[i] = ok ? q.pts : 0;
+          show(fb, ok ? "ok" : "ko", (ok ? "Bonne réponse ! " : "Ce n'est pas ça. ") + (q.explication || ""));
+        }
+        if (q.type === "vf"){
+          const rows = U.$$(".vf-row", el);
+          if (rows.some(r => !U.$("input:checked", r))) return alert("Réponds à toutes les affirmations.");
+          let good = 0;
+          rows.forEach((r, k) => {
+            const ok = (U.$("input:checked", r).value === "v") === q.affirmations[k].vrai;
+            r.classList.add(ok ? "good" : "bad"); if (ok) good++;
+          });
+          score[i] = Math.round(q.pts * good / rows.length * 2) / 2;
+          show(fb, good === rows.length ? "ok" : "ko", `${good} / ${rows.length} correctes. ` + (q.explication || ""));
+        }
+        if (q.type === "associer"){
+          const sels = U.$$("select", el);
+          if (sels.some(x => !x.value)) return alert("Complète toutes les associations.");
+          let good = 0;
+          sels.forEach((x, k) => {
+            const ok = x.value === q.paires[k].droite;
+            x.parentElement.classList.add(ok ? "good" : "bad"); x.style.borderColor = ok ? "var(--ok)" : "var(--ko)";
+            if (ok) good++; else x.insertAdjacentHTML("afterend", `<div style="font-size:14px;color:var(--ok)">→ ${U.esc(q.paires[k].droite)}</div>`);
+          });
+          score[i] = Math.round(q.pts * good / sels.length * 2) / 2;
+          show(fb, good === sels.length ? "ok" : "ko", `${good} / ${sels.length} associations correctes.`);
+        }
+        if (q.type === "saisie"){
+          const champs = U.$$("[data-champ]", el);
+          if (champs.some(x => !x.value.trim())) return alert("Complète toutes les cases.");
+          const val = {}; champs.forEach((x, k) => val[q.champs[k].repere] = x.value.trim());
+          let good = 0;
+          champs.forEach((x, k) => {
+            const c = q.champs[k], v = x.value.trim();
+            let ok = c.options ? v === c.reponse : (c.accept || []).some(r => new RegExp(r, "i").test(v.replace(/\s+/g, "")));
+            if (ok && c.differentDe && val[c.differentDe] && val[c.differentDe].replace(/\s+/g, "") === v.replace(/\s+/g, "")) ok = false;
+            const row = x.closest(".saisie-row");
+            row.classList.add(ok ? "good" : "bad");
+            if (ok) good++; else row.insertAdjacentHTML("beforeend", `<div class="sol">→ ${U.esc(c.reponse)}</div>`);
+          });
+          score[i] = Math.round(q.pts * good / champs.length * 2) / 2;
+          show(fb, good === champs.length ? "ok" : "ko", `${good} / ${champs.length} cases correctes. ` + (q.explication || ""));
+        }
+        if (q.type === "multi"){
+          const boxes = U.$$("input[type=checkbox]", el);
+          if (!boxes.some(b => b.checked)) return alert("Coche au moins une réponse.");
+          let good = 0;
+          boxes.forEach((b, k) => {
+            const attendu = q.bonnes.includes(k), ok = b.checked === attendu;
+            const o = b.closest(".option");
+            if (attendu) o.classList.add("good"); else if (b.checked) o.classList.add("bad");
+            if (ok) good++;
+          });
+          score[i] = Math.round(q.pts * good / boxes.length * 2) / 2;
+          show(fb, good === boxes.length ? "ok" : "ko", (good === boxes.length ? "Bonne réponse ! " : "Les bonnes réponses sont en vert. ") + (q.explication || ""));
+        }
+        if (q.type === "ouvert"){
+          show(fb, "info", `<strong>Proposition de correction</strong><br>${q.correction}
+            <div style="margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; align-items:center">Compare avec ta réponse :
+              <button class="btn small" data-f="1">J'ai juste</button>
+              <button class="btn small ghost" data-f="0.5">En partie</button>
+              <button class="btn small ghost" data-f="0">À revoir</button></div>`);
+          fb.onclick = e => {
+            const b = e.target.closest("[data-f]"); if (!b) return;
+            score[i] = Math.round(q.pts * +b.dataset.f * 2) / 2;
+            b.parentElement.innerHTML = `Auto-évaluation : <strong>${String(score[i]).replace(".", ",")} / ${q.pts} pts</strong>`;
+            update();
+          };
+          lock(); return;
+        }
+        lock(); update();
+      });
+    });
+  }
+
+  const doc = d => `<div class="doc"><h4>${U.esc(d.titre)}</h4>${d.html}</div>`;
+  function show(fb, kind, html){ fb.className = "feedback show " + kind; fb.innerHTML = html; }
+
+  function question(q, i){
+    let body = "";
+    if (q.type === "qcm") body = `<div class="options">${q.choix.map((c, k) =>
+      `<label class="option"><input type="radio" name="q${i}" value="${k}"> <span>${U.esc(c)}</span></label>`).join("")}</div>`;
+    if (q.type === "vf") body = `<div class="options">${q.affirmations.map((a, k) =>
+      `<div class="option vf-row" style="cursor:default; flex-wrap:wrap; justify-content:space-between"><span style="flex:1 1 260px">${U.esc(a.texte)}</span>
+        <span style="display:flex; gap:14px"><label><input type="radio" name="q${i}-${k}" value="v"> Vrai</label><label><input type="radio" name="q${i}-${k}" value="f"> Faux</label></span></div>`).join("")}</div>`;
+    if (q.type === "associer"){
+      const opts = shuffle(q.paires.map(p => p.droite));
+      body = `<div style="margin:10px 0">${q.paires.map(p => `<div class="match-row"><strong>${U.esc(p.gauche)}</strong>
+        <div><select><option value="">— choisir —</option>${opts.map(o => `<option>${U.esc(o)}</option>`).join("")}</select></div></div>`).join("")}</div>`;
+    }
+    if (q.type === "ouvert") body = `<textarea placeholder="Écris ta réponse ici…" aria-label="Ta réponse"></textarea>`;
+    if (q.type === "saisie") body = `<div class="saisie">${q.champs.map(c => `<div class="saisie-row">
+        <span class="mk mk-inline">${U.esc(c.repere)}</span><label for="q${i}-${c.repere}">${U.esc(c.label)}</label>
+        ${c.options ? `<select id="q${i}-${c.repere}" data-champ><option value="">— choisir —</option>${c.options.map(o => `<option>${U.esc(o)}</option>`).join("")}</select>`
+                    : `<input id="q${i}-${c.repere}" data-champ type="text" autocomplete="off" spellcheck="false" placeholder="Ta réponse">`}</div>`).join("")}</div>`;
+    if (q.type === "multi") body = `<div class="options">${q.choix.map((c, k) =>
+      `<label class="option"><input type="checkbox" value="${k}"> <span>${U.esc(c)}</span></label>`).join("")}</div>`;
+    return `<article class="question">
+      <div class="q-head"><span class="q-num">Q${String(q._n ?? i + 1).padStart(2, "0")}</span><span class="q-pts">${q.pts} pt${q.pts > 1 ? "s" : ""}</span></div>
+      <p>${U.esc(q.enonce)}</p>${q.html || ""}${q.image ? `<figure class="fig"><img src="${U.esc(q.image)}" alt="${U.esc(q.imageAlt || "")}"></figure>` : ""}${body}
+      <button class="btn small check">${q.type === "ouvert" ? "Voir la correction" : "Valider"}</button>
+      <div class="feedback" aria-live="polite"></div>
+    </article>`;
+  }
+
+  function route(){
+    const [id, part] = location.hash.slice(1).split("/");          // ex. #tapis-de-course/q4
+    const s = S.find(x => x.id === id);
+    s ? renderSujet(s, part && part.startsWith("q") ? part.slice(1) : null) : renderList();
+    scrollTo(0, 0);
+  }
+  addEventListener("hashchange", route);
+  route();
+</script>
+</body>
+</html>

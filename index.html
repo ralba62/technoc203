@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TechnoC203 — Accueil</title>
+<meta name="description" content="Le site de technologie des élèves de 3e : les chapitres avec activités, ressources et connaissances, le glossaire, l'entraînement au DNB, les logiciels et le concours Blaise Robotics.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css?v=20261122062623">
+<script src="assets/js/site.js?v=20261122062623"></script>
+<script src="assets/js/data/connaissances.js?v=20261122062623"></script>
+<script src="assets/js/data/chapitres/liste.js?v=20261122062623"></script>
+<script src="assets/js/data/visibilite.js?v=20261122062623"></script>
+<script src="assets/js/data/glossaire.js?v=20261122062623"></script>
+</head>
+<body>
+<main>
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="reveal-up">
+      <span class="eyebrow">Technologie · cycle 4 · 3e</span>
+      <h1 class="motto"><span class="l">Faire pour <span class="i">Apprendre</span></span><span class="l">Apprendre à <span class="i">Faire</span></span></h1>
+      <div class="terminal" aria-hidden="true"><span class="p">techno3e:~$</span><span class="typed" id="typed"></span><span class="caret"></span></div>
+      <p class="lead">Programmer un robot, comprendre un réseau, analyser un objet technique : chaque chapitre avec ses activités, ses ressources et ses connaissances. Absent ? Tu peux le faire chez toi.</p>
+      <div class="hero-actions">
+        <a class="btn" id="heroBtn" href="chapitre.html">Voir les chapitres <span id="arr"></span></a>
+        <a class="btn ghost" href="dnb.html">S'entraîner au DNB</a>
+      </div>
+    </div>
+
+    <!-- Schéma animé : un objet technique (le robot) au centre des trois flux -->
+    <div class="hero-visual reveal-up" style="animation-delay:.15s">
+      <svg id="sys" viewBox="0 0 440 430" role="img" aria-label="Schéma : un robot au centre, relié à la matière, à l'énergie et à l'information">
+        <defs>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <radialGradient id="halo"><stop offset="0" stop-color="var(--information)" stop-opacity=".22"/><stop offset="1" stop-color="var(--information)" stop-opacity="0"/></radialGradient>
+        </defs>
+
+        <!-- réseau en arrière-plan -->
+        <g stroke="var(--line-2)" stroke-width="1" fill="none">
+          <path d="M20 150 L60 90 L130 60 M310 60 L380 90 L420 150 M60 90 L120 150 M380 90 L320 150 M20 150 L45 230 M420 150 L395 230"/>
+        </g>
+        <g fill="var(--line-2)">
+          <circle cx="20" cy="150" r="3"/><circle cx="60" cy="90" r="4"/><circle cx="130" cy="60" r="3"/><circle cx="120" cy="150" r="3"/>
+          <circle cx="310" cy="60" r="3"/><circle cx="380" cy="90" r="4"/><circle cx="420" cy="150" r="3"/><circle cx="320" cy="150" r="3"/>
+          <circle cx="45" cy="230" r="3"/><circle cx="395" cy="230" r="3"/>
+        </g>
+        <circle r="2.5" fill="var(--t6)" filter="url(#glow)"><animateMotion dur="3.2s" repeatCount="indefinite" path="M20 150 L60 90 L130 60"/></circle>
+        <circle r="2.5" fill="var(--t6)" filter="url(#glow)"><animateMotion dur="3.6s" begin="1s" repeatCount="indefinite" path="M420 150 L380 90 L310 60"/></circle>
+
+        <!-- triangle M/E/I -->
+        <path d="M220 52 L58 345 L382 345 Z" fill="none" stroke="var(--line-2)" stroke-width="1.5" stroke-dasharray="4 8" style="animation:dash 3s linear infinite"/>
+        <circle cx="220" cy="235" r="130" fill="url(#halo)"/>
+
+        <!-- pistes vers le robot -->
+        <path id="pI" d="M220 82 V166" stroke="var(--information)" stroke-width="2" fill="none" stroke-opacity=".5"/>
+        <path id="pE" d="M82 322 L128 276 H166" stroke="var(--energie)" stroke-width="2" fill="none" stroke-opacity=".5"/>
+        <path id="pM" d="M358 322 L312 276 H274" stroke="var(--matiere)" stroke-width="2" fill="none" stroke-opacity=".5"/>
+        <!-- impulsions qui circulent -->
+        <g filter="url(#glow)">
+          <circle r="4" fill="var(--information)"><animateMotion dur="1.6s" repeatCount="indefinite" path="M220 82 V166"/></circle>
+          <circle r="4" fill="var(--information)"><animateMotion dur="1.6s" begin=".8s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear" path="M220 82 V166"/></circle>
+          <circle r="4" fill="var(--energie)"><animateMotion dur="1.4s" repeatCount="indefinite" path="M82 322 L128 276 H166"/></circle>
+          <circle r="4" fill="var(--energie)"><animateMotion dur="1.4s" begin=".7s" repeatCount="indefinite" path="M82 322 L128 276 H166"/></circle>
+          <circle r="4" fill="var(--matiere)"><animateMotion dur="2s" repeatCount="indefinite" path="M358 322 L312 276 H274"/></circle>
+        </g>
+
+        <!-- robot / microcontrôleur -->
+        <g>
+          <line x1="220" y1="166" x2="220" y2="150" stroke="var(--muted)" stroke-width="2"/>
+          <circle cx="220" cy="146" r="5" fill="var(--information)" filter="url(#glow)" style="animation:pulse 1.6s ease-in-out infinite"/>
+          <g stroke="var(--muted)" stroke-width="2">
+            <path d="M166 200h-8M166 222h-8M166 244h-8M274 200h8M274 222h8M274 244h8"/>
+          </g>
+          <rect x="166" y="166" width="108" height="112" rx="20" fill="var(--surface-2)" stroke="var(--line-2)" stroke-width="2"/>
+          <rect x="180" y="184" width="80" height="54" rx="10" fill="var(--bg)" stroke="var(--line)"/>
+          <g style="transform-origin:220px 208px; animation:eyes 4s infinite">
+            <rect x="196" y="198" width="12" height="18" rx="5" fill="var(--information)" filter="url(#glow)"/>
+            <rect x="232" y="198" width="12" height="18" rx="5" fill="var(--information)" filter="url(#glow)"/>
+          </g>
+          <path d="M196 256 h12 l4 -6 l6 12 l6 -12 l4 6 h14" fill="none" stroke="var(--t5)" stroke-width="2" stroke-linejoin="round"/>
+          <circle cx="190" cy="294" r="12" fill="var(--surface-3)" stroke="var(--line-2)" stroke-width="2"/>
+          <circle cx="250" cy="294" r="12" fill="var(--surface-3)" stroke="var(--line-2)" stroke-width="2"/>
+          <text x="220" y="322" text-anchor="middle" class="sys-label">OBJET TECHNIQUE</text>
+        </g>
+
+        <!-- nœuds -->
+        <g>
+          <circle cx="220" cy="52" r="30" fill="var(--surface)" stroke="var(--information)" stroke-width="2" filter="url(#glow)"/>
+          <g transform="translate(208 40)" stroke="var(--information)" stroke-width="1.8" fill="none" stroke-linecap="round"><path d="M4.5 9.5a11 11 0 0 1 15 0M7.5 13a6.5 6.5 0 0 1 9 0"/><circle cx="12" cy="17" r="1.3" fill="var(--information)"/></g>
+          <text x="262" y="48" class="sys-name">Information</text>
+          <text x="262" y="64" class="sys-label">ACQUÉRIR · TRAITER</text>
+
+          <circle cx="58" cy="345" r="30" fill="var(--surface)" stroke="var(--energie)" stroke-width="2" filter="url(#glow)"/>
+          <g transform="translate(46 333)" stroke="var(--energie)" stroke-width="1.8" fill="none" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></g>
+          <text x="58" y="396" text-anchor="middle" class="sys-name">Énergie</text>
+          <text x="58" y="412" text-anchor="middle" class="sys-label">ALIMENTER · CONVERTIR</text>
+
+          <circle cx="382" cy="345" r="30" fill="var(--surface)" stroke="var(--matiere)" stroke-width="2" filter="url(#glow)"/>
+          <g transform="translate(370 333)" stroke="var(--matiere)" stroke-width="1.8" fill="none" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="m3 7 9 5 9-5M12 12v10"/></g>
+          <text x="382" y="396" text-anchor="middle" class="sys-name">Matière</text>
+          <text x="382" y="412" text-anchor="middle" class="sys-label">FAÇONNER · RECYCLER</text>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ============ RUBRIQUES ============ -->
+  <div class="section-head"><h2>Les chapitres</h2><a href="chapitre.html">tous les chapitres →</a></div>
+  <section class="grid" id="chapitres" aria-label="Chapitres de l'année"></section>
+
+  <div class="section-head" style="margin-top:44px"><h2>Pour réviser et aller plus loin</h2></div>
+  <section class="grid" id="sections" aria-label="Rubriques du site"></section>
+
+  <!-- ============ MOT DU JOUR ============ -->
+  <section class="section">
+    <div class="card word-card" id="motCard" aria-live="polite">
+      <div class="card-icon" style="margin:0"></div>
+      <div>
+        <span class="eyebrow" style="margin-bottom:4px">Le mot du jour</span>
+        <p class="word" id="motJour">…</p>
+        <p id="motDef" style="color:var(--muted); margin:4px 0 0"></p>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <button class="btn small ghost" id="autreMot">Un autre mot</button>
+        <a class="btn small ghost" href="glossaire.html">Glossaire</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  U.$("#arr").innerHTML = ICONS.arrow;
+  // Respecte le réglage « réduire les animations »
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) U.$("#sys").pauseAnimations();
+
+  /* --- Terminal : commandes tapées en boucle --- */
+  const CMDS = ["robot.avancer(50)", "si distance < 10 cm : tourner()", "ping 192.168.1.1", "E = P × t", "acquérir → traiter → communiquer", "imprimer_3d('piece.stl')", "mot_de_passe.robuste = True"];
+  const typed = U.$("#typed");
+  (async function loop(){
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    for (let k = 0; ; k = (k + 1) % CMDS.length){
+      const c = CMDS[k];
+      for (let i = 1; i <= c.length; i++){ typed.textContent = " " + c.slice(0, i); await wait(55); }
+      await wait(1600);
+      for (let i = c.length; i >= 0; i--){ typed.textContent = " " + c.slice(0, i); await wait(22); }
+      await wait(300);
+    }
+  })();
+
+  /* --- Rubriques --- */
+  const SECTIONS = [
+    ["connaissances.html", "target", "--information", "Programme de 3e", "Toutes les connaissances à maîtriser, avec ta progression."],
+    ["glossaire.html", "text", "--energie", "Glossaire", "Le vocabulaire de la techno, avec recherche et mode révision."],
+    ["dnb.html", "book", "--t5", "Sujets DNB", "Des sujets interactifs corrigés pour préparer le brevet."],
+    ["logiciels.html", "terminal", "--t6", "Logiciels", "Les logiciels gratuits pour la techno et la bureautique."],
+    ["concours.html", "robot", "--t3", "Blaise Robotics", "Le concours de robotique : épreuves, règlement, équipes."],
+  ];
+  U.$("#sections").innerHTML = SECTIONS.map(([href, ic, c, t, d], i) => `
+    <a class="card" href="${href}" style="--c:var(${c})">
+      <span class="card-num">0${i + 1}</span>
+      <div class="card-icon">${ICONS[ic]}</div>
+      <h3>${t}</h3><p>${d}</p>
+      <span class="arrow">${ICONS.arrow}</span>
+    </a>`).join("");
+
+  /* --- Mot du jour --- */
+  const mots = window.GLOSSAIRE || [];
+  let idx = mots.length ? Math.floor(Date.now() / 864e5) % mots.length : 0;
+  function showMot(){
+    const m = mots[idx]; if (!m) return;
+    const card = U.$("#motCard");
+    card.style.setProperty("--c", U.themeColor(m.theme));
+    U.$(".card-icon", card).innerHTML = U.icon(THEMES[m.theme]?.icon);
+    U.$("#motJour").textContent = m.mot;
+    U.$("#motDef").textContent = m.def;
+  }
+  U.$("#autreMot").addEventListener("click", () => { idx = (idx + 1 + Math.floor(Math.random() * (mots.length - 1))) % mots.length; showMot(); });
+  showMot();
+
+  /* --- Chapitres (le chapitre « en cours » est mis en avant) --- */
+  const CH = U.chapitresVisibles();
+  let faites = {}; try { faites = JSON.parse(localStorage.getItem("activites-faites")) || {}; } catch(e){}
+  const enCours = CH.find(c => c.statut === "en-cours");
+  if (enCours) U.$("#heroBtn").href = "chapitre.html?c=" + enCours.id;
+  U.$("#chapitres").innerHTML = CH.map(ch => {
+    const vis = ch.activites.map((a, i) => ({ a, i })).filter(({ a }) => a._ouvert || U.apercuProf());
+    const n = vis.filter(({ i }) => faites[`${ch.id}.${i}`]).length;
+    const st = { "termine":["terminé","t5"], "en-cours":["en cours","t2"], "a-venir":["à venir",""] }[ch.statut] || ["", ""];
+    return `<a class="card" href="chapitre.html?c=${ch.id}" style="--c:${U.themeColor(ch.theme)}${ch === enCours ? "; box-shadow:var(--glow); border-color:transparent" : ""}">
+      <div class="card-icon">${U.icon(ch.icone)}</div>
+      <span class="eyebrow" style="margin-bottom:4px">${U.esc(ch.num)}</span>
+      <h3>${U.esc(ch.titre)}</h3><p>${U.esc(ch.problematique)}</p>
+      <div class="card-foot">${st[0] ? `<span class="tag ${st[1]}">${st[0]}</span>` : ""}${ch._ouvert ? "" : `<span class="tag masque">masqué aux élèves</span>`}<span class="tag" style="margin-left:auto">${n}/${vis.length} activités faites</span></div>
+      <span class="arrow">${ICONS.arrow}</span>
+    </a>`;
+  }).join("");
+</script>
+</body>
+</html>

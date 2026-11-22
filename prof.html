@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Espace enseignant — TechnoC203</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="assets/css/style.css?v=20261122062623">
+<script src="assets/js/site.js?v=20261122062623"></script>
+<script src="assets/js/verrou.js?v=20261122062623"></script>
+<script src="assets/js/data/chapitres/liste.js?v=20261122062623"></script>
+<script src="assets/js/data/visibilite.js?v=20261122062623"></script>
+<script src="assets/js/data/corrections.js?v=20261122062623"></script>
+<style>
+  .login{max-width:460px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:24px}
+  .login input, .codes input, .codes textarea{font:500 15px var(--f-mono); color:var(--ink); background:var(--bg); border:1px solid var(--line-2); border-radius:9px; padding:8px 12px; width:100%}
+  .codes{width:100%; border-collapse:collapse; background:var(--surface); border:1px solid var(--line); border-radius:12px; overflow:hidden}
+  .codes th, .codes td{padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; font-size:14.5px}
+  .codes th{font-family:var(--f-mono); font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); background:var(--surface-2)}
+  .codes tr.chap td{background:color-mix(in srgb, var(--accent) 8%, var(--surface)); font-family:var(--f-display); font-weight:600}
+  .codes td.code{width:200px} .codes td.files{width:42%}
+  .codes textarea{min-height:64px; font-size:12.5px; resize:vertical}
+  .codes .warn{color:var(--energie); font-family:var(--f-mono); font-size:12px}
+  .tools{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:18px 0}
+  .note{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 18px; font-size:15px; margin-top:18px}
+  .note ol{margin:6px 0 0; padding-left:20px}
+  .ptabs{position:sticky; top:60px; z-index:30; display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:8px; margin:0 0 22px;
+    background:color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter:blur(10px); border:1px solid var(--line); border-radius:14px}
+  .ptabs [role=tab]{display:inline-flex; gap:8px; align-items:center; font:600 15px var(--f-display); color:var(--muted); background:transparent; border:1px solid transparent; border-radius:10px; padding:9px 14px; cursor:pointer}
+  .ptabs [role=tab] .ico{width:17px; height:17px}
+  .ptabs [role=tab]:hover{color:var(--ink); background:var(--surface-2)}
+  .ptabs [role=tab][aria-selected=true]{color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, transparent); border-color:color-mix(in srgb, var(--accent) 40%, transparent)}
+  .pcount{font:500 11.5px var(--f-mono); color:var(--muted); background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:2px 7px}
+  @media print{ .ptabs{display:none !important} [data-panel="vis"]{display:none !important} [data-panel="codes"]{display:block !important} }
+  @media print{ .codes textarea, .tools, .note, .files, th.files{display:none !important} .codes input{border:0; padding:0} }
+</style>
+</head>
+<body>
+<main id="app"></main>
+
+<script>
+  const app = U.$("#app");
+  U.prepChapitres();
+  const MOTS = ["ROUTEUR","SERVEUR","PAQUET","FILIUS","CADENAS","PHISHING","ALGO","BOUCLE","CAPTEUR","LIGNE","ULTRASON","MOTEUR","CHAINE","ENERGIE","SIGNAL","OCTET","PIXEL","ROBOT","LED","BINAIRE"];
+  const codeAuHasard = () => MOTS[Math.floor(Math.random() * MOTS.length)] + "-" + (10 + Math.floor(Math.random() * 90));
+  let master = "", lignes = [];
+
+  /* ---------- Connexion ---------- */
+  function login(){
+    app.innerHTML = `
+      <header class="page-head"><span class="eyebrow">Espace enseignant</span><h1>Codes des corrections</h1>
+        <p class="lead">Page réservée à l'enseignant. La liste des codes est chiffrée : elle ne s'affiche qu'avec le mot de passe enseignant.</p></header>
+      <form class="login" id="f"><label for="pw"><b>Mot de passe enseignant</b></label>
+        <input id="pw" type="password" autocomplete="current-password" style="margin:10px 0">
+        <button class="btn" type="submit">Ouvrir</button><p id="msg" style="margin:10px 0 0; color:var(--ko); font-family:var(--f-mono); font-size:13px"></p></form>`;
+    U.$("#f").onsubmit = async e => {
+      e.preventDefault(); U.$("#msg").textContent = "Vérification…";
+      try {
+        const data = await Verrou.dechiffrer(U.$("#pw").value, window.CORRECTIONS_PROF);
+        master = U.$("#pw").value; prepare(data); render();
+      } catch(err){ U.$("#msg").textContent = "Mot de passe incorrect."; }
+    };
+  }
+
+  /* une ligne par activité du site (+ celles qui ne correspondent plus à rien) */
+  function prepare(data){
+    const parCle = Object.fromEntries((data.activites || []).map(a => [a.cle, a]));
+    lignes = [];
+    CHAPITRES.forEach(ch => ch.activites.forEach(act => {
+      const cle = Verrou.cleActivite(ch.id, act.titre), a = parCle[cle];
+      lignes.push({ cle, chapitre: `${ch.num} : ${ch.titre}`, chId: ch.id, titre: act.titre, code: a?.code || "", liens: a?.liens || [] });
+      delete parCle[cle];
+    }));
+    Object.values(parCle).forEach(a => lignes.push({ ...a, chId: "?", orphelin: true }));
+  }
+  const liensTexte = liens => liens.map(l => `${l.label} | ${l.url}`).join("\n");
+  const texteLiens = t => t.split("\n").map(x => x.trim()).filter(Boolean).map(x => { const [label, ...u] = x.split("|"); return { label: label.trim(), url: u.join("|").trim() }; }).filter(l => l.url);
+
+  /* ---------- Tableau ---------- */
+  function render(){
+    let chap = "";
+    app.innerHTML = `
+      <header class="page-head" style="margin-bottom:18px"><span class="eyebrow">Espace enseignant</span><h1>Espace enseignant</h1></header>
+      <nav class="ptabs" role="tablist" aria-label="Rubriques de l'espace enseignant">
+        <button role="tab" data-tab="vis">${ICONS.grid} Ouverture des chapitres <span class="pcount" id="countVis"></span></button>
+        <button role="tab" data-tab="codes">${ICONS.lock} Codes des corrections <span class="pcount" id="countCodes"></span></button>
+        <button class="btn small ghost" id="apercu" style="margin-left:auto">Voir le site en aperçu enseignant ↗</button>
+      </nav>
+
+      <div data-panel="vis"><section id="vis"></section></div>
+
+      <div data-panel="codes">
+      <p class="lead" style="font-size:16px">Donnez le code d'une activité aux élèves quand ils peuvent consulter la correction. Une activité sans code ou sans fichier n'a pas de correction en ligne.</p>
+      <div class="tools">
+        <button class="btn" id="gen">Générer le fichier corrections.js</button>
+        <button class="btn ghost" id="print">Imprimer la liste des codes</button>
+        <button class="btn ghost" id="regen">Nouveaux codes pour toutes les activités</button>
+      </div>
+      <table class="codes"><thead><tr><th>Activité</th><th>Code élève</th><th class="files">Fichiers de correction (« Libellé | adresse », un par ligne)</th></tr></thead><tbody>
+      ${lignes.map((l, i) => {
+        let h = "";
+        if (l.chapitre !== chap){ chap = l.chapitre; h += `<tr class="chap"><td colspan="2">${U.esc(chap)}</td><td class="files"><button class="btn small ghost" data-same="${U.esc(l.chId)}">Même code pour tout le chapitre</button></td></tr>`; }
+        return h + `<tr><td>${U.esc(l.titre)}${l.orphelin ? `<div class="warn">⚠ activité introuvable (titre modifié ?) — sera supprimée</div>` : ""}</td>
+          <td class="code"><input data-i="${i}" data-f="code" value="${U.esc(l.code)}" placeholder="(aucune)"> <button class="btn small ghost" data-new="${i}" style="margin-top:6px">Nouveau code</button></td>
+          <td class="files"><textarea data-i="${i}" data-f="liens" placeholder="Correction | docs/corrections/xxxx-fichier.pdf">${U.esc(liensTexte(l.liens))}</textarea></td></tr>`;
+      }).join("")}</tbody></table>
+
+      <div class="note">
+        <b>Changer le mot de passe enseignant</b> (laisser vide pour garder l'actuel) :
+        <input id="newpw" type="text" autocomplete="off" style="max-width:320px; margin:8px 0; display:block; font:500 15px var(--f-mono); color:var(--ink); background:var(--bg); border:1px solid var(--line-2); border-radius:9px; padding:8px 12px">
+        <span style="color:var(--muted); font-size:14px">Le nouveau mot de passe est pris en compte quand vous générez le fichier corrections.js.</span>
+        <p style="margin:12px 0 4px"><b>Après une modification :</b></p>
+        <ol>
+          <li>Cliquez sur « Générer le fichier corrections.js » : il se télécharge.</li>
+          <li>Remplacez le fichier <code>assets/js/data/corrections.js</code> du site par celui-ci, puis remettez le site en ligne.</li>
+          <li>Nouvelle correction : déposez le fichier dans <code>docs/corrections/</code> en ajoutant au début de son nom une suite de caractères au hasard (ex. <code>7f3a9c2b-activite4-correction.pdf</code>), puis ajoutez la ligne « Libellé | docs/corrections/… » ci-dessus.</li>
+        </ol>
+        <p style="margin:10px 0 0; color:var(--muted); font-size:14px">Limite : un élève qui connaît un code peut le donner à ses camarades. Changez les codes d'une année sur l'autre.</p>
+      </div>
+      </div>`;
+
+    renderVis();
+    montrer(onglet);
+    compter();
+    app.oninput = e => { const t = e.target; if (t.dataset.i !== undefined){ const l = lignes[+t.dataset.i]; if (t.dataset.f === "code") l.code = t.value; else l.liens = texteLiens(t.value); compter(); } };
+    app.onclick = e => {
+      const b = e.target.closest("button"); if (!b) return;
+      if (b.dataset.new !== undefined){ lignes[+b.dataset.new].code = codeAuHasard(); render(); }
+      if (b.dataset.same){ const ls = lignes.filter(l => l.chId === b.dataset.same); const c = ls.find(l => l.code)?.code || codeAuHasard(); ls.forEach(l => { if (l.liens.length) l.code = c; }); render(); }
+      if (b.id === "regen" && confirm("Remplacer tous les codes par de nouveaux codes ?")){ lignes.forEach(l => { if (l.liens.length) l.code = codeAuHasard(); }); render(); }
+      if (b.dataset.tab) montrer(b.dataset.tab);
+      if (b.id === "apercu"){ try { sessionStorage.setItem("apercu-prof", "1"); } catch(err){} window.open("index.html", "_blank"); }
+      if (b.id === "print") print();
+      if (b.id === "gen") generer();
+    };
+  }
+
+  /* ---------- Onglets ---------- */
+  let onglet = location.hash === "#codes" ? "codes" : "vis";
+  function montrer(t){
+    onglet = t;
+    U.$$("[data-panel]").forEach(p => p.hidden = p.dataset.panel !== t);
+    U.$$(".ptabs [data-tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === t));
+    history.replaceState(null, "", t === "codes" ? "#codes" : "#ouverture");
+  }
+  function compter(){
+    const ch = CHAPITRES.filter(c => c._ouvert).length, act = CHAPITRES.flatMap(c => c.activites).filter(a => a._ouvert).length;
+    const n = lignes.filter(l => !l.orphelin && String(l.code).trim() && l.liens.length).length;
+    if (U.$("#countVis")) U.$("#countVis").textContent = `${ch}/${CHAPITRES.length} ch. · ${act} act. ouvertes`;
+    if (U.$("#countCodes")) U.$("#countCodes").textContent = `${n} corrections`;
+  }
+
+  /* ---------- Visibilité des chapitres et activités ---------- */
+  const vis = { ...(window.VISIBILITE || {}) };
+  const etat = v => v === undefined || v === "visible" || v === true ? "visible" : (/^\d{4}-\d{2}-\d{2}$/.test(v) ? "date" : "masque");
+  const ctrl = (cle, indent) => {
+    const v = vis[cle], e = etat(v), ouvert = U.estOuvert(v);
+    return `<select data-vkey="${U.esc(cle)}" style="font:inherit; padding:6px 8px">
+        <option value="visible"${e === "visible" ? " selected" : ""}>Visible</option>
+        <option value="masque"${e === "masque" ? " selected" : ""}>Masqué</option>
+        <option value="date"${e === "date" ? " selected" : ""}>À partir du…</option></select>
+      <input type="date" data-vdate="${U.esc(cle)}" value="${e === "date" ? v : ""}"${e === "date" ? "" : " hidden"} style="font:inherit; padding:5px 8px; color:var(--ink); background:var(--bg); border:1px solid var(--line-2); border-radius:8px">
+      <span class="tag ${ouvert ? "t5" : "masque"}">${ouvert ? "ouvert aux élèves" : "masqué aux élèves"}</span>`;
+  };
+  function renderVis(){
+    const box = U.$("#vis");
+    box.innerHTML = `
+      <p class="lead" style="font-size:16px">Les élèves ne voient que ce qui est ouvert. « À partir du… » ouvre automatiquement à la date choisie. Une activité n'est visible que si son chapitre l'est aussi.</p>
+      <div class="tools"><button class="btn" id="genvis">Générer le fichier visibilite.js</button></div>
+      <table class="codes"><thead><tr><th>Chapitre / activité</th><th>Ouverture</th></tr></thead><tbody>
+      ${CHAPITRES.map(ch => `
+        <tr class="chap"><td>${U.esc(ch.num)} : ${U.esc(ch.titre)}
+          <div style="margin-top:6px"><button class="btn small ghost" data-all="${ch.id}" data-val="visible">Ouvrir toutes les activités</button>
+          <button class="btn small ghost" data-all="${ch.id}" data-val="masque">Masquer toutes les activités</button></div></td>
+          <td>${ctrl(ch.id)}</td></tr>
+        ${ch.activites.map(a => `<tr><td style="padding-left:28px">${ch.parties ? `<span class="tag" style="margin-right:6px">${a._partie + 1}.${a._num}</span>` : ""}${U.esc(a.titre)}</td><td>${ctrl(a._cle)}</td></tr>`).join("")}
+      `).join("")}</tbody></table>
+      <p style="color:var(--muted); font-size:14.5px; margin:14px 0 0">Après une modification : générez le fichier, puis remplacez <code>assets/js/data/visibilite.js</code> sur le site. L'aperçu enseignant montre tout le site avec un bandeau jaune, sur ce navigateur seulement, jusqu'à ce que vous le quittiez.</p>`;
+
+    const maj = () => { U.prepChapitres(); renderVis(); compter(); };
+    box.onchange = e => {
+      const t = e.target;
+      if (t.dataset.vkey){
+        if (t.value === "date"){ const d = new Date(); d.setDate(d.getDate() + 7); vis[t.dataset.vkey] = d.toISOString().slice(0, 10); }
+        else vis[t.dataset.vkey] = t.value;
+        maj();
+      }
+      if (t.dataset.vdate && t.value){ vis[t.dataset.vdate] = t.value; maj(); }
+    };
+    box.onclick = e => {
+      const b = e.target.closest("button"); if (!b) return;
+      if (b.dataset.all){ const ch = CHAPITRES.find(c => c.id === b.dataset.all); ch.activites.forEach(a => vis[a._cle] = b.dataset.val); maj(); }
+      if (b.id === "genvis") genererVis();
+    };
+    window.VISIBILITE = vis;   // pour que les badges « ouvert / masqué » suivent les choix
+  }
+  function genererVis(){
+    const lignes = [];
+    CHAPITRES.forEach(ch => {
+      lignes.push(`  ${JSON.stringify(ch.id)}: ${JSON.stringify(vis[ch.id] || "visible")},   // ${ch.num} : ${ch.titre}`);
+      ch.activites.forEach(a => { if (vis[a._cle] && vis[a._cle] !== "visible") lignes.push(`  ${JSON.stringify(a._cle)}: ${JSON.stringify(vis[a._cle])},`); });
+    });
+    const txt = `/* ==========================================================
+   VISIBILITÉ DES CHAPITRES ET DES ACTIVITÉS — fichier généré par la
+   page enseignant (prof.html). Vous pouvez aussi le modifier à la main.
+   Clé = identifiant du chapitre ("chap1") ou de l'activité ("chap1/titre-simplifie")
+   Valeur : "visible" | "masque" | "AAAA-MM-JJ" (visible à partir de cette date)
+   Une clé absente = visible.
+   ========================================================== */
+window.VISIBILITE = {
+${lignes.join("\n")}
+};
+`;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([txt], { type: "text/javascript" }));
+    a.download = "visibilite.js"; a.click();
+    alert("Fichier visibilite.js généré.\nRemplacez assets/js/data/visibilite.js par le fichier téléchargé.");
+  }
+
+  /* ---------- Génération du nouveau fichier ---------- */
+  async function generer(){
+    const pw = U.$("#newpw").value.trim() || master;
+    const actives = lignes.filter(l => !l.orphelin && l.code.trim() && l.liens.length);
+    const boxes = {};
+    for (const l of actives) boxes[l.cle] = await Verrou.chiffrer(Verrou.normaliser(l.code), l.liens);
+    const prof = await Verrou.chiffrer(pw, { maj: new Date().toISOString().slice(0, 10), activites: actives.map(({ cle, chapitre, titre, code, liens }) => ({ cle, chapitre, titre, code: code.trim(), liens })) });
+    const txt = `/* ==========================================================
+   CORRECTIONS VERROUILLÉES — fichier généré, ne pas modifier à la main.
+   Pour changer les codes ou ajouter une correction : page enseignant
+   (prof.html), puis remplacer ce fichier par celui qu'elle génère.
+   ========================================================== */
+window.CORRECTIONS = ${JSON.stringify(boxes, null, 1)};
+window.CORRECTIONS_PROF = ${JSON.stringify(prof)};
+`;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([txt], { type: "text/javascript" }));
+    a.download = "corrections.js"; a.click();
+    alert(`Fichier généré : ${actives.length} corrections verrouillées.\nRemplacez assets/js/data/corrections.js par le fichier téléchargé.` + (pw !== master ? "\n\nAttention : le mot de passe enseignant a changé." : ""));
+  }
+
+  login();
+</script>
+</body>
+</html>
