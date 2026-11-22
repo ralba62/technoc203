@@ -7,6 +7,6 @@
    ========================================================== */
 window.VISIBILITE = {
   "chap1": "visible",   // Chapitre 1 : Sur les chemins de l'info
-  "chap2": "masque",   // Chapitre 2 : La cybersécurité au quotidien
+  "chap2": "visible",   // Chapitre 2 : La cybersécurité au quotidien
   "projet-br": "visible",   // Projet : Blaise Robotics
 };
