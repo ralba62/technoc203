@@ -7,12 +7,12 @@
 <title>Espace enseignant — TechnoC203</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="assets/css/style.css?v=20261122062623">
-<script src="assets/js/site.js?v=20261122062623"></script>
-<script src="assets/js/verrou.js?v=20261122062623"></script>
-<script src="assets/js/data/chapitres/liste.js?v=20261122062623"></script>
-<script src="assets/js/data/visibilite.js?v=20261122062623"></script>
-<script src="assets/js/data/corrections.js?v=20261122062623"></script>
+<link rel="stylesheet" href="assets/css/style.css?v=20261122064821">
+<script src="assets/js/site.js?v=20261122064821"></script>
+<script src="assets/js/verrou.js?v=20261122064821"></script>
+<script src="assets/js/data/chapitres/liste.js?v=20261122064821"></script>
+<script src="assets/js/data/visibilite.js?v=20261122064821"></script>
+<script src="assets/js/data/corrections.js?v=20261122064821"></script>
 <style>
   .login{max-width:460px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:24px}
   .login input, .codes input, .codes textarea{font:500 15px var(--f-mono); color:var(--ink); background:var(--bg); border:1px solid var(--line-2); border-radius:9px; padding:8px 12px; width:100%}
@@ -86,7 +86,8 @@
       <nav class="ptabs" role="tablist" aria-label="Rubriques de l'espace enseignant">
         <button role="tab" data-tab="vis">${ICONS.grid} Ouverture des chapitres <span class="pcount" id="countVis"></span></button>
         <button role="tab" data-tab="codes">${ICONS.lock} Codes des corrections <span class="pcount" id="countCodes"></span></button>
-        <button class="btn small ghost" id="apercu" style="margin-left:auto">Voir le site en aperçu enseignant ↗</button>
+        <span class="pcount" id="ghState" style="margin-left:auto"></span><button class="btn small ghost" id="ghkey">Clé GitHub</button>
+        <button class="btn small ghost" id="apercu">Voir le site en aperçu enseignant ↗</button>
       </nav>
 
       <div data-panel="vis"><section id="vis"></section></div>
@@ -94,7 +95,8 @@
       <div data-panel="codes">
       <p class="lead" style="font-size:16px">Donnez le code d'une activité aux élèves quand ils peuvent consulter la correction. Une activité sans code ou sans fichier n'a pas de correction en ligne.</p>
       <div class="tools">
-        <button class="btn" id="gen">Générer le fichier corrections.js</button>
+        <button class="btn" id="pub">${ICONS.signal} Publier en ligne</button>
+        <button class="btn ghost" id="gen">Télécharger le fichier</button>
         <button class="btn ghost" id="print">Imprimer la liste des codes</button>
         <button class="btn ghost" id="regen">Nouveaux codes pour toutes les activités</button>
       </div>
@@ -124,6 +126,7 @@
     renderVis();
     montrer(onglet);
     compter();
+    etatCle();
     app.oninput = e => { const t = e.target; if (t.dataset.i !== undefined){ const l = lignes[+t.dataset.i]; if (t.dataset.f === "code") l.code = t.value; else l.liens = texteLiens(t.value); compter(); } };
     app.onclick = e => {
       const b = e.target.closest("button"); if (!b) return;
@@ -133,7 +136,9 @@
       if (b.dataset.tab) montrer(b.dataset.tab);
       if (b.id === "apercu"){ try { sessionStorage.setItem("apercu-prof", "1"); } catch(err){} window.open("index.html", "_blank"); }
       if (b.id === "print") print();
-      if (b.id === "gen") generer();
+      if (b.id === "gen") generer("telecharger");
+      if (b.id === "pub") generer("publier");
+      if (b.id === "ghkey") demanderCle(true);
     };
   }
 
@@ -168,7 +173,7 @@
     const box = U.$("#vis");
     box.innerHTML = `
       <p class="lead" style="font-size:16px">Les élèves ne voient que ce qui est ouvert. « À partir du… » ouvre automatiquement à la date choisie. Une activité n'est visible que si son chapitre l'est aussi.</p>
-      <div class="tools"><button class="btn" id="genvis">Générer le fichier visibilite.js</button></div>
+      <div class="tools"><button class="btn" id="pubvis">${ICONS.signal} Publier en ligne</button><button class="btn ghost" id="genvis">Télécharger le fichier</button></div>
       <table class="codes"><thead><tr><th>Chapitre / activité</th><th>Ouverture</th></tr></thead><tbody>
       ${CHAPITRES.map(ch => `
         <tr class="chap"><td>${U.esc(ch.num)} : ${U.esc(ch.titre)}
@@ -192,11 +197,12 @@
     box.onclick = e => {
       const b = e.target.closest("button"); if (!b) return;
       if (b.dataset.all){ const ch = CHAPITRES.find(c => c.id === b.dataset.all); ch.activites.forEach(a => vis[a._cle] = b.dataset.val); maj(); }
-      if (b.id === "genvis") genererVis();
+      if (b.id === "genvis") genererVis("telecharger");
+      if (b.id === "pubvis") genererVis("publier");
     };
     window.VISIBILITE = vis;   // pour que les badges « ouvert / masqué » suivent les choix
   }
-  function genererVis(){
+  async function genererVis(mode){
     const lignes = [];
     CHAPITRES.forEach(ch => {
       lignes.push(`  ${JSON.stringify(ch.id)}: ${JSON.stringify(vis[ch.id] || "visible")},   // ${ch.num} : ${ch.titre}`);
@@ -213,14 +219,13 @@ window.VISIBILITE = {
 ${lignes.join("\n")}
 };
 `;
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([txt], { type: "text/javascript" }));
-    a.download = "visibilite.js"; a.click();
-    alert("Fichier visibilite.js généré.\nRemplacez assets/js/data/visibilite.js par le fichier téléchargé.");
+    if (mode === "publier") return publier("assets/js/data/visibilite.js", txt, "Ouverture des chapitres et des activités", U.$("#pubvis"));
+    telecharger("visibilite.js", txt);
+    alert("Fichier visibilite.js téléchargé.\nRemplacez assets/js/data/visibilite.js par ce fichier.");
   }
 
   /* ---------- Génération du nouveau fichier ---------- */
-  async function generer(){
+  async function generer(mode){
     const pw = U.$("#newpw").value.trim() || master;
     const actives = lignes.filter(l => !l.orphelin && l.code.trim() && l.liens.length);
     const boxes = {};
@@ -234,10 +239,64 @@ ${lignes.join("\n")}
 window.CORRECTIONS = ${JSON.stringify(boxes, null, 1)};
 window.CORRECTIONS_PROF = ${JSON.stringify(prof)};
 `;
+    if (mode === "publier"){
+      const ok = await publier("assets/js/data/corrections.js", txt, "Codes des corrections", U.$("#pub"));
+      if (ok && pw !== master){ master = pw; alert("Le mot de passe enseignant a changé : utilisez le nouveau à la prochaine connexion."); }
+      return;
+    }
+    telecharger("corrections.js", txt);
+    alert(`Fichier généré : ${actives.length} corrections verrouillées.\nRemplacez assets/js/data/corrections.js par le fichier téléchargé.` + (pw !== master ? "\n\nAttention : le mot de passe enseignant a changé." : ""));
+  }
+
+  /* ---------- Publication en ligne (GitHub) ----------
+     La clé d'accès GitHub reste dans ce navigateur (localStorage), jamais dans le site. */
+  const GH = window.SITE.github || {};
+  function telecharger(nom, txt){
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([txt], { type: "text/javascript" }));
-    a.download = "corrections.js"; a.click();
-    alert(`Fichier généré : ${actives.length} corrections verrouillées.\nRemplacez assets/js/data/corrections.js par le fichier téléchargé.` + (pw !== master ? "\n\nAttention : le mot de passe enseignant a changé." : ""));
+    a.download = nom; a.click();
+  }
+  const lireCle = () => { try { return localStorage.getItem("cle-github") || ""; } catch(e){ return ""; } };
+  function etatCle(){
+    const el = U.$("#ghState"); if (!el) return;
+    el.textContent = lireCle() ? "GitHub : clé enregistrée" : "GitHub : pas de clé";
+  }
+  function demanderCle(changer){
+    if (lireCle() && !changer) return lireCle();
+    const c = prompt("Collez votre clé d'accès GitHub (github_pat_…).\nElle sera gardée dans ce navigateur uniquement.\nLaissez vide pour l'effacer de ce navigateur.", "");
+    if (c === null) return "";
+    try { c.trim() ? localStorage.setItem("cle-github", c.trim()) : localStorage.removeItem("cle-github"); } catch(e){}
+    etatCle();
+    return c.trim();
+  }
+  const b64utf8 = txt => { let s = ""; new TextEncoder().encode(txt).forEach(b => s += String.fromCharCode(b)); return btoa(s); };
+  async function publier(chemin, txt, quoi, bouton){
+    const cle = demanderCle(false);
+    if (!cle) return false;
+    const api = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${chemin}`;
+    const entetes = { "Authorization": "Bearer " + cle, "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" };
+    const texteBouton = bouton ? bouton.innerHTML : "";
+    if (bouton){ bouton.disabled = true; bouton.textContent = "Publication…"; }
+    try {
+      const lu = await fetch(`${api}?ref=${GH.branch}`, { headers: entetes, cache: "no-store" });
+      if (lu.status === 401) throw new Error("La clé GitHub est refusée (expirée ou effacée). Cliquez sur « Clé GitHub » pour en coller une nouvelle.");
+      const sha = lu.ok ? (await lu.json()).sha : undefined;
+      const ecrit = await fetch(api, { method: "PUT", headers: entetes, body: JSON.stringify({
+        message: `${quoi} (page enseignant)`, content: b64utf8(txt), branch: GH.branch, ...(sha ? { sha } : {}) }) });
+      if (!ecrit.ok){
+        const err = await ecrit.json().catch(() => ({}));
+        throw new Error(ecrit.status === 403 || ecrit.status === 404
+          ? "La clé GitHub n'a pas le droit d'écrire dans le dépôt " + GH.repo + " (permission Contents : Read and write)."
+          : "GitHub a répondu : " + (err.message || ecrit.status));
+      }
+      alert(`Publié ! ${quoi} : les élèves verront le changement dans 1 à 2 minutes.`);
+      return true;
+    } catch(e){
+      alert("La publication n'a pas abouti.\n" + (e.message || e) + "\n\nVous pouvez aussi utiliser « Télécharger le fichier ».");
+      return false;
+    } finally {
+      if (bouton){ bouton.disabled = false; bouton.innerHTML = texteBouton; }
+    }
   }
 
   login();

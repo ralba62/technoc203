@@ -68,3 +68,13 @@ pour les équipes du concours, préférez les prénoms ou un nom d'équipe.
 - Un chapitre masqué n'apparaît nulle part (accueil, liste des chapitres, page Connaissances).
 - Limite : le contenu masqué est caché, pas secret. Un élève curieux pourrait le retrouver dans les fichiers
   du site. Les corrections, elles, restent protégées par leur code.
+
+## Site en ligne (GitHub Pages)
+
+- Adresse du site : https://ralba62.github.io/technoc203/  —  page enseignant : https://ralba62.github.io/technoc203/prof.html
+- Dépôt : https://github.com/ralba62/technoc203
+- Dans la page enseignant, **« Publier en ligne »** envoie directement les réglages (ouverture des chapitres,
+  codes des corrections, mot de passe enseignant) sur GitHub : visible par les élèves en 1 à 2 minutes.
+  La première fois sur un appareil, la page demande la **clé d'accès GitHub** (github_pat_…) et la garde
+  dans ce navigateur uniquement. Bouton « Clé GitHub » pour la changer ou l'effacer.
+- La clé expire au bout d'un an : en recréer une sur github.com (droits : dépôt technoc203, Contents en lecture/écriture).

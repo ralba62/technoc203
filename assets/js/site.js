@@ -10,6 +10,8 @@ window.SITE = {
   enseignant: "R. ALBA",
   etablissement: "Collège Jean Jaurès - Aire sur la Lys",
   anneeScolaire: "2026-2027",
+  // dépôt GitHub du site : utilisé par le bouton « Publier en ligne » de la page enseignant
+  github: { owner: "ralba62", repo: "technoc203", branch: "main" },
 };
 
 const NAV = [
