@@ -47,7 +47,7 @@ CHAPITRES.push({
       ],
       chezMoi: [
         "Télécharge et imprime (ou recopie) la <b>fiche de l'activité 1</b>.",
-        "Regarde les <b>vidéos ressources</b> dans l'application <b>ELEA</b> de l'ENT (parcours Technologie).",
+        "Regarde les <b>vidéos ressources</b> dans l'application <b>ELEA</b> de l'ENT.",
         "Réponds aux questions 1.a à 1.d : adresse IP, table de routage, unités de débit.",
         "Réponds aux questions 2.a à 2.c en t'aidant de l'<b>aide réseau</b> et des deux fiches de connaissances.",
         "Lis le bilan « Je retiens » ci-dessous et recopie-le dans ton cahier.",
@@ -63,7 +63,6 @@ CHAPITRES.push({
       objectif: "Créer, configurer et tester un réseau pour observer comment une information y circule.",
       docs: [
         { label:"Fiche de l'activité 2", url:"docs/ch1/activite2-filius.pdf" },
-        { label:"Réseau Filius du cours (.fls)", url:"docs/ch1/reseau3eme.fls" },
       ],
       outils: [
         { label:"Télécharger Filius", url:"https://lernsoftware-filius.de/Herunterladen" },
@@ -71,10 +70,9 @@ CHAPITRES.push({
       ],
       chezMoi: [
         "Installe <b>Filius</b> (ou ouvre Filius II en ligne). Pas d'ordinateur à la maison ? Fais cette activité au CDI ou passe directement à l'activité 3.",
-        "Suis la <b>fiche de l'activité 2</b> et les vidéos « Filius » de l'ENT pour créer le réseau simplifié de la salle de technologie.",
+        "Suis la <b>fiche de l'activité 2</b> et les <b>vidéos Filius</b>, disponibles dans l'application <b>ELEA</b> de l'ENT, pour créer le réseau simplifié de la salle de technologie.",
         "Configure les <b>adresses IP</b> des ordinateurs et des serveurs, puis les <b>passerelles</b> et le routeur.",
         "Teste la communication : lance une commande <code>ping</code> d'un ordinateur vers un serveur.",
-        "Tu peux aussi ouvrir le <b>réseau Filius du cours</b> (fichier .fls) pour comparer avec le tien.",
       ],
       retenir: [
         "Un <b>routeur</b> choisit le chemin que vont suivre les données : il les reçoit et les transmet au routeur suivant, en fonction de leur destination.",
