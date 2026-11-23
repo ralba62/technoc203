@@ -112,6 +112,7 @@ CHAPITRES.push({
           docs: [
             { label:"Cours : chaînes d'information et d'énergie", url:"docs/br/chaines-info-energie.pdf" },
             { label:"Exercice papier : les chaînes du mBot", url:"docs/br/chaines-mbot-exercice.pdf" },
+            { label:"Vignettes à découper et coller", url:"docs/br/chaines-mbot-vignettes.pdf" },
           ],
           outils: [
             { label:"Lancer l'activité interactive", url:"applis/chaines-mbot.html" },
@@ -122,7 +123,7 @@ CHAPITRES.push({
             "Lis le <b>cours</b> sur les chaînes d'information et d'énergie.",
             "Ouvre l'<b>activité interactive</b> et fais les 4 étapes : capteur ou actionneur, chaîne d'information, chaîne d'énergie, questions.",
             "À chaque étape, clique sur <b>Vérifier</b> : les erreurs s'affichent en rouge avec la bonne case. Corrige-les avant de passer à la suite.",
-            "Complète ensuite l'<b>exercice papier</b> et recopie le bilan dans ton cahier.",
+            "Complète ensuite l'<b>exercice papier</b> : découpe les <b>vignettes</b> et colle-les dans les bonnes cases. Recopie le bilan dans ton cahier.",
           ],
           retenir: [
             "Chaîne d'information : <b>ACQUÉRIR</b> (récepteur infrarouge, capteur de distance, détecteur de ligne) → <b>TRAITER</b> (carte microcontrôleur) → <b>COMMUNIQUER</b> (câbles / pistes de cuivre).",
