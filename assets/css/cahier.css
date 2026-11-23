@@ -1,0 +1,240 @@
+/* ==========================================================
+   Mon cahier — feuilles façon « cahier papier » aux couleurs de TechnoC203
+   Les feuilles restent claires (du papier) quel que soit le thème du site.
+   ========================================================== */
+:root{
+  --papier:#FFFDF8; --carreau:#E9EEF6; --marge:#F2A3A3;
+  --encre:#18202E; --encre-2:#5A6476; --stylo:#1E46B4;
+  --ligne-ecr:#A9BCD9; --f-main:"Patrick Hand", "Comic Sans MS", cursive;
+}
+
+/* ---------- barre : onglets + actions ---------- */
+.cahier-bar{position:sticky; top:64px; z-index:20; display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; justify-content:space-between;
+  padding:10px; margin:0 0 6px; border-radius:14px; background:color-mix(in srgb, var(--surface) 88%, transparent); border:1px solid var(--line); backdrop-filter:blur(10px)}
+.ctabs{display:flex; gap:6px; flex-wrap:wrap}
+.ctabs button{--k:var(--accent); display:flex; align-items:center; gap:9px; padding:8px 14px; border-radius:10px; border:1px solid var(--line-2); background:var(--surface-2); color:var(--muted); font:500 14.5px var(--f-body); cursor:pointer; text-align:left}
+.ctabs button b{font-family:var(--f-display); color:var(--ink); font-weight:600}
+.ctabs button .num{display:grid; place-items:center; width:26px; height:26px; border-radius:8px; font:700 13px var(--f-mono); color:#fff; background:var(--k); flex:none}
+.ctabs button .prog{font:500 11.5px var(--f-mono); color:var(--muted)}
+.ctabs button:hover{border-color:var(--k)}
+.ctabs button[aria-selected=true]{border-color:var(--k); background:color-mix(in srgb, var(--k) 16%, var(--surface)); box-shadow:0 0 0 1px var(--k); color:var(--ink)}
+.cactions{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.saved{font:500 12px var(--f-mono); color:var(--ok); min-width:0; opacity:0; transition:opacity .3s}
+.saved.on{opacity:1}
+.more{position:relative}
+.more summary{list-style:none; letter-spacing:.1em}
+.more summary::-webkit-details-marker{display:none}
+.more-menu{position:absolute; right:0; top:calc(100% + 6px); z-index:30; display:grid; min-width:290px; padding:6px; border-radius:12px; background:var(--surface); border:1px solid var(--line-2); box-shadow:var(--shadow)}
+.more-menu button, .more-menu label{all:unset; cursor:pointer; padding:9px 12px; border-radius:8px; font-size:14.5px; color:var(--ink)}
+.more-menu button:hover, .more-menu label:hover{background:var(--surface-3)}
+.more-menu .danger{color:var(--ko)}
+.pdf-hint{font-size:13.5px; color:var(--muted); margin:0 4px 22px}
+
+/* ---------- la feuille ---------- */
+.panel{display:none}
+.panel.actif, .impression-tout .panel{display:block}
+.feuille{scroll-margin-top:200px; --k:#0A84C6; --k-clair:color-mix(in srgb, var(--k) 10%, #fff);
+  position:relative; max-width:860px; margin:0 auto 30px; padding:46px 52px 50px 92px;
+  background-color:var(--papier); color:var(--encre); border-radius:4px 10px 10px 4px;
+  background-image:linear-gradient(var(--carreau) 1px, transparent 1px), linear-gradient(90deg, var(--carreau) 1px, transparent 1px);
+  background-size:22px 22px; background-position:-1px -1px;
+  box-shadow:0 1px 0 rgba(0,0,0,.04), 0 22px 50px -24px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.06);
+  font-size:16.5px; line-height:1.55; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+/* marge rouge + trous de classeur */
+.feuille::before{content:""; position:absolute; top:0; bottom:0; left:68px; border-left:2px solid var(--marge)}
+.feuille::after{content:""; position:absolute; left:20px; top:0; bottom:0; width:18px;
+  background:radial-gradient(circle at 9px 9px, #2a3345 0 8px, transparent 9px) 0 12% / 18px 18px no-repeat,
+             radial-gradient(circle at 9px 9px, #2a3345 0 8px, transparent 9px) 0 50% / 18px 18px no-repeat,
+             radial-gradient(circle at 9px 9px, #2a3345 0 8px, transparent 9px) 0 88% / 18px 18px no-repeat; opacity:.18}
+.feuille h2, .feuille h3, .feuille h4{color:var(--encre); font-family:var(--f-display)}
+.feuille code{font-family:var(--f-mono); font-size:.9em; background:rgba(10,20,40,.06); padding:1px 5px; border-radius:4px; color:var(--encre)}
+.feuille ul{margin:6px 0 10px; padding-left:22px}
+.feuille p{margin:0 0 12px}
+.feuille img{max-width:100%; display:block}
+
+/* ---------- bandeau d'activité ---------- */
+.act-band{break-after:avoid; display:flex; align-items:stretch; margin:0 0 22px; border-radius:12px; overflow:hidden; box-shadow:0 8px 20px -14px var(--k)}
+.act-band .n{display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px 18px; background:var(--k); color:#fff; font:600 11px var(--f-mono); letter-spacing:.14em; text-transform:uppercase}
+.act-band .n b{font:700 36px/1 var(--f-display); letter-spacing:0}
+.act-band .t{flex:1; padding:12px 18px; background:var(--k-clair); border:2px solid var(--k); border-left:0; border-radius:0 12px 12px 0}
+.act-band .t small{display:block; font:600 11.5px var(--f-mono); letter-spacing:.1em; text-transform:uppercase; color:var(--k)}
+.act-band .t h2{margin:2px 0 0; font-size:22px; line-height:1.25}
+
+/* ---------- blocs ---------- */
+.b-probleme{font-style:italic; font-weight:600; padding:10px 14px; border-left:4px solid var(--k); background:rgba(255,255,255,.75); border-radius:0 8px 8px 0}
+.b-img{margin:14px 0 18px; text-align:center}
+.b-img img{margin:0 auto; border-radius:10px; border:1px solid rgba(0,0,0,.08); background:#fff; max-height:440px; object-fit:contain}
+.b-img figcaption{font-size:13.5px; color:var(--encre-2); margin-top:6px}
+.b-consigne{display:flex; gap:12px; align-items:flex-start; margin:0 0 16px; padding:10px 14px; border-radius:10px; background:#FFF4E5; border:1px solid #F5C98A}
+.b-consigne .ico{width:22px; height:22px; color:#C26A00; flex:none; margin-top:2px}
+.b-partie{break-after:avoid; display:flex; gap:12px; align-items:center; margin:26px 0 12px; padding-bottom:6px; border-bottom:2px dashed color-mix(in srgb, var(--k) 45%, transparent)}
+.b-partie .pn{display:grid; place-items:center; width:30px; height:30px; border-radius:50%; background:var(--k); color:#fff; font:700 15px var(--f-mono); flex:none}
+.b-partie h3{margin:0; font-size:17.5px}
+.b-liste{list-style:none; padding:0 !important}
+.b-liste li{position:relative; padding-left:20px; margin:3px 0}
+.b-liste li::before{content:""; position:absolute; left:3px; top:.62em; width:7px; height:7px; border-radius:2px; background:var(--k); transform:rotate(45deg)}
+
+/* ---------- questions ---------- */
+.q{margin:0 0 18px; break-inside:avoid}
+.q-enonce{display:flex; gap:10px; align-items:baseline; margin-bottom:6px}
+.q-num{flex:none; font:700 13px var(--f-mono); color:var(--k); background:var(--k-clair); border:1px solid color-mix(in srgb, var(--k) 40%, transparent); padding:2px 8px; border-radius:6px}
+.q-txt{font-weight:500}
+/* lignes d'écriture */
+.ecrire{display:block; width:100%; resize:none; overflow:hidden; border:0; outline:0; padding:0 6px; margin:0;
+  font:21px/32px var(--f-main); color:var(--stylo); background:transparent;
+  background-image:repeating-linear-gradient(to bottom, transparent 0 31px, var(--ligne-ecr) 31px 32px); background-attachment:local}
+.ecrire:focus{background-color:rgba(30,70,180,.04)}
+.champ{font:20px var(--f-main); color:var(--stylo); border:0; border-bottom:1.5px dotted #7F95BA; background:transparent; outline:0; padding:0 4px; min-width:0}
+.champ:focus{background:rgba(30,70,180,.06)}
+/* cases à cocher */
+.cases{display:flex; flex-wrap:wrap; gap:10px 22px; padding-left:4px}
+.cases label{display:inline-flex; gap:8px; align-items:center; cursor:pointer; font-weight:500}
+.coche{appearance:none; -webkit-appearance:none; width:20px; height:20px; border:2px solid var(--k); border-radius:4px; background:#fff; display:grid; place-items:center; margin:0; cursor:pointer}
+.coche:checked{background:var(--k)}
+.coche:checked::after{content:""; width:5px; height:10px; border:solid #fff; border-width:0 2.5px 2.5px 0; transform:translate(0,-1px) rotate(45deg)}
+/* associer */
+.assoc{display:grid; grid-template-columns:minmax(120px, 1fr) 46px minmax(200px, 2fr); gap:8px 14px; align-items:center}
+.assoc .g, .assoc .d{padding:7px 10px; border-radius:8px; background:#fff; border:1px solid rgba(0,0,0,.1); font-size:15px}
+.assoc .g b, .assoc .d b{color:var(--k); font-family:var(--f-mono); margin-right:6px}
+.assoc .lettre{width:40px; height:40px; text-align:center; font:24px var(--f-main); color:var(--stylo); border:2px solid var(--k); border-radius:8px; background:#fff; text-transform:uppercase; outline:0; padding:0}
+/* tableaux */
+.tab{width:100%; border-collapse:separate; border-spacing:0; background:#fff; border:1.5px solid color-mix(in srgb, var(--k) 55%, #889); border-radius:10px; overflow:hidden; font-size:15.5px}
+.tab th{background:var(--k-clair); color:var(--encre); text-align:left; font:600 14px var(--f-display); padding:8px 12px; border-bottom:1.5px solid color-mix(in srgb, var(--k) 55%, #889)}
+.tab td{padding:4px 12px; height:42px; border-bottom:1px solid #DCE3EE}
+.tab tr:last-child td{border-bottom:0}
+.tab td + td, .tab th + th{border-left:1px solid #DCE3EE}
+.tab td.fixe{font-family:var(--f-mono); font-size:14.5px}
+.tab td .champ{width:100%; border-bottom:0}
+.tm{display:grid; grid-template-columns:minmax(220px, 300px) 1fr; gap:14px; align-items:start}
+.tm .tab{max-width:300px}
+.tm-rep{display:grid; gap:6px}
+.tm-rep .lig{display:flex; gap:8px; align-items:baseline}
+.tm-rep .lig span{font-weight:600; white-space:nowrap}
+.tm-rep .champ{flex:1}
+
+/* ---------- bilan ---------- */
+.bilan{margin:30px 0 4px; border:2.5px solid var(--k); border-radius:16px; background:#fff; overflow:hidden; break-inside:auto}
+.bilan-head{display:flex; align-items:center; gap:12px; padding:12px 18px; background:var(--k); color:#fff}
+.bilan-head .ico{width:26px; height:26px}
+.bilan-head h3{margin:0; color:#fff; font-size:19px}
+.bilan-body{padding:8px 18px 14px}
+.notion{display:grid; grid-template-columns:40px 1fr; gap:4px 14px; padding:14px 0; border-bottom:1px dashed #D4DCE8; break-inside:avoid}
+.notion:last-child{border-bottom:0}
+.notion .ni{grid-row:span 2; width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background:var(--k-clair); color:var(--k); border:1px solid color-mix(in srgb, var(--k) 35%, transparent)}
+.notion .ni svg{width:22px; height:22px}
+.notion h4{margin:6px 0 2px; font-size:17px}
+.notion .nt{font-size:15.5px}
+.notion .nt ul{margin:4px 0}
+.retenir{grid-column:2; display:flex; gap:10px; align-items:flex-start; margin-top:6px; padding:8px 12px; border-radius:10px; background:#FFF7CC; border:1px solid #F0D660; font-size:15.5px}
+.retenir svg{width:20px; height:20px; color:#B98A00; flex:none; margin-top:2px}
+.retenir em{font-style:normal; font-weight:700; color:#8A6400}
+
+/* ---------- fiches connaissances ---------- */
+.fiches-titre{display:flex; align-items:center; gap:10px; margin:0 0 16px}
+.fiches-titre .ico{width:24px; height:24px; color:var(--k)}
+.fiches-titre h2{margin:0; font-size:22px}
+.fiche{margin:0 0 22px; break-inside:avoid}
+.fiche img{border:1px solid rgba(0,0,0,.12); border-radius:8px; box-shadow:0 8px 22px -16px rgba(0,0,0,.5); background:#fff}
+.fiche figcaption{display:flex; justify-content:space-between; gap:10px; align-items:center; font-size:14px; color:var(--encre-2); margin-top:8px}
+.fiche figcaption a{font:600 13px var(--f-mono); color:var(--k); text-decoration:none}
+.vide{padding:22px; text-align:center; color:var(--encre-2); border:2px dashed #C9D3E2; border-radius:14px; background:rgba(255,255,255,.7)}
+
+/* ---------- pages de garde ---------- */
+.couv{display:flex; flex-direction:column; min-height:1100px; padding-top:40px}
+.couv-top{display:flex; justify-content:space-between; align-items:center; gap:10px; font:600 12px var(--f-mono); letter-spacing:.12em; text-transform:uppercase; color:var(--encre-2)}
+.couv-brand{display:flex; align-items:center; gap:10px; font:400 20px "Audiowide", var(--f-display); letter-spacing:0; text-transform:none; color:var(--encre)}
+.couv-brand b{color:#0A84C6; font-weight:400}
+.couv-brand .chip{width:34px; height:34px; border-radius:9px; display:grid; place-items:center; background:#0B1426; color:#2DD4FF}
+.couv-brand .chip svg{width:22px; height:22px}
+.couv-titre{margin:34px 0 4px; text-align:center}
+.couv-titre .sur{font:600 13px var(--f-mono); letter-spacing:.3em; text-transform:uppercase; color:var(--encre-2)}
+.couv-titre h1{display:inline-block; margin:6px 0 0; font:400 clamp(40px, 8vw, 74px)/1 "Audiowide", var(--f-display); letter-spacing:.02em;
+  background:linear-gradient(90deg, #E2600E, #D9A400 48%, #0A84C6); -webkit-background-clip:text; background-clip:text; color:transparent}
+.couv-titre h1 sup{font-size:.45em; vertical-align:top; position:relative; top:.1em}
+.couv-art{margin:22px auto 8px; width:100%; max-width:640px}
+.couv-art svg{width:100%; height:auto; display:block}
+.ident{margin:16px auto 0; width:100%; max-width:560px; display:grid; gap:12px; padding:20px 24px; border-radius:16px; background:#fff; border:2px solid #0B1426; box-shadow:6px 6px 0 #0B1426}
+.ident .lig{display:flex; gap:10px; align-items:baseline}
+.ident .lig > span{font:600 13px var(--f-mono); letter-spacing:.12em; text-transform:uppercase; color:var(--encre-2); min-width:86px}
+.ident .champ{flex:1; font-size:26px}
+.ident select.champ{appearance:none; -webkit-appearance:none; cursor:pointer; flex:0 0 120px}
+.couv-pied{margin-top:auto; padding-top:30px; display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap; font-size:15px; color:var(--encre-2)}
+.couv-pied b{color:var(--encre)}
+.triad{display:flex; gap:6px}
+.triad i{width:12px; height:12px; border-radius:50%}
+
+/* page de garde d'un chapitre */
+.couv-chap{--k:#0A84C6}
+.couv-chap .bande{position:absolute; left:0; right:0; top:0; height:12px; background:linear-gradient(90deg, var(--k), color-mix(in srgb, var(--k) 40%, #fff)); border-radius:4px 10px 0 0}
+.cc-num{margin-top:40px; display:flex; align-items:flex-end; gap:18px}
+.cc-num .big{font:700 150px/0.8 var(--f-display); color:transparent; -webkit-text-stroke:3px var(--k); letter-spacing:-.02em}
+.cc-num .lab{font:600 14px var(--f-mono); letter-spacing:.3em; text-transform:uppercase; color:var(--k); padding-bottom:10px}
+.cc-titre{margin:16px 0 0; font:700 clamp(30px, 5vw, 46px)/1.1 var(--f-display); color:var(--encre)}
+.cc-pb{margin:18px 0 0; padding:14px 18px; border-radius:14px; background:var(--k-clair); border:2px solid var(--k); font-size:17px}
+.cc-pb small{display:block; font:600 11.5px var(--f-mono); letter-spacing:.14em; text-transform:uppercase; color:var(--k); margin-bottom:4px}
+.cc-art{margin:26px auto 10px; width:100%; max-width:620px}
+.cc-art svg{width:100%; height:auto; display:block}
+.cc-sommaire{margin-top:auto; padding-top:20px}
+.cc-sommaire h4{margin:0 0 10px; font:600 12px var(--f-mono); letter-spacing:.14em; text-transform:uppercase; color:var(--encre-2)}
+.cc-sommaire ol{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.cc-sommaire li{display:flex; gap:12px; align-items:center; padding:9px 14px; border-radius:10px; background:#fff; border:1px solid #D9E1EC}
+.cc-sommaire li .n{display:grid; place-items:center; width:28px; height:28px; border-radius:8px; background:var(--k); color:#fff; font:700 13px var(--f-mono); flex:none}
+
+/* sommaire général */
+.som h2{font-size:28px; margin:0 0 20px}
+.som-chap{--k:#0A84C6; margin:0 0 18px; border-radius:14px; overflow:hidden; border:2px solid var(--k); background:#fff}
+.som-chap header{display:flex; gap:12px; align-items:center; padding:10px 16px; background:var(--k); color:#fff}
+.som-chap header .n{font:400 26px "Audiowide", var(--f-display)}
+.som-chap header b{font:600 17px var(--f-display)}
+.som-chap ol{margin:0; padding:10px 16px 12px 44px}
+.som-chap li{padding:3px 0}
+.som-chap .vide{border:0; padding:10px 16px; text-align:left; background:none}
+
+/* animations douces des illustrations (écran seulement) */
+.paquet-fixe{display:none}
+@media (prefers-reduced-motion: no-preference){
+  .anim-pulse{animation:pulse 2.6s ease-in-out infinite; transform-origin:center; transform-box:fill-box}
+  @keyframes pulse{50%{opacity:.45}}
+}
+
+/* ---------- petits écrans ---------- */
+@media (max-width:720px){
+  .cahier-bar{position:static; padding:8px}
+  .ctabs{flex-wrap:nowrap; overflow-x:auto; width:100%; padding-bottom:2px; scrollbar-width:none}
+  .ctabs button{flex:none; padding:7px 10px}
+  .ctabs button b{font-size:14px}
+  .cactions{width:100%}
+  .cactions .btn{flex:1 1 auto; justify-content:center}
+  .saved{order:9; width:100%}
+  .feuille{padding:30px 16px 30px 40px}
+  .feuille::before{left:28px}
+  .feuille::after{display:none}
+  .assoc{grid-template-columns:1fr 46px; }
+  .assoc .d{grid-column:1 / -1; margin-bottom:6px}
+  .tm{grid-template-columns:1fr}
+  .couv{min-height:0}
+  .cc-num .big{font-size:96px}
+  .notion{grid-template-columns:1fr}
+  .notion .ni{grid-row:auto}
+  .retenir{grid-column:1}
+}
+
+/* ---------- impression / PDF ---------- */
+@page{size:A4; margin:10mm}
+@media print{
+  html, body{background:#fff !important}
+  body{display:block; font-size:12pt}
+  .site-header, .site-footer, .apercu-bar, .noprint{display:none !important}
+  main{max-width:none; padding:0; margin:0}
+  .panel{display:none !important}
+  body[data-print=tout] .panel, body:not([data-print=tout]) .panel.actif{display:block !important}
+  .feuille{max-width:none; margin:0; border-radius:0; box-shadow:none; padding:10mm 10mm 10mm 22mm; break-after:page}
+  .feuille::before{left:15mm}
+  .feuille::after{display:none}
+  .couv{min-height:275mm; padding-top:12mm}
+  .couv-chap .bande{border-radius:0}
+  .fiche a{display:none}
+  .paquet-anim{display:none}
+  .paquet-fixe{display:inline}
+  .ecrire:focus, .champ:focus{background-color:transparent}
+}

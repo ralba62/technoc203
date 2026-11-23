@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon cahier — TechnoC203</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Patrick+Hand&display=swap">
+<link rel="stylesheet" href="assets/css/style.css?v=20261123125738">
+<link rel="stylesheet" href="assets/css/cahier.css?v=20261123125738">
+<script src="assets/js/site.js?v=20261123125738"></script>
+<script src="assets/js/data/chapitres/liste.js?v=20261123125738"></script>
+<script src="assets/js/data/visibilite.js?v=20261123125738"></script>
+<script src="assets/js/data/cahier.js?v=20261123125738"></script>
+</head>
+<body>
+<main>
+  <header class="page-head noprint">
+    <span class="eyebrow">Mon cahier</span>
+    <h1>Mon cahier de technologie</h1>
+    <p class="lead">Ton cahier en ligne : écris tes réponses directement dans les cases. Elles sont enregistrées <b>sur cet appareil uniquement</b> (rien n'est envoyé sur Internet). Tu peux ensuite télécharger ton cahier en PDF.</p>
+  </header>
+
+  <div class="cahier-bar noprint">
+    <div class="ctabs" role="tablist" id="tabs"></div>
+    <div class="cactions">
+      <span class="saved" id="saved" aria-live="polite"></span>
+      <button class="btn small" id="pdfChap" type="button">PDF de ce chapitre</button>
+      <button class="btn small ghost" id="pdfTout" type="button">PDF du cahier complet</button>
+      <details class="more">
+        <summary class="btn small ghost" aria-label="Autres actions">•••</summary>
+        <div class="more-menu">
+          <button type="button" id="exporter">Sauvegarder mes réponses dans un fichier</button>
+          <label>Reprendre une sauvegarde<input type="file" id="importer" accept=".json,application/json" hidden></label>
+          <button type="button" id="effacer" class="danger">Effacer toutes mes réponses</button>
+        </div>
+      </details>
+    </div>
+  </div>
+  <p class="pdf-hint noprint">Pour le PDF : dans la fenêtre qui s'ouvre, choisis <b>« Enregistrer au format PDF »</b> comme imprimante. Tu changes d'ordinateur ? Utilise <b>•••</b> pour sauvegarder tes réponses dans un fichier.</p>
+
+  <div id="cahier"></div>
+</main>
+
+<script src="assets/js/cahier.js?v=20261123125738"></script>
+</body>
+</html>

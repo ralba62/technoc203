@@ -27,6 +27,10 @@ Chaque élément est un bloc `{ … },` : copiez un bloc existant, collez-le et 
   `statut` ("termine", "en-cours", "a-venir") met en avant le chapitre en cours sur l'accueil.
   `programme` relie le chapitre aux connaissances du programme (champ `chap` de connaissances.js).
 - **connaissances.js** — les connaissances de 3e du programme, par thème.
+- **cahier.js** — « Mon cahier » (cahier.html) : le cahier de l'élève en ligne, sans les réponses.
+  Les élèves écrivent dans les cases (enregistré sur leur appareil) et téléchargent un PDF.
+  Les activités suivent la visibilité réglée sur la page prof (champ `site` = titre de l'activité).
+  Ne changez pas l'`id` d'une question déjà utilisée : les élèves perdraient leur réponse.
 - **glossaire.js** — les mots (tri alphabétique automatique).
 - **dnb.js** — sujets interactifs (types : `qcm`, `vf`, `associer`, `ouvert`).
 - **logiciels.js** — logiciels et plateformes.

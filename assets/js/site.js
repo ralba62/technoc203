@@ -17,6 +17,7 @@ window.SITE = {
 const NAV = [
   { href: "index.html",      label: "Accueil" },
   { href: "chapitre.html",   label: "Chapitres" },
+  { href: "cahier.html",     label: "Mon cahier" },
   { href: "glossaire.html",  label: "Glossaire" },
   { href: "dnb.html",        label: "DNB" },
   { href: "logiciels.html",  label: "Logiciels" },
