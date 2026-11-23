@@ -106,6 +106,27 @@ CHAPITRES.push({
         "« si… alors… sinon » : le robot choisit son action selon la valeur du capteur.",
       ],
     },
+        {
+          titre: "Les chaînes d'information et d'énergie du mBot",
+          objectif: "Placer chaque élément du mBot dans la chaîne d'information ou dans la chaîne d'énergie.",
+          docs: [
+            { label:"Cours : chaînes d'information et d'énergie", url:"docs/br/chaines-info-energie.pdf" },
+            { label:"Exercice papier : les chaînes du mBot", url:"docs/br/chaines-mbot-exercice.pdf" },
+          ],
+          outils: [{ label:"Lancer l'activité interactive", url:"applis/chaines-mbot.html" }],
+          chezMoi: [
+            "Lis le <b>cours</b> sur les chaînes d'information et d'énergie.",
+            "Ouvre l'<b>activité interactive</b> et fais les 4 étapes : capteur ou actionneur, chaîne d'information, chaîne d'énergie, questions.",
+            "À chaque étape, clique sur <b>Vérifier</b> : les erreurs s'affichent en rouge avec la bonne case. Corrige-les avant de passer à la suite.",
+            "Complète ensuite l'<b>exercice papier</b> et recopie le bilan dans ton cahier.",
+          ],
+          retenir: [
+            "Chaîne d'information : <b>ACQUÉRIR</b> (récepteur infrarouge, capteur de distance, détecteur de ligne) → <b>TRAITER</b> (carte microcontrôleur) → <b>COMMUNIQUER</b> (câbles / pistes de cuivre).",
+            "Les consignes de l'utilisateur (interrupteur, télécommande) entrent dans la chaîne d'information ; la LED donne une information à l'utilisateur.",
+            "Chaîne d'énergie : <b>ALIMENTER</b> (piles / batterie) → <b>DISTRIBUER</b> (câbles / pistes de cuivre) → <b>CONVERTIR</b> (moteurs) → <b>TRANSMETTRE</b> (engrenages) → les roues font avancer le robot.",
+            "La carte envoie un <b>ordre</b> à la chaîne d'énergie : c'est le lien entre les deux chaînes.",
+          ],
+        },
       ],
     },
     {

@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Les chaînes du mBot — TechnoC203</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="../assets/css/style.css?v=20261123105835">
+<script>
+  // même thème clair / sombre que le site
+  (function(){ let t = null; try { t = localStorage.getItem("theme"); } catch(e){} document.documentElement.dataset.theme = t || "dark"; })();
+</script>
+<style>
+  main{max-width:1100px}
+  .topbar{display:flex; align-items:center; gap:12px; padding:12px 22px; border-bottom:1px solid var(--line); background:color-mix(in srgb, var(--bg) 85%, transparent); position:sticky; top:0; z-index:20; backdrop-filter:blur(10px)}
+  .topbar a{font-family:var(--f-mono); font-size:13.5px; text-decoration:none}
+  .topbar .brand-name{font-family:"Audiowide", var(--f-display); font-size:18px; color:var(--ink)}
+  .topbar .brand-name b{color:var(--accent); font-weight:400}
+  .steps-nav{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 22px}
+  .steps-nav button{flex:1 1 180px; text-align:left; padding:10px 14px; border-radius:12px; border:1px solid var(--line-2); background:var(--surface); color:var(--muted); font:inherit; font-size:14px; cursor:pointer}
+  .steps-nav button b{display:block; font-family:var(--f-display); color:var(--ink); font-size:15.5px}
+  .steps-nav button[aria-current=true]{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, var(--surface)); box-shadow:0 0 0 1px var(--accent)}
+  .steps-nav button .sc{font:500 12px var(--f-mono); color:var(--ok)}
+  .consigne{background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:12px; padding:14px 18px; margin-bottom:16px}
+  .consigne p{margin:0}
+  .pile{display:flex; flex-wrap:wrap; gap:10px; min-height:120px; padding:12px; border:2px dashed var(--line-2); border-radius:14px; margin-bottom:16px; align-items:flex-start}
+  .pile:empty::after{content:"Toutes les étiquettes sont placées : clique sur « Vérifier »."; color:var(--muted); font-size:14.5px; padding:8px}
+  .zones{display:grid; gap:12px; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr))}
+  .zone{border:1px solid var(--line-2); border-radius:14px; background:var(--surface); min-height:170px; display:flex; flex-direction:column; transition:border-color .15s, box-shadow .15s}
+  .zone h3{margin:0; padding:10px 12px; font-size:15px; text-align:center; border-bottom:1px solid var(--line); border-radius:14px 14px 0 0; background:color-mix(in srgb, var(--z, var(--accent)) 16%, transparent); color:var(--ink)}
+  .zone h3 small{display:block; font:500 11.5px var(--f-mono); color:var(--muted); margin-top:2px}
+  .zone .drop{flex:1; display:flex; flex-wrap:wrap; gap:8px; padding:10px; align-content:flex-start; justify-content:center}
+  .zone.cible{border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 40%, transparent)}
+  .info .zone{--z:var(--information)} .energie .zone{--z:var(--energie)}
+  .zone.user{--z:var(--t3)} .zone.action{--z:var(--t5)}
+  .carte-el{width:112px; background:#fff; color:#0A1222; border:2px solid var(--line-2); border-radius:12px; padding:5px; cursor:grab; text-align:center; font:600 12.5px var(--f-body); user-select:none; touch-action:manipulation; position:relative}
+  .carte-el img{display:block; width:100%; height:84px; object-fit:contain; border-radius:6px}
+  .carte-el.txt{display:flex; align-items:center; justify-content:center; min-height:58px}
+  .carte-el.sel{border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 45%, transparent); transform:translateY(-2px)}
+  .carte-el.good{border-color:var(--ok); box-shadow:0 0 0 2px var(--ok)}
+  .carte-el.bad{border-color:var(--ko); box-shadow:0 0 0 2px var(--ko)}
+  .carte-el .sol{display:block; margin-top:4px; font:600 11px var(--f-mono); color:#B42318}
+  .carte-el.fixed{cursor:default}
+  .actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:18px 0}
+  .resultat{padding:12px 16px; border-radius:12px; display:none; margin-top:6px}
+  .resultat.show{display:block}
+  .resultat.ok{background:color-mix(in srgb, var(--ok) 12%, transparent); border:1px solid var(--ok)}
+  .resultat.ko{background:color-mix(in srgb, var(--ko) 12%, transparent); border:1px solid var(--ko)}
+  .q{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:12px}
+  .q p.enonce{font-weight:600; margin-bottom:10px}
+  .q .options{margin:0}
+  .ordre-row{display:grid; grid-template-columns:70px 1fr; gap:10px; align-items:center; padding:8px 0; border-bottom:1px dashed var(--line-2)}
+  .ordre-row.good select{border-color:var(--ok)} .ordre-row.bad select{border-color:var(--ko)}
+  .bilan{background:color-mix(in srgb, var(--accent) 8%, var(--surface)); border:1px solid var(--accent); border-radius:16px; padding:18px 22px}
+  .bilan ul{margin:8px 0 0; padding-left:20px}
+  [hidden]{display:none !important}
+  @media (max-width:600px){ .carte-el{width:96px} .carte-el img{height:70px}
+    .pile{position:sticky; top:50px; z-index:10; background:color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter:blur(6px)} }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="../chapitre.html?c=projet-br">← Retour au projet</a><span style="margin-left:auto" class="brand-name">Techno<b>C203</b></span></div>
+<main>
+  <header class="page-head" style="margin-bottom:14px">
+    <span class="eyebrow">Projet Blaise Robotics · Partie 1</span>
+    <h1>Les chaînes d'information et d'énergie du mBot</h1>
+    <p class="lead">Classe les éléments du robot, puis vérifie : chaque étape se corrige toute seule. Sur ordinateur, fais glisser les étiquettes. Sur tablette ou téléphone, touche une étiquette puis la bonne case.</p>
+  </header>
+
+  <nav class="steps-nav" id="nav"></nav>
+  <section id="etape"></section>
+</main>
+
+<script>
+/* ==========================================================
+   Données de l'activité (d'après le corrigé « Chaîne d'information
+   et chaîne d'énergie du robot mBot » et les exercices ELEA)
+   ========================================================== */
+const IMG = n => `img-chaines/${n}.png`;
+const ETAPES = [
+  { titre:"Capteur ou actionneur ?", court:"Étape 1",
+    consigne:"Un <b>capteur</b> acquiert une information. Un <b>actionneur</b> agit (mouvement, lumière, son). Classe chaque élément du mBot.",
+    zones:[ { id:"capteur", nom:"Capteurs", sous:"acquièrent une information" }, { id:"actionneur", nom:"Actionneurs", sous:"agissent" } ],
+    items:[
+      { id:"dist", img:"capteur-distance", nom:"Capteur de distance", zone:"capteur" },
+      { id:"ligne", img:"detecteur-ligne", nom:"Détecteur de ligne", zone:"capteur" },
+      { id:"ir", img:"recepteur-ir", nom:"Récepteur infrarouge", zone:"capteur" },
+      { id:"bouton", nom:"Bouton de la carte", zone:"capteur" },
+      { id:"lum", nom:"Capteur de luminosité", zone:"capteur" },
+      { id:"moteur", img:"moteur", nom:"Moteurs", zone:"actionneur" },
+      { id:"led", img:"led", nom:"LED", zone:"actionneur" },
+      { id:"buzzer", nom:"Buzzer", zone:"actionneur" },
+    ] },
+  { titre:"La chaîne d'information", court:"Étape 2", classe:"info",
+    consigne:"Place chaque élément dans la chaîne d'information du mBot. Les consignes de l'utilisateur <b>entrent</b> dans la chaîne ; les informations pour l'utilisateur en <b>sortent</b>.",
+    zones:[
+      { id:"user", nom:"Consignes de l'utilisateur", sous:"entrées", cls:"user" },
+      { id:"acq", nom:"ACQUÉRIR", sous:"capteurs" }, { id:"trait", nom:"TRAITER", sous:"partie commande" },
+      { id:"comm", nom:"COMMUNIQUER", sous:"transmet les ordres" },
+      { id:"sortie", nom:"Informations pour l'utilisateur", sous:"sorties", cls:"user" } ],
+    items:[
+      { id:"inter", img:"interrupteur", nom:"Interrupteur", zone:"user" },
+      { id:"telec", img:"telecommande", nom:"Télécommande infrarouge", zone:"user" },
+      { id:"ir", img:"recepteur-ir", nom:"Récepteur infrarouge", zone:"acq" },
+      { id:"dist", img:"capteur-distance", nom:"Capteur de distance", zone:"acq" },
+      { id:"ligne", img:"detecteur-ligne", nom:"Détecteur de ligne", zone:"acq" },
+      { id:"carte", img:"carte", nom:"Carte microcontrôleur", zone:"trait" },
+      { id:"cables", img:"cables", nom:"Câbles / pistes de cuivre", zone:"comm" },
+      { id:"led", img:"led", nom:"LED (témoin on/off)", zone:"sortie" },
+    ] },
+  { titre:"La chaîne d'énergie", court:"Étape 3", classe:"energie",
+    consigne:"La carte envoie un <b>ordre</b> à la chaîne d'énergie. Place chaque élément dans la bonne fonction, jusqu'à l'<b>action</b> : le déplacement du robot.",
+    zones:[
+      { id:"alim", nom:"ALIMENTER" }, { id:"distr", nom:"DISTRIBUER" }, { id:"conv", nom:"CONVERTIR" }, { id:"trans", nom:"TRANSMETTRE" },
+      { id:"act", nom:"Action", sous:"déplacement du robot", cls:"action" } ],
+    items:[
+      { id:"piles", img:"piles", nom:"Piles / batterie", zone:"alim" },
+      { id:"cables", img:"cables", nom:"Câbles / pistes de cuivre", zone:"distr" },
+      { id:"moteur", img:"moteur", nom:"Moteurs", zone:"conv" },
+      { id:"engr", img:"engrenages", nom:"Engrenages", zone:"trans" },
+      { id:"roues", img:"roues", nom:"Roues", zone:"act" },
+    ] },
+  { titre:"Je vérifie que j'ai compris", court:"Étape 4", quiz:true },
+];
+
+const QUIZ = [
+  { type:"qcm", enonce:"1. Le moteur convertit l'énergie…", choix:["chimique en énergie électrique", "électrique en énergie mécanique", "mécanique en énergie électrique"], bonne:1,
+    expl:"Le moteur reçoit de l'énergie électrique (des piles) et produit un mouvement de rotation : de l'énergie mécanique." },
+  { type:"qcm", enonce:"2. Qu'est-ce qui relie la chaîne d'information à la chaîne d'énergie ?", choix:["Les roues", "L'ordre envoyé par la carte à la fonction DISTRIBUER", "Le capteur de distance"], bonne:1,
+    expl:"La chaîne d'information décide ; elle envoie un ordre de commande qui autorise ou coupe l'énergie (DISTRIBUER)." },
+  { type:"multi", enonce:"3. Quelles informations le mBot peut-il acquérir ? (plusieurs réponses)", choix:["La distance d'un obstacle", "La couleur du sol (noir / blanc)", "Le signal de la télécommande", "La luminosité", "La température de la pièce", "La vitesse du vent"], bonnes:[0,1,2,3],
+    expl:"Capteur de distance, détecteur de ligne, récepteur infrarouge et capteur de luminosité : le mBot n'a pas de capteur de température ni d'anémomètre." },
+  { type:"ordre", enonce:"4. Défi 5 : le robot s'arrête sur la ligne noire. Remets les étapes dans l'ordre.",
+    etapes:["Le détecteur de ligne « voit » du noir (ACQUÉRIR)", "La carte compare avec le programme (TRAITER)", "La carte envoie l'ordre d'arrêt (COMMUNIQUER)", "L'énergie n'est plus envoyée aux moteurs (DISTRIBUER)", "Les moteurs et les roues s'arrêtent : le robot est arrêté"],
+    expl:"L'information suit toujours la chaîne d'information (acquérir → traiter → communiquer), puis l'ordre agit sur la chaîne d'énergie." },
+  { type:"qcm", enonce:"5. Défi 4 : le capteur à ultrasons mesure 15 cm devant le robot. Que fait la carte ?", choix:["Rien, le capteur arrête directement les moteurs", "Elle compare 15 cm à 20 cm et envoie l'ordre d'arrêter les moteurs", "Elle allume la LED en rouge et continue d'avancer"], bonne:1,
+    expl:"C'est la carte (TRAITER) qui compare la mesure au programme et décide ; le capteur ne fait qu'acquérir." },
+];
+
+const BILAN = [
+  "Chaîne d'information : <b>ACQUÉRIR</b> (récepteur infrarouge, capteur de distance, détecteur de ligne) → <b>TRAITER</b> (carte microcontrôleur) → <b>COMMUNIQUER</b> (câbles / pistes de cuivre).",
+  "Les consignes de l'utilisateur (interrupteur, télécommande) entrent dans la chaîne d'information ; la LED donne une information à l'utilisateur.",
+  "Chaîne d'énergie : <b>ALIMENTER</b> (piles / batterie) → <b>DISTRIBUER</b> (câbles / pistes de cuivre) → <b>CONVERTIR</b> (moteurs) → <b>TRANSMETTRE</b> (engrenages) → action : les roues font avancer le robot.",
+  "La carte envoie un <b>ordre</b> à la chaîne d'énergie : c'est le lien entre les deux chaînes.",
+  "Le moteur convertit l'énergie <b>électrique</b> en énergie <b>mécanique</b>.",
+];
+
+/* ==========================================================
+   Mécanique : glisser-déposer (souris) ou toucher puis toucher
+   ========================================================== */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+const melange = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const scores = {};   // n° étape -> [bonnes, total]
+let courante = 0, selection = null;
+
+function nav(){
+  document.getElementById("nav").innerHTML = ETAPES.map((e, i) => `<button type="button" data-step="${i}" aria-current="${i === courante}">
+    <b>${e.court}</b>${esc(e.titre)}${scores[i] ? `<br><span class="sc">✓ ${scores[i][0]}/${scores[i][1]}</span>` : ""}</button>`).join("");
+}
+document.getElementById("nav").addEventListener("click", e => { const b = e.target.closest("[data-step]"); if (b){ courante = +b.dataset.step; afficher(); } });
+
+const carte = it => `<div class="carte-el${it.img ? "" : " txt"}" draggable="true" data-id="${it.id}" tabindex="0" role="button" aria-label="${esc(it.nom)}">
+  ${it.img ? `<img src="${IMG(it.img)}" alt="">` : esc(it.nom)}</div>`;
+
+function afficher(){
+  nav(); selection = null;
+  const E = ETAPES[courante], box = document.getElementById("etape");
+  if (E.quiz) return afficherQuiz(box);
+  box.innerHTML = `
+    <div class="consigne"><p>${E.consigne}</p></div>
+    <div class="pile" id="pile" data-zone="">${melange(E.items).map(carte).join("")}</div>
+    <div class="zones ${E.classe || ""}">${E.zones.map(z => `<div class="zone ${z.cls || ""}" data-zone="${z.id}"><h3>${esc(z.nom)}${z.sous ? `<small>${esc(z.sous)}</small>` : ""}</h3><div class="drop"></div></div>`).join("")}</div>
+    <div class="actions">
+      <button class="btn" id="verif" type="button">Vérifier</button>
+      <button class="btn ghost" id="solution" type="button" hidden>Afficher la correction</button>
+      <button class="btn ghost" id="refaire" type="button">Recommencer</button>
+      ${courante < ETAPES.length - 1 ? `<button class="btn ghost" id="suite" type="button" style="margin-left:auto">Étape suivante →</button>` : ""}
+    </div>
+    <div class="resultat" id="res" aria-live="polite"></div>`;
+  brancher(E);
+}
+
+function deposer(el, zoneId){
+  const cible = zoneId ? document.querySelector(`.zone[data-zone="${zoneId}"] .drop`) : document.getElementById("pile");
+  cible.appendChild(el); el.classList.remove("sel", "good", "bad"); el.querySelector(".sol")?.remove();
+  selection = null;
+}
+function brancher(E){
+  const box = document.getElementById("etape");
+  // souris : glisser-déposer
+  box.ondragstart = e => { const c = e.target.closest(".carte-el"); if (c && !c.classList.contains("fixed")){ e.dataTransfer.setData("text/plain", c.dataset.id); } };
+  box.querySelectorAll(".zone, #pile").forEach(z => {
+    z.addEventListener("dragover", e => { e.preventDefault(); z.classList.add("cible"); });
+    z.addEventListener("dragleave", () => z.classList.remove("cible"));
+    z.addEventListener("drop", e => { e.preventDefault(); z.classList.remove("cible");
+      const el = box.querySelector(`.carte-el[data-id="${e.dataTransfer.getData("text/plain")}"]`); if (el) deposer(el, z.dataset.zone); });
+  });
+  // toucher : choisir une étiquette puis une case
+  box.onclick = e => {
+    const c = e.target.closest(".carte-el");
+    if (c && !c.classList.contains("fixed")){
+      if (selection === c){ c.classList.remove("sel"); selection = null; return; }
+      selection?.classList.remove("sel"); selection = c; c.classList.add("sel"); return;
+    }
+    const z = e.target.closest(".zone, #pile");
+    if (z && selection){ deposer(selection, z.dataset.zone); return; }
+    if (e.target.id === "verif") verifier(E);
+    if (e.target.id === "solution") solution(E);
+    if (e.target.id === "refaire") afficher();
+    if (e.target.id === "suite"){ courante++; afficher(); scrollTo(0, 0); }
+  };
+}
+function verifier(E){
+  const res = document.getElementById("res");
+  if (document.getElementById("pile").children.length) { res.className = "resultat show ko"; res.textContent = "Place d'abord toutes les étiquettes."; return; }
+  let bonnes = 0;
+  document.querySelectorAll(".zone .carte-el").forEach(el => {
+    const it = E.items.find(x => x.id === el.dataset.id), z = el.closest(".zone").dataset.zone;
+    const ok = it.zone === z; el.classList.add(ok ? "good" : "bad"); el.classList.remove("sel");
+    if (ok) bonnes++;
+    else if (!el.querySelector(".sol")) el.insertAdjacentHTML("beforeend", `<span class="sol">→ ${esc(E.zones.find(x => x.id === it.zone).nom)}</span>`);
+  });
+  scores[courante] = [bonnes, E.items.length]; nav();
+  const tout = bonnes === E.items.length;
+  res.className = "resultat show " + (tout ? "ok" : "ko");
+  res.innerHTML = tout ? `<b>Bravo, ${bonnes}/${E.items.length} !</b> Tout est bien placé.` : `<b>${bonnes}/${E.items.length} bien placés.</b> Les étiquettes en rouge indiquent la bonne case. Tu peux les déplacer et vérifier à nouveau, ou afficher la correction.`;
+  document.getElementById("solution").hidden = tout;
+}
+function solution(E){
+  document.querySelectorAll(".carte-el").forEach(el => { const it = E.items.find(x => x.id === el.dataset.id); deposer(el, it.zone); el.classList.add("good", "fixed"); el.draggable = false; });
+  document.getElementById("solution").hidden = true;
+  const res = document.getElementById("res"); res.className = "resultat show ok"; res.innerHTML = "Voici la correction. Recopie-la dans ton cahier.";
+}
+
+/* ---------- Étape 4 : questions + bilan ---------- */
+function afficherQuiz(box){
+  box.innerHTML = `
+    <div class="consigne"><p>Réponds aux questions, puis clique sur « Vérifier mes réponses ».</p></div>
+    ${QUIZ.map((q, i) => `<div class="q" data-q="${i}"><p class="enonce">${esc(q.enonce)}</p>
+      ${q.type === "ordre" ? q.etapes.map((t, k) => ({ t, k })).sort(() => Math.random() - .5).map(({ t, k }) => `<div class="ordre-row" data-k="${k}">
+          <select aria-label="Position"><option value="">—</option>${q.etapes.map((_, n) => `<option>${n + 1}</option>`).join("")}</select><span>${esc(t)}</span></div>`).join("")
+        : `<div class="options">${q.choix.map((c, k) => `<label class="option"><input type="${q.type === "multi" ? "checkbox" : "radio"}" name="q${i}" value="${k}"> <span>${esc(c)}</span></label>`).join("")}</div>`}
+      <div class="feedback" aria-live="polite"></div></div>`).join("")}
+    <div class="actions"><button class="btn" id="verifQuiz" type="button">Vérifier mes réponses</button><button class="btn ghost" id="refaire" type="button">Recommencer</button></div>
+    <div class="bilan" id="bilan" hidden><h2 style="margin:0">Je retiens</h2><ul>${BILAN.map(b => `<li>${b}</li>`).join("")}</ul></div>`;
+  box.onclick = e => {
+    if (e.target.id === "refaire") afficher();
+    if (e.target.id !== "verifQuiz") return;
+    let bonnes = 0;
+    QUIZ.forEach((q, i) => {
+      const el = box.querySelector(`[data-q="${i}"]`), fb = el.querySelector(".feedback");
+      let ok;
+      if (q.type === "ordre"){
+        const rows = [...el.querySelectorAll(".ordre-row")];
+        ok = rows.every(r => r.querySelector("select").value == +r.dataset.k + 1);
+        rows.forEach(r => r.className = "ordre-row " + (r.querySelector("select").value == +r.dataset.k + 1 ? "good" : "bad"));
+        if (!ok) fb.dataset.sol = "Ordre correct : " + q.etapes.map((t, n) => `${n + 1}. ${t}`).join(" — ");
+      } else {
+        const coches = [...el.querySelectorAll("input:checked")].map(x => +x.value);
+        const attendu = q.type === "multi" ? q.bonnes : [q.bonne];
+        ok = coches.length === attendu.length && attendu.every(a => coches.includes(a));
+        el.querySelectorAll(".option").forEach((o, k) => { o.classList.remove("good", "bad"); if (attendu.includes(k)) o.classList.add("good"); else if (coches.includes(k)) o.classList.add("bad"); });
+      }
+      if (ok) bonnes++;
+      fb.className = "feedback show " + (ok ? "ok" : "ko");
+      fb.innerHTML = (ok ? "<b>Bonne réponse.</b> " : "<b>Pas tout à fait.</b> ") + esc(q.expl) + (fb.dataset.sol && !ok ? "<br>" + esc(fb.dataset.sol) : "");
+    });
+    scores[courante] = [bonnes, QUIZ.length]; nav();
+    const total = Object.values(scores).reduce((a, s) => [a[0] + s[0], a[1] + s[1]], [0, 0]);
+    const bil = document.getElementById("bilan"); bil.hidden = false;
+    bil.querySelector("h2").innerHTML = `Je retiens <span style="font:500 14px var(--f-mono); color:var(--muted)">— score de l'activité : ${total[0]}/${total[1]}</span>`;
+    bil.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+}
+
+afficher();
+</script>
+</body>
+</html>
