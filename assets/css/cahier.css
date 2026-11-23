@@ -197,6 +197,26 @@
   @keyframes pulse{50%{opacity:.45}}
 }
 
+/* champs étiquetés, textes à trous, bilans en points */
+.q-inline{display:flex; gap:10px; align-items:baseline}
+.q-inline > .q-num{position:relative; top:-2px}
+.q-body{flex:1; min-width:0}
+.tab td.txt{font-size:14.5px}
+.champs{display:grid; gap:4px; padding-left:4px}
+.champs .lig{display:flex; gap:10px; align-items:baseline}
+.champs .lig > span{font-weight:600; white-space:nowrap; min-width:150px}
+.champs .champ{flex:1; min-width:120px}
+.trous{line-height:2.1; margin:0}
+.champ[data-trou]{width:11em; max-width:100%}
+.champ[data-trou=court]{width:3.5em; text-align:center}
+.bpoints{margin:10px 0 6px !important; padding-left:22px}
+.bpoints li{margin:6px 0; font-size:15.5px}
+.retenir.seul{margin:6px 0 4px}
+.cc-sommaire ol.compact{grid-template-columns:1fr 1fr; gap:6px}
+.cc-sommaire ol.compact li{padding:6px 10px; font-size:14px}
+.cc-sommaire ol.compact li .n{width:auto; min-width:28px; padding:0 4px}
+@media (max-width:720px){ .cc-sommaire ol.compact{grid-template-columns:1fr} .champs .lig{flex-wrap:wrap} .champs .lig > span{min-width:0} }
+
 /* ---------- petits écrans ---------- */
 @media (max-width:720px){
   .cahier-bar{position:static; padding:8px}
@@ -232,6 +252,9 @@
   .feuille::before{left:15mm}
   .feuille::after{display:none}
   .couv{min-height:275mm; padding-top:12mm}
+  .couv-chap{height:275mm; overflow:hidden}
+  .cc-art{max-width:150mm; margin:16px auto 6px}
+  .cc-num .big{font-size:120px}
   .couv-chap .bande{border-radius:0}
   .fiche a{display:none}
   .paquet-anim{display:none}

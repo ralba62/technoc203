@@ -118,7 +118,30 @@
       <g transform="translate(120 96) rotate(-30)"><circle r="16" fill="none" stroke="#D9A400" stroke-width="5"/><path d="M16 0 H58 M44 0 V12 M54 0 V9" stroke="#D9A400" stroke-width="5" stroke-linecap="round"/></g>
     </svg>`;
   }
-  const ART = { reseau: artReseau, cyber: artCyber };
+  function artRobot(k){
+    return `<svg viewBox="0 0 600 300" role="img" aria-label="Illustration : le robot mBot suit une ligne noire jusqu'au drapeau d'arrivée">
+      <path d="M20 250 C140 250 150 170 290 180 S470 250 580 200" fill="none" stroke="#0B1426" stroke-width="16" stroke-linecap="round"/>
+      <path d="M20 250 C140 250 150 170 290 180 S470 250 580 200" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="10 12" opacity=".5"/>
+      <g transform="translate(520 70)"><path d="M0 120 V0" stroke="#0B1426" stroke-width="5" stroke-linecap="round"/>
+        <path d="M0 2 H54 L44 20 L54 38 H0 Z" fill="${k}"/><path d="M0 2 H18 V20 H0 Z M18 20 H36 V38 H18 Z M36 2 H54 L48 13 L36 13 Z" fill="#fff" opacity=".85"/></g>
+      <g transform="translate(250 60)">
+        <rect x="-20" y="118" width="58" height="58" rx="29" fill="#0B1426"/><circle cx="9" cy="147" r="13" fill="#3A4A66"/>
+        <rect x="150" y="118" width="58" height="58" rx="29" fill="#0B1426"/><circle cx="179" cy="147" r="13" fill="#3A4A66"/>
+        <rect x="0" y="40" width="190" height="104" rx="18" fill="#1E88E5" stroke="#0B1426" stroke-width="5"/>
+        <rect x="18" y="56" width="154" height="56" rx="8" fill="#0B1426"/>
+        ${[0,1,2,3,4,5].map(i => `<rect x="${30 + i * 24}" y="66" width="14" height="10" rx="2" fill="${["#E2600E","#D9A400","#4ADE80","#2DD4FF","#6D4FD8","#F472B6"][i]}"/>`).join("")}
+        <circle cx="40" cy="96" r="5" fill="#4ADE80" class="anim-pulse"/><circle cx="150" cy="96" r="5" fill="#FB7185" class="anim-pulse"/>
+        <g transform="translate(95 20)"><rect x="-58" y="-18" width="116" height="36" rx="8" fill="#0B1426"/>
+          <circle cx="-30" cy="0" r="14" fill="#C9D3E2" stroke="#3A4A66" stroke-width="4"/><circle cx="30" cy="0" r="14" fill="#C9D3E2" stroke="#3A4A66" stroke-width="4"/>
+          <circle cx="-30" cy="0" r="5" fill="#0B1426"/><circle cx="30" cy="0" r="5" fill="#0B1426"/></g>
+        <g fill="none" stroke="${k}" stroke-width="4" stroke-linecap="round" opacity=".7">
+          <path d="M-44 0 a26 26 0 0 0 0 40"/><path d="M-62 -10 a44 44 0 0 0 0 60"/></g>
+      </g>
+      <g transform="translate(90 70) scale(1.8)" fill="none" stroke="#D9A400" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8 21h8M9 18h6"/></g>
+    </svg>`;
+  }
+  const ART = { reseau: artReseau, cyber: artCyber, robot: artRobot };
   const triad = `<span class="triad"><i style="background:#E2600E"></i><i style="background:#D9A400"></i><i style="background:#0A84C6"></i></span>`;
   const marque = `<span class="couv-brand"><span class="chip">${ICONS.chip}</span><span>Techno<b>C203</b></span></span>`;
 
@@ -128,8 +151,9 @@
     const site = CH.find(c => c.id === d.id);
     if (!site) return null;
     const ouvert = site._ouvert || APERCU;
-    const acts = d.activites.map((a, i) => ({ ...a, _n: i + 1, _ouvert: (site._ouvert && U.estOuvert(V[U.cleActivite(d.id, a.site)])) || APERCU }));
-    return { ...d, site, ouvert, acts, visibles: acts.filter(a => a._ouvert), n: CH.indexOf(site) + 1 };
+    const acts = d.activites.map((a, i) => ({ ...a, _n: a.num || String(i + 1), _ouvert: (site._ouvert && U.estOuvert(V[U.cleActivite(d.id, a.site)])) || APERCU }));
+    const n = CH.indexOf(site) + 1;
+    return { ...d, site, ouvert, acts, visibles: acts.filter(a => a._ouvert), n, repere: d.id.startsWith("projet") ? "BR" : String(n).padStart(2, "0"), court: d.id.startsWith("projet") ? "P" : String(n) };
   }).filter(c => c && c.ouvert);
 
   /* ---------- champs de réponse ---------- */
@@ -141,6 +165,9 @@
     const r = q.rep, id = q.id;
     switch (r.type){
       case "lignes": return ecrire(id, r.n || 2);
+      case "champs": return `<div class="champs">${r.items.map((l, i) => `<div class="lig"><span>${U.esc(l)}</span>${champ(`${id}:${i}`, l)}</div>`).join("")}</div>`;
+      case "trous": { let i = 0;
+        return `<p class="trous">${r.html.replace(/\{_(s?)\}/g, (m, court) => champ(`${id}:${i++}`, "À compléter", `data-trou="${court ? "court" : "1"}"`))}</p>`; }
       case "ligne":  return `<div class="tm-rep"><div class="lig"><span>${U.esc(r.avant || "")}</span>${champ(id, r.avant || "Ta réponse")}</div></div>`;
       case "cases":  return `<div class="cases">${r.options.map((o, i) => `<label><input type="checkbox" class="coche" data-k="${id}:${i}"${rep[id + ":" + i] ? " checked" : ""}> ${U.esc(o)}</label>`).join("")}</div>`;
       case "associer": {
@@ -152,7 +179,7 @@
       }
       case "tableau":
         return `<table class="tab"><thead><tr>${r.entetes.map(h => `<th>${U.esc(h)}</th>`).join("")}</tr></thead><tbody>
-          ${r.lignes.map((l, li) => `<tr>${l.map((c, ci) => c === null ? `<td>${champ(`${id}:${li}-${ci}`, r.entetes[ci])}</td>` : `<td class="fixe">${U.esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+          ${r.lignes.map((l, li) => `<tr>${l.map((c, ci) => c === null ? `<td>${champ(`${id}:${li}-${ci}`, r.entetes[ci])}</td>` : `<td class="${String(c).length <= 18 ? "fixe" : "txt"}">${U.esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
       case "table-mystere":
         return `<div class="tm"><table class="tab"><thead><tr><th>Destination</th><th>Prochain saut</th></tr></thead><tbody>
           ${r.lignes.map(l => `<tr><td class="fixe">${U.esc(l[0])}</td><td class="fixe">${U.esc(l[1])}</td></tr>`).join("")}</tbody></table>
@@ -170,13 +197,17 @@
       case "consigne": return `<div class="b-consigne">${IC[b.icone] || IC.lire}<div>${b.html}</div></div>`;
       case "partie": return `<div class="b-partie"><span class="pn">${U.esc(b.n)}</span><h3>${U.esc(b.titre)}</h3></div>`;
       case "liste": return `<ul class="b-liste">${b.items.map(i => `<li>${i}</li>`).join("")}</ul>`;
-      case "q": return `<div class="q"><div class="q-enonce"><span class="q-num">${U.esc(b.num)}</span>${b.html ? `<span class="q-txt">${b.html}</span>` : ""}</div>${reponse(b)}</div>`;
+      case "q": return b.html
+        ? `<div class="q"><div class="q-enonce"><span class="q-num">${U.esc(b.num)}</span><span class="q-txt">${b.html}</span></div>${reponse(b)}</div>`
+        : `<div class="q q-inline"><span class="q-num">${U.esc(b.num)}</span><div class="q-body">${reponse(b)}</div></div>`;
     }
     return "";
   }
 
   const bilan = bl => `<section class="bilan"><div class="bilan-head">${IC.bilan}<h3>${U.esc(bl.titre)}</h3></div><div class="bilan-body">
-    ${bl.notions.map(n => `<div class="notion"><span class="ni">${IC[n.icone] || IC.bilan}</span><h4>${U.esc(n.titre)}</h4>
+    ${bl.points ? `<ul class="bpoints">${bl.points.map(x => `<li>${x}</li>`).join("")}</ul>` : ""}
+    ${bl.retenir ? `<div class="retenir seul">${IC.ampoule}<div><em>À retenir :</em> ${bl.retenir}</div></div>` : ""}
+    ${(bl.notions || []).map(n => `<div class="notion"><span class="ni">${IC[n.icone] || IC.bilan}</span><h4>${U.esc(n.titre)}</h4>
       <div class="nt">${n.html}</div>${n.retenir ? `<div class="retenir">${IC.ampoule}<div><em>À retenir :</em> ${n.retenir}</div></div>` : ""}</div>`).join("")}
   </div></section>`;
 
@@ -200,7 +231,7 @@
 
   function sommaire(){
     return `<article class="feuille som"><h2>Sommaire</h2>
-      ${chapitres.map(c => `<section class="som-chap" ${style(c)}><header><span class="n">${String(c.n).padStart(2, "0")}</span><b>${U.esc(c.site.titre)}</b></header>
+      ${chapitres.map(c => `<section class="som-chap" ${style(c)}><header><span class="n">${c.repere}</span><b>${U.esc(c.site.titre)}</b></header>
         ${c.visibles.length ? `<ol>${c.visibles.map(a => `<li>Activité ${a._n} — ${U.esc(a.titre)}</li>`).join("")}${c.fiches && c.fiches.length ? `<li style="list-style:none; margin-left:-18px">＋ Fiches connaissances</li>` : ""}</ol>` : `<p class="vide">Les activités arriveront au fil des séances.</p>`}
       </section>`).join("")}
     </article>`;
@@ -210,12 +241,15 @@
     const art = ART[c.illustration] ? ART[c.illustration](c.couleur) : "";
     return `<article class="feuille couv couv-chap" ${style(c)}><span class="bande"></span>
       <div class="couv-top">${marque}<span>${U.esc(c.site.num)}</span></div>
-      <div class="cc-num"><span class="big">${String(c.n).padStart(2, "0")}</span><span class="lab">${U.esc(c.site.num)}</span></div>
+      <div class="cc-num"><span class="big">${c.repere}</span><span class="lab">${U.esc(c.site.num)}</span></div>
       <h2 class="cc-titre">${U.esc(c.site.titre)}</h2>
       ${c.site.problematique ? `<div class="cc-pb"><small>La question du chapitre</small>${U.esc(c.site.problematique)}</div>` : ""}
       <div class="cc-art">${art}</div>
       <div class="cc-sommaire"><h4>Dans ce chapitre</h4>
-        ${c.visibles.length ? `<ol>${c.visibles.map(a => `<li><span class="n">${a._n}</span>${U.esc(a.titre)}</li>`).join("")}</ol>` : `<p class="vide">Les activités arriveront au fil des séances.</p>`}
+        ${c.visibles.length ? (c.visibles.some(a => a.partie)
+          ? `<ol>${[...new Set(c.visibles.map(a => a.partie))].map(pt => { const l = c.visibles.filter(a => a.partie === pt);
+              return `<li><span class="n">${U.esc(pt.match(/\d+/) ? pt.match(/\d+/)[0] : "•")}</span><span><b>${U.esc(pt.replace(/^Partie \d+ · /, ""))}</b><br><small>${l.length > 1 ? `Activités ${l[0]._n} à ${l[l.length - 1]._n}` : `Activité ${l[0]._n}`}</small></span></li>`; }).join("")}</ol>`
+          : `<ol>${c.visibles.map(a => `<li><span class="n">${a._n}</span>${U.esc(a.titre)}</li>`).join("")}</ol>`) : `<p class="vide">Les activités arriveront au fil des séances.</p>`}
       </div>
     </article>`;
   }
@@ -227,7 +261,7 @@
       ${c.situation.map(bloc).join("")}</article>`;
     c.visibles.forEach(a => {
       h += `<article class="feuille" ${style(c)}>
-        <div class="act-band"><div class="n">Activité<b>${a._n}</b></div><div class="t"><small>${U.esc(c.site.num)} · ${U.esc(c.site.titre)}</small><h2>${U.esc(a.titre)}</h2></div></div>
+        <div class="act-band"><div class="n">Activité<b>${a._n}</b></div><div class="t"><small>${U.esc(c.site.num)} · ${U.esc(a.partie || c.site.titre)}</small><h2>${U.esc(a.titre)}</h2></div></div>
         ${a.blocs.map(bloc).join("")}
         ${a.bilan ? bilan(a.bilan) : ""}
       </article>`;
@@ -255,7 +289,7 @@
   function dessinerOnglets(){
     tabs.innerHTML = `<button role="tab" type="button" data-p="couverture" style="--k:#0B1426"><span class="num">★</span><b>Couverture</b></button>`
       + chapitres.map(c => { const p = progression(c);
-          return `<button role="tab" type="button" data-p="${c.id}" style="--k:${c.couleur}"><span class="num">${c.n}</span><span><b>${U.esc(c.site.titre)}</b><br><span class="prog" data-prog="${c.id}">${p.total ? `${p.fait} / ${p.total} questions` : "à venir"}</span></span></button>`; }).join("");
+          return `<button role="tab" type="button" data-p="${c.id}" style="--k:${c.couleur}"><span class="num">${c.court}</span><span><b>${U.esc(c.site.titre)}</b><br><span class="prog" data-prog="${c.id}">${p.total ? `${p.fait} / ${p.total} questions` : "à venir"}</span></span></button>`; }).join("");
   }
   function majProgression(){
     chapitres.forEach(c => { const el = U.$(`[data-prog="${c.id}"]`), p = progression(c); if (el && p.total) el.textContent = `${p.fait} / ${p.total} questions`; });
