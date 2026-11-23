@@ -254,8 +254,8 @@ CHAPITRES.push({
             "Entraîne-toi à présenter sans lire, en respectant les 5 minutes.",
           ],
           retenir: [
-            "Chaîne d'information : <b>acquérir</b> (capteurs) → <b>traiter</b> (carte mCore) → <b>communiquer</b> (LED, buzzer, Bluetooth).",
-            "Chaîne d'énergie : <b>alimenter</b> (piles, batterie) → <b>distribuer</b> (carte) → <b>convertir</b> (moteurs) → <b>transmettre</b> (roues).",
+            "Chaîne d'information : <b>ACQUÉRIR</b> (récepteur infrarouge, capteur de distance, détecteur de ligne) → <b>TRAITER</b> (carte microcontrôleur) → <b>COMMUNIQUER</b> (câbles / pistes de cuivre).",
+            "Chaîne d'énergie : <b>ALIMENTER</b> (piles / batterie) → <b>DISTRIBUER</b> (câbles / pistes de cuivre) → <b>CONVERTIR</b> (moteurs) → <b>TRANSMETTRE</b> (engrenages) → les roues font avancer le robot.",
             "Ce travail peut être réutilisé pour l'<b>oral du DNB</b>.",
           ],
         },

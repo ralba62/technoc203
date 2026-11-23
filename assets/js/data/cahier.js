@@ -534,7 +534,8 @@ window.CAHIER = {
             { t:"q", id:"br34-2", num:"✓", html:"Avant l'oral :", rep:{ type:"cases", options:["je présente sans lire", "on respecte les 5 minutes", "je connais les deux chaînes du mBot"] } },
           ],
           bilan: { titre: "Bilan de l'activité 3.4", points: [
-            "Pour expliquer le fonctionnement du mBot, appuie-toi sur les <b>chaînes d'information et d'énergie</b> de l'activité 1.6.",
+            "Chaîne d'information : <b>ACQUÉRIR</b> (récepteur infrarouge, capteur de distance, détecteur de ligne) → <b>TRAITER</b> (carte microcontrôleur) → <b>COMMUNIQUER</b> (câbles / pistes de cuivre).",
+            "Chaîne d'énergie : <b>ALIMENTER</b> (piles / batterie) → <b>DISTRIBUER</b> (câbles / pistes de cuivre) → <b>CONVERTIR</b> (moteurs) → <b>TRANSMETTRE</b> (engrenages) → les roues font avancer le robot.",
             "Ce travail peut être réutilisé pour l'<b>oral du DNB</b>.",
           ] },
         },
