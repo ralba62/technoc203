@@ -240,7 +240,18 @@
 }
 
 /* ---------- impression / PDF ---------- */
-@page{size:A4; margin:10mm}
+/* pied de page du PDF : mention discrète à gauche, pagination à droite
+   (les marges personnalisées remplacent l'en-tête et le pied de page du navigateur) */
+@page{size:A4; margin:10mm 10mm 13mm 10mm;
+  @top-left{content:""} @top-center{content:""} @top-right{content:""}
+  @bottom-left{content:"R. ALBA - collège J. Jaurès - Aire sur la Lys"; font:400 7pt "Inter", sans-serif; color:#A3ACBA; vertical-align:middle; padding-left:12mm}
+  @bottom-center{content:""}
+  @bottom-right{content:counter(page) " / " counter(pages); font:700 8pt "JetBrains Mono", monospace; color:#fff; background:#0B1426;
+    width:19mm; margin:3.5mm 0 3.5mm 0; border-radius:3mm; text-align:center; vertical-align:middle}
+}
+@page couverture{
+  @bottom-left{content:""} @bottom-right{content:""}
+}
 @media print{
   html, body{background:#fff !important}
   body{display:block; font-size:12pt}
@@ -251,8 +262,8 @@
   .feuille{max-width:none; margin:0; border-radius:0; box-shadow:none; padding:10mm 10mm 10mm 22mm; break-after:page}
   .feuille::before{left:15mm}
   .feuille::after{display:none}
-  .couv{min-height:275mm; padding-top:12mm}
-  .couv-chap{height:275mm; overflow:hidden}
+  .couv{min-height:272mm; padding-top:12mm; page:couverture}
+  .couv-chap{height:272mm; overflow:hidden}
   .cc-art{max-width:150mm; margin:16px auto 6px}
   .cc-num .big{font-size:120px}
   .couv-chap .bande{border-radius:0}

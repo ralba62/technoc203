@@ -281,6 +281,12 @@
     return { fait, total: ids.length };
   }
 
+  /* ---------- PDF : numéro de page à la couleur du chapitre ---------- */
+  const stylePages = document.createElement("style");
+  stylePages.textContent = chapitres.map(c => `@page ch-${c.id}{ @bottom-right{ background:${c.couleur}; } }
+    @media print{ #p-${c.id} .feuille:not(.couv){ page:ch-${c.id} } }`).join("\n");
+  document.head.append(stylePages);
+
   /* ---------- rendu ---------- */
   const root = U.$("#cahier"), tabs = U.$("#tabs");
   root.innerHTML = `<section class="panel" id="p-couverture" data-p="couverture">${couvertureGenerale()}${sommaire()}</section>`

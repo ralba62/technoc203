@@ -8,4 +8,4 @@ window.CHAPITRES = [];
   "chap1",
   "chap2",
   "projet-br",
-].forEach(f => document.write(`<script src="assets/js/data/chapitres/${f}.js?v=20261123132328"><\/script>`));
+].forEach(f => document.write(`<script src="assets/js/data/chapitres/${f}.js?v=20261123132606"><\/script>`));
