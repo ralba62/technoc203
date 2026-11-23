@@ -240,7 +240,7 @@ CHAPITRES.push({
             { label:"Exercice : les chaînes du mBot", url:"docs/br/chaines-mbot-exercice.pdf" },
           ],
           outils: [
-            { label:"Diaporama : chaînes info et énergie", url:"docs/chaine-info-energie.pdf" },
+            { label:"Revoir l'activité 1.6 : les chaînes du mBot", url:"applis/chaines-mbot.html" },
             { label:"LibreOffice (Impress)", url:"https://fr.libreoffice.org" },
           ],
           chezMoi: [
