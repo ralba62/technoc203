@@ -215,10 +215,10 @@
 .cc-sommaire ol.compact{grid-template-columns:1fr 1fr; gap:6px}
 .cc-sommaire ol.compact li{padding:6px 10px; font-size:14px}
 .cc-sommaire ol.compact li .n{width:auto; min-width:28px; padding:0 4px}
-@media (max-width:720px){ .cc-sommaire ol.compact{grid-template-columns:1fr} .champs .lig{flex-wrap:wrap} .champs .lig > span{min-width:0} }
+@media screen and (max-width:720px){ .cc-sommaire ol.compact{grid-template-columns:1fr} .champs .lig{flex-wrap:wrap} .champs .lig > span{min-width:0} }
 
 /* ---------- petits écrans ---------- */
-@media (max-width:720px){
+@media screen and (max-width:720px){
   .cahier-bar{position:static; padding:8px}
   .ctabs{flex-wrap:nowrap; overflow-x:auto; width:100%; padding-bottom:2px; scrollbar-width:none}
   .ctabs button{flex:none; padding:7px 10px}
@@ -271,4 +271,14 @@
   .paquet-anim{display:none}
   .paquet-fixe{display:inline}
   .ecrire:focus, .champ:focus{background-color:transparent}
+  ::placeholder{color:transparent !important}
+  .champ, .ecrire, .lettre, .coche{-webkit-appearance:none; appearance:none}
+  /* images et blocs jamais coupés entre deux pages */
+  .b-img, .fiche, figure, .tab, .assoc, .tm, .bilan-head, .notion, .bpoints li, .retenir, .b-consigne{break-inside:avoid}
+  .bilan-head, .b-partie, .q-enonce{break-after:avoid}
+  .b-img img{max-height:82mm; width:auto; max-width:100%}
+  .b-img{margin:8px 0 10px}
+  .fiche img{max-height:245mm; width:auto; max-width:100%; margin:0 auto}
+  .feuille{padding-bottom:0}
+  .cahier-bar{display:none !important}
 }
