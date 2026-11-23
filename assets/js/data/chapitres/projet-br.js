@@ -113,7 +113,11 @@ CHAPITRES.push({
             { label:"Cours : chaînes d'information et d'énergie", url:"docs/br/chaines-info-energie.pdf" },
             { label:"Exercice papier : les chaînes du mBot", url:"docs/br/chaines-mbot-exercice.pdf" },
           ],
-          outils: [{ label:"Lancer l'activité interactive", url:"applis/chaines-mbot.html" }],
+          outils: [
+            { label:"Lancer l'activité interactive", url:"applis/chaines-mbot.html" },
+            { label:"DNB Tapis de course : Q3, chaîne d'énergie", url:"dnb.html#tapis-de-course/q3" },
+            { label:"DNB Échographe : Q1, flux d'énergie et d'information", url:"dnb.html#echographe/q1" },
+          ],
           chezMoi: [
             "Lis le <b>cours</b> sur les chaînes d'information et d'énergie.",
             "Ouvre l'<b>activité interactive</b> et fais les 4 étapes : capteur ou actionneur, chaîne d'information, chaîne d'énergie, questions.",
@@ -265,6 +269,7 @@ CHAPITRES.push({
 
   entrainement: [
     { label:"Défis du concours Blaise Robotics", url:"concours.html#epreuves" },
+    { label:"DNB Tapis de course — question 3 : compléter la chaîne d'énergie", url:"dnb.html#tapis-de-course/q3" },
     { label:"DNB Tapis de course — question 5 : compléter le programme", url:"dnb.html#tapis-de-course/q5" },
     { label:"DNB Échographe — question 1 : flux d'énergie et d'information", url:"dnb.html#echographe/q1" },
     { label:"DNB Échographe — question 4 : compléter le programme de la LED", url:"dnb.html#echographe/q4" },
