@@ -1,20 +1,19 @@
 /* ==========================================================
    ✎ CONCOURS BLAISE ROBOTICS
    Sources : site du concours (pedagogie.ac-lille.fr/blaiserobotics)
-   et règlement de l'édition 4.0 (2025/2026). À mettre à jour quand
-   le règlement 2027 sera publié.
+   et règlement de l'édition 5.0 (2026/2027).
    dateFinale : "AAAA-MM-JJTHH:MM" active le compte à rebours ("" pour le masquer)
    ========================================================== */
 window.CONCOURS = {
-  edition: "Édition 2027",
+  edition: "Édition 5.0 · 2026-2027",
   accroche: "Le concours de robotique des 3e du district audomarois : programmer, concevoir et présenter son mBot face aux autres collèges.",
   presentation: "Blaise Robotics est organisé par les collèges de l'Audomarois et le lycée Blaise Pascal de Longuenesse. Il relie la technologie de 3e aux enseignements du lycée (STI2D, SI, BTS, club robotique). Toute l'année, les équipes préparent leur robot mBot en classe ; lors de la rencontre inter-collèges, elles s'affrontent sur quatre épreuves. Le concours met en œuvre la démarche de projet et s'inscrit dans le Parcours Avenir.",
   dateFinale: "2027-04-15T09:00",
   lieu: "Lycée Blaise Pascal, Longuenesse",
   logo: "assets/img/blaise-robotics.jpg",
   siteOfficiel: "https://pedagogie.ac-lille.fr/blaiserobotics/",
-  reglementPdf: "docs/reglement-blaise-robotics-2025-2026.pdf",
-  reglementNote: "Règlement de l'édition 2025/2026 — le règlement 2027 sera publié sur le site du concours.",
+  reglementPdf: "docs/reglement-blaise-robotics-2026-2027.pdf",
+  reglementNote: "Règlement de l'édition 5.0 (2026/2027).",
 
   chiffres: [
     { val:"3e", label:"élèves de 3e uniquement" },
@@ -37,7 +36,7 @@ window.CONCOURS = {
       details:["Dispositif de poussée conçu et fabriqué par les élèves au collège ou en FabLab", "Amovible, non motorisé, sans kit du commerce (sauf vis et écrous)", "Le mBot équipé doit tenir dans une boîte A4 (hauteur libre)", "Démarche de développement durable et modélisation en CAO obligatoires"] },
     { nom:"Revue de projet", icone:"mic", prix:"Meilleure présentation de projet",
       desc:"5 minutes de présentation sans interruption, puis 10 minutes de questions du jury.",
-      details:["Diaporama réalisé avec LibreOffice Impress", "Contenu : l'équipe et ses rôles, chaînes d'information et d'énergie du mBot, algorithme de l'épreuve de vitesse, dispositif SUMO et sa modélisation, un exemple concret de robotique", "Grille inspirée de l'oral du DNB : le travail peut être réutilisé pour l'oral du brevet !"] },
+      details:["Diaporama réalisé avec LibreOffice Impress ou Canva (dans le GAR, depuis l'ENT)", "Pas d'Internet le jour de la finale : la présentation est exportée en PDF et apportée sur clé USB", "Contenu : l'équipe et ses rôles, chaînes d'information et d'énergie du mBot, algorithme de l'épreuve de vitesse, dispositif SUMO et sa modélisation, un exemple concret de robotique", "Grille inspirée de l'oral du DNB : le travail peut être réutilisé pour l'oral du brevet !"] },
   ],
 
   recompenses: "Chaque épreuve rapporte des points selon le classement, sur un total de 80 points. Les trois premiers de chaque épreuve sont récompensés, et le meilleur score cumulé remporte le GRAND PRIX BLAISE ROBOTICS. Une équipe ne peut être récompensée qu'une seule fois.",
@@ -57,11 +56,12 @@ window.CONCOURS = {
     { h:"15h – 15h30", t:"Finales du SUMO" },
     { h:"15h30 – 16h", t:"Remise des prix" },
   ],
-  journeeNote: "Horaires de l'édition 2025/2026, donnés à titre indicatif.",
+  journeeNote: "Horaires du règlement 2026/2027, donnés à titre indicatif.",
 
   reglement: [
     { titre:"Constitution des équipes", texte:"Uniquement des élèves de 3e, 5 élèves maximum, équipes obligatoirement mixtes, avec un nom et un logo. Un responsable peut être désigné. Deux équipes par collège sont qualifiées pour la rencontre inter-collèges." },
     { titre:"Le robot et le logiciel", texte:"Robot mBot, programmé de préférence avec mBlock 5. Chaque robot est mesuré avant le concours ; un robot non conforme entraîne la disqualification." },
+    { titre:"Le jour de la finale", texte:"Pas d'accès à Internet : la présentation de la revue de projet doit être exportée en PDF et apportée sur clé USB. Des essais sont autorisés avant l'épreuve de vitesse, dans une tranche horaire définie." },
     { titre:"Réparations", texte:"Les équipes peuvent réparer leur robot entre les épreuves : un stand est prévu." },
     { titre:"Le SUMO en détail", texte:"Phase de poules (4 combats minimum, robots placés côte à côte) : 3 points pour une victoire (les 3 roues adverses sorties), pénalités si son robot perd 1 ou 2 roues ou reste inactif. Puis quarts de finale en mort subite." },
     { titre:"Le dispositif est conçu par les élèves", texte:"Les professeurs n'interviennent pas dans les choix des élèves : tout manquement entraîne la disqualification de l'équipe." },

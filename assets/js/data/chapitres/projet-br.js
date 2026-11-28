@@ -144,7 +144,7 @@ CHAPITRES.push({
         {
           titre: "Découvrir le concours et analyser le règlement",
           objectif: "Comprendre les 4 épreuves, les contraintes et les critères de réussite.",
-          docs: [{ label:"Règlement (PDF)", url:"docs/reglement-blaise-robotics-2025-2026.pdf" }],
+          docs: [{ label:"Règlement (PDF)", url:"docs/reglement-blaise-robotics-2026-2027.pdf" }],
           outils: [
             { label:"Lancer l'appli « Du règlement au cahier des charges »", url:"https://ralba62.github.io/blaise-robotics-cdc/" },
             { label:"Page du concours", url:"concours.html" },
@@ -254,9 +254,11 @@ CHAPITRES.push({
           outils: [
             { label:"Revoir l'activité 1.6 : les chaînes du mBot", url:"applis/chaines-mbot.html" },
             { label:"LibreOffice (Impress)", url:"https://fr.libreoffice.org" },
+            { label:"Canva (dans le GAR, depuis l'ENT)", url:"https://www.canva.com/fr_fr/" },
           ],
           chezMoi: [
-            "Prépare ta partie du diaporama avec <b>LibreOffice Impress</b>.",
+            "Prépare ta partie du diaporama avec <b>LibreOffice Impress</b> ou <b>Canva</b> (dans le GAR, depuis l'ENT, si le collège l'a activé).",
+            "⚠️ Pas d'Internet le jour de la finale : exporte la présentation en <b>PDF</b> et mets-la sur une <b>clé USB</b>.",
             "Contenu attendu : l'équipe et les rôles, les <b>chaînes d'information et d'énergie du mBot</b>, l'algorithme de l'épreuve de vitesse, le dispositif SUMO et sa modélisation, un exemple concret de robotique.",
             "Entraîne-toi à présenter sans lire, en respectant les 5 minutes.",
           ],

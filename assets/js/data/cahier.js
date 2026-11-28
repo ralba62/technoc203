@@ -533,11 +533,11 @@ window.CAHIER = {
           num: "3.4", partie: "Partie 3 · Préparation des épreuves",
           titre: "Épreuve 4 : revue de projet (oral)",
           blocs: [
-            { t:"consigne", icone:"lire", html:"Un diaporama (LibreOffice Impress) et une présentation orale de <b>5 minutes</b>, suivie de 10 minutes de questions." },
+            { t:"consigne", icone:"lire", html:"Un diaporama (<b>LibreOffice Impress</b> ou <b>Canva</b>, depuis l'ENT) et une présentation orale de <b>5 minutes</b>, suivie de 10 minutes de questions. Pas d'Internet le jour de la finale : la présentation doit être exportée en <b>PDF</b> sur une <b>clé USB</b>." },
             { t:"q", id:"br34-1", num:"1", html:"Qui présente quoi ?",
               rep:{ type:"tableau", entetes:["Partie de l'oral", "Qui ?"],
                     lignes:[["L'équipe et les rôles", null], ["Les chaînes d'information et d'énergie du mBot", null], ["L'algorithme de l'épreuve de vitesse", null], ["Le dispositif SUMO et sa modélisation", null], ["Un exemple concret de robotique", null]] } },
-            { t:"q", id:"br34-2", num:"✓", html:"Avant l'oral :", rep:{ type:"cases", options:["je présente sans lire", "on respecte les 5 minutes", "je connais les deux chaînes du mBot"] } },
+            { t:"q", id:"br34-2", num:"✓", html:"Avant l'oral :", rep:{ type:"cases", options:["je présente sans lire", "on respecte les 5 minutes", "je connais les deux chaînes du mBot", "la présentation est exportée en PDF sur clé USB"] } },
           ],
           bilan: { titre: "Bilan de l'activité 3.4", points: [
             "Chaîne d'information : <b>ACQUÉRIR</b> (récepteur infrarouge, capteur de distance, détecteur de ligne) → <b>TRAITER</b> (carte microcontrôleur) → <b>COMMUNIQUER</b> (câbles / pistes de cuivre).",
