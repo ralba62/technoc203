@@ -11,6 +11,7 @@ window.CONCOURS = {
   presentation: "Blaise Robotics est organisé par les collèges de l'Audomarois et le lycée Blaise Pascal de Longuenesse. Il relie la technologie de 3e aux enseignements du lycée (STI2D, SI, BTS, club robotique). Toute l'année, les équipes préparent leur robot mBot en classe ; lors de la rencontre inter-collèges, elles s'affrontent sur quatre épreuves. Le concours met en œuvre la démarche de projet et s'inscrit dans le Parcours Avenir.",
   dateFinale: "2027-04-15T09:00",
   lieu: "Lycée Blaise Pascal, Longuenesse",
+  logo: "assets/img/blaise-robotics.jpg",
   siteOfficiel: "https://pedagogie.ac-lille.fr/blaiserobotics/",
   reglementPdf: "docs/reglement-blaise-robotics-2025-2026.pdf",
   reglementNote: "Règlement de l'édition 2025/2026 — le règlement 2027 sera publié sur le site du concours.",

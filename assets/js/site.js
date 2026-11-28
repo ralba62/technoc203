@@ -102,6 +102,8 @@ window.ICONS = {
 U.logo = (url, fallback = "terminal") => `<span class="logo-box${url ? "" : " no-logo"}">${url ? `<img src="${U.esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('no-logo');this.remove()">` : ""}${ICONS[fallback] || ICONS.terminal}</span>`;
 /* renvoie l'icône si le nom existe, sinon le texte tel quel (emoji…) */
 U.icon = name => ICONS[name] || U.esc(name || "");
+/* icône d'un chapitre : son logo s'il en a un (ex. Blaise Robotics), sinon son icône */
+U.chapIcone = ch => ch.logo ? `<div class="card-icon card-logo"><img src="${U.esc(ch.logo)}" alt="" loading="lazy"></div>` : `<div class="card-icon">${U.icon(ch.icone)}</div>`;
 
 /* ---------- En-tête et pied de page ---------- */
 function buildChrome(){

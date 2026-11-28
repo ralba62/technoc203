@@ -180,6 +180,10 @@
 .cc-sommaire li{display:flex; gap:12px; align-items:center; padding:9px 14px; border-radius:10px; background:#fff; border:1px solid #D9E1EC}
 .cc-sommaire li .n{display:grid; place-items:center; width:28px; height:28px; border-radius:8px; background:var(--k); color:#fff; font:700 13px var(--f-mono); flex:none}
 
+.cc-logo{position:absolute; right:52px; top:96px; width:150px; height:auto; background:#fff; border-radius:12px; padding:6px; box-shadow:0 8px 20px -12px rgba(0,0,0,.5); transform:rotate(3deg)}
+.som-logo{margin-left:auto; height:34px; width:auto; background:#fff; border-radius:6px; padding:2px 4px}
+@media screen and (max-width:720px){ .cc-logo{width:96px; right:16px; top:80px} }
+
 /* sommaire général */
 .som h2{font-size:28px; margin:0 0 20px}
 .som-chap{--k:#0A84C6; margin:0 0 18px; border-radius:14px; overflow:hidden; border:2px solid var(--k); background:#fff}

@@ -6,6 +6,7 @@ CHAPITRES.push({
   titre: "Blaise Robotics",
   theme: "objets",
   icone: "robot",
+  logo: "assets/img/blaise-robotics.jpg",   // logo du concours (cartes et en-tête)
   statut: "en-cours",
   programme: "Projet Blaise Robotics",
   situation: "La classe participe au concours Blaise Robotics : par équipes, il faut programmer le robot mBot pour une course de vitesse et des défis, concevoir un dispositif pour l'épreuve du SUMO et présenter son projet devant un jury. Le projet se déroule en trois parties : programmation du mBot, découverte du concours et organisation de l'équipe, puis préparation des épreuves.",

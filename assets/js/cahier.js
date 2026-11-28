@@ -231,7 +231,7 @@
 
   function sommaire(){
     return `<article class="feuille som"><h2>Sommaire</h2>
-      ${chapitres.map(c => `<section class="som-chap" ${style(c)}><header><span class="n">${c.repere}</span><b>${U.esc(c.site.titre)}</b></header>
+      ${chapitres.map(c => `<section class="som-chap" ${style(c)}><header><span class="n">${c.repere}</span><b>${U.esc(c.site.titre)}</b>${c.logo ? `<img class="som-logo" src="${U.esc(c.logo)}" alt="">` : ""}</header>
         ${c.visibles.length ? `<ol>${c.visibles.map(a => `<li>Activité ${a._n} — ${U.esc(a.titre)}</li>`).join("")}${c.fiches && c.fiches.length ? `<li style="list-style:none; margin-left:-18px">＋ Fiches connaissances</li>` : ""}</ol>` : `<p class="vide">Les activités arriveront au fil des séances.</p>`}
       </section>`).join("")}
     </article>`;
@@ -241,6 +241,7 @@
     const art = ART[c.illustration] ? ART[c.illustration](c.couleur) : "";
     return `<article class="feuille couv couv-chap" ${style(c)}><span class="bande"></span>
       <div class="couv-top">${marque}<span>${U.esc(c.site.num)}</span></div>
+      ${c.logo ? `<img class="cc-logo" src="${U.esc(c.logo)}" alt="Logo du concours">` : ""}
       <div class="cc-num"><span class="big">${c.repere}</span><span class="lab">${U.esc(c.site.num)}</span></div>
       <h2 class="cc-titre">${U.esc(c.site.titre)}</h2>
       ${c.site.problematique ? `<div class="cc-pb"><small>La question du chapitre</small>${U.esc(c.site.problematique)}</div>` : ""}

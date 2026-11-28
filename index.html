@@ -7,12 +7,12 @@
 <meta name="description" content="Le site de technologie des élèves de 3e : les chapitres avec activités, ressources et connaissances, le glossaire, l'entraînement au DNB, les logiciels et le concours Blaise Robotics.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="assets/css/style.css?v=20261123134559">
-<script src="assets/js/site.js?v=20261123134559"></script>
-<script src="assets/js/data/connaissances.js?v=20261123134559"></script>
-<script src="assets/js/data/chapitres/liste.js?v=20261123134559"></script>
-<script src="assets/js/data/visibilite.js?v=20261123134559"></script>
-<script src="assets/js/data/glossaire.js?v=20261123134559"></script>
+<link rel="stylesheet" href="assets/css/style.css?v=20261128060539">
+<script src="assets/js/site.js?v=20261128060539"></script>
+<script src="assets/js/data/connaissances.js?v=20261128060539"></script>
+<script src="assets/js/data/chapitres/liste.js?v=20261128060539"></script>
+<script src="assets/js/data/visibilite.js?v=20261128060539"></script>
+<script src="assets/js/data/glossaire.js?v=20261128060539"></script>
 </head>
 <body>
 <main>
@@ -156,12 +156,12 @@
     ["glossaire.html", "text", "--energie", "Glossaire", "Le vocabulaire de la techno, avec recherche et mode révision."],
     ["dnb.html", "book", "--t5", "Sujets DNB", "Des sujets interactifs corrigés pour préparer le brevet."],
     ["logiciels.html", "terminal", "--t6", "Logiciels", "Les logiciels gratuits pour la techno et la bureautique."],
-    ["concours.html", "robot", "--t3", "Blaise Robotics", "Le concours de robotique : épreuves, règlement, équipes."],
+    ["concours.html", "assets/img/blaise-robotics.jpg", "--t3", "Blaise Robotics", "Le concours de robotique : épreuves, règlement, équipes."],
   ];
   U.$("#sections").innerHTML = SECTIONS.map(([href, ic, c, t, d], i) => `
     <a class="card" href="${href}" style="--c:var(${c})">
       <span class="card-num">0${i + 1}</span>
-      <div class="card-icon">${ICONS[ic]}</div>
+      ${ic.includes("/") ? `<div class="card-icon card-logo"><img src="${ic}" alt="" loading="lazy"></div>` : `<div class="card-icon">${ICONS[ic]}</div>`}
       <h3>${t}</h3><p>${d}</p>
       <span class="arrow">${ICONS.arrow}</span>
     </a>`).join("");
@@ -190,7 +190,7 @@
     const n = vis.filter(({ i }) => faites[`${ch.id}.${i}`]).length;
     const st = { "termine":["terminé","t5"], "en-cours":["en cours","t2"], "a-venir":["à venir",""] }[ch.statut] || ["", ""];
     return `<a class="card" href="chapitre.html?c=${ch.id}" style="--c:${U.themeColor(ch.theme)}${ch === enCours ? "; box-shadow:var(--glow); border-color:transparent" : ""}">
-      <div class="card-icon">${U.icon(ch.icone)}</div>
+      ${U.chapIcone(ch)}
       <span class="eyebrow" style="margin-bottom:4px">${U.esc(ch.num)}</span>
       <h3>${U.esc(ch.titre)}</h3><p>${U.esc(ch.problematique)}</p>
       <div class="card-foot">${st[0] ? `<span class="tag ${st[1]}">${st[0]}</span>` : ""}${ch._ouvert ? "" : `<span class="tag masque">masqué aux élèves</span>`}<span class="tag" style="margin-left:auto">${n}/${vis.length} activités faites</span></div>

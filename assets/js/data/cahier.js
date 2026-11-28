@@ -303,6 +303,7 @@ window.CAHIER = {
       id: "projet-br",
       couleur: "#E2600E",
       illustration: "robot",
+      logo: "assets/img/blaise-robotics.jpg",
       situation: [
         { t:"p", html:"Cette année, la classe participe au concours <b>Blaise Robotics</b> : par équipes, vous allez programmer et équiper un robot <b>mBot</b> pour la rencontre inter-collèges." },
         { t:"liste", items:["<b>Épreuve 1 : vitesse</b> : suivre une ligne, éviter un obstacle et s'arrêter seul, le plus vite possible.", "<b>Épreuve 2 : défis</b> : des défis de programmation de difficulté croissante.", "<b>Épreuve 3 : SUMO</b> : un dispositif conçu par l'équipe pour pousser le robot adverse.", "<b>Épreuve 4 : revue de projet</b> : un oral de 5 minutes avec diaporama, puis des questions."] },
