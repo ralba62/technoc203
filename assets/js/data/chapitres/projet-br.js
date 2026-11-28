@@ -19,6 +19,8 @@ CHAPITRES.push({
       note:"La version web de mBlock 5, le logiciel utilisé en classe." },
     { nom:"mBlock 5 (à installer)", logo:"https://mblock.cc/cdn/shop/files/favicon_32x32.png?v=1716790211", icone:"terminal", url:"https://mblock.cc",
       note:"Le logiciel conseillé par le règlement du concours (Windows, Mac)." },
+    { nom:"Du règlement au cahier des charges", icone:"doc", url:"https://ralba62.github.io/blaise-robotics-cdc/",
+      note:"L'appli de l'activité 2.1 : trier le règlement, faire la carte mentale et le diagramme des exigences, puis imprimer le cahier des charges." },
   ],
 
   parties: [
@@ -144,17 +146,21 @@ CHAPITRES.push({
           objectif: "Comprendre les 4 épreuves, les contraintes et les critères de réussite.",
           docs: [{ label:"Règlement (PDF)", url:"docs/reglement-blaise-robotics-2025-2026.pdf" }],
           outils: [
+            { label:"Lancer l'appli « Du règlement au cahier des charges »", url:"https://ralba62.github.io/blaise-robotics-cdc/" },
             { label:"Page du concours", url:"concours.html" },
             { label:"Site officiel Blaise Robotics", url:"https://pedagogie.ac-lille.fr/blaiserobotics/" },
           ],
           chezMoi: [
             "Lis la <b>page du concours</b> puis le <b>règlement</b>.",
-            "Pour chaque épreuve (vitesse, défis, SUMO, revue de projet), note : ce qu'il faut faire, comment on gagne des points, les pénalités.",
-            "Relève les <b>contraintes</b> du dispositif SUMO (amovible, non motorisé, boîte A4…) : c'est le cahier des charges.",
-            "Note les éléments du mBot à savoir programmer pour les épreuves 1 et 2.",
+            "Ouvre l'appli <b>« Du règlement au cahier des charges »</b> et écris le nom de ton équipe en haut.",
+            "Étape 1 : trie chaque extrait du règlement, <b>exigence</b> ou simple <b>information</b>. Étape 2 : range les exigences dans la <b>carte mentale</b> (équipe, vitesse, défis, SUMO, revue de projet).",
+            "Étape 3 : assemble le <b>diagramme des exigences</b> (SysML). Étape 4 : imprime ou exporte le <b>cahier des charges</b> de ton équipe. Clique sur <b>Vérifier</b> à chaque étape.",
+            "Ton travail est enregistré sur l'appareil : tu peux reprendre plus tard. Note enfin les éléments du mBot à savoir programmer pour les épreuves 1 et 2.",
           ],
           retenir: [
             "Le <b>règlement</b> joue le rôle de <b>cahier des charges</b> : il fixe ce qui est attendu et les contraintes à respecter.",
+            "Une <b>exigence</b> dit ce que l'équipe, le robot ou le dispositif <b>doit</b> faire ou respecter ; une information ne fait qu'expliquer.",
+            "Le <b>diagramme des exigences</b> (SysML) range les exigences par thème et les numérote : c'est la base du cahier des charges.",
             "4 épreuves : <b>vitesse</b>, <b>défis</b>, <b>SUMO</b> et <b>revue de projet</b>, sur un total de 80 points.",
           ],
         },
@@ -267,7 +273,7 @@ CHAPITRES.push({
   activites: [],
 
 
-  mots: ["Algorithme", "Programme", "Programmation par blocs", "Capteur", "Actionneur", "Capteur à ultrasons", "Suiveur de ligne", "Microcontrôleur", "Boucle", "Condition", "Variable", "Chaîne d'information", "Chaîne d'énergie", "Sous-programme (fonction)", "Revue de projet"],
+  mots: ["Algorithme", "Programme", "Programmation par blocs", "Capteur", "Actionneur", "Capteur à ultrasons", "Suiveur de ligne", "Microcontrôleur", "Boucle", "Condition", "Variable", "Chaîne d'information", "Chaîne d'énergie", "Sous-programme (fonction)", "Revue de projet", "Cahier des charges", "Exigence", "Diagramme des exigences"],
 
   entrainement: [
     { label:"Défis du concours Blaise Robotics", url:"concours.html#epreuves" },

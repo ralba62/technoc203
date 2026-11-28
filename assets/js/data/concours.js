@@ -77,6 +77,7 @@ window.CONCOURS = {
   ],
 
   ressources: [
+    { label:"Appli : du règlement au cahier des charges", url:"https://ralba62.github.io/blaise-robotics-cdc/" },
     { label:"Site officiel du concours", url:"https://pedagogie.ac-lille.fr/blaiserobotics/" },
     { label:"Ressources de programmation mBot", url:"https://pedagogie.ac-lille.fr/blaiserobotics/ressources/ressources-programmation-mbot/" },
     { label:"Modèles 3D du mBot (CAO)", url:"https://pedagogie.ac-lille.fr/blaiserobotics/ressources/modeles-3d/" },

@@ -15,6 +15,8 @@ window.GLOSSAIRE = [
   { mot:"Fonction technique", theme:"objets", def:"Action que doit réaliser un élément de l'objet pour assurer la fonction d'usage.", ex:"La clé de sécurité du tapis de course arrête le tapis en cas d'urgence." },
   { mot:"Solution technique", theme:"objets", def:"Moyen concret (composant, matériau, procédé) choisi pour réaliser une fonction technique." },
   { mot:"Cahier des charges", theme:"objets", def:"Document qui liste les fonctions, les contraintes et les critères qu'un objet doit respecter.", ex:"Le règlement du concours Blaise Robotics." },
+  { mot:"Exigence", theme:"objets", def:"Ce qu'un objet, un système ou une équipe doit faire ou respecter. Elle s'écrit souvent avec « doit » et peut être vérifiée.", ex:"« Le dispositif SUMO doit tenir dans une boîte A4. »" },
+  { mot:"Diagramme des exigences", theme:"objets", def:"Schéma (langage SysML) qui range les exigences d'un cahier des charges par thème et les numérote.", ex:"Le diagramme des exigences du concours Blaise Robotics." },
   { mot:"Contrainte", theme:"objets", def:"Exigence imposée à l'objet : coût, sécurité, normes, dimensions, ergonomie, environnement…" },
   { mot:"Système automatisé", theme:"objets", def:"Système qui réalise des actions sans intervention humaine permanente, grâce à des capteurs, une unité de traitement et des actionneurs.", ex:"Une porte de garage automatique." },
   { mot:"Chaîne d'information", theme:"objets", def:"Partie d'un système qui acquiert (capteurs), traite (microcontrôleur) et communique (écran, LED, réseau) les informations.", chap:"Projet Blaise Robotics" },

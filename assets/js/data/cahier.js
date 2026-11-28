@@ -442,6 +442,9 @@ window.CAHIER = {
           titre: "Découvrir le concours et analyser le règlement",
           blocs: [
             { t:"consigne", icone:"lire", html:"Lis la <b>page du concours</b> sur le site, puis le <b>règlement</b>." },
+            { t:"consigne", icone:"appli", html:"Ouvre l'appli <b>« Du règlement au cahier des charges »</b> et suis ses 4 étapes. Clique sur <b>Vérifier</b> à chaque étape." },
+            { t:"q", id:"br21-app", num:"✓", html:"Dans l'appli, j'ai terminé :", rep:{ type:"cases", options:["1 · Lire et trier", "2 · Carte mentale", "3 · Diagramme SysML", "4 · Cahier des charges imprimé"] } },
+            { t:"q", id:"br21-0", num:"0", html:"Quelle différence y a-t-il entre une <b>exigence</b> et une <b>information</b> du règlement ? Donne un exemple d'exigence.", rep:{ type:"lignes", n:3 } },
             { t:"q", id:"br21-1", num:"1", html:"Pour chaque épreuve, note ce qu'il faut faire et comment on gagne (ou perd) des points.",
               rep:{ type:"tableau", entetes:["Épreuve", "Ce qu'il faut faire", "Points et pénalités"],
                     lignes:[["1 · Vitesse", null, null], ["2 · Défis", null, null], ["3 · SUMO", null, null], ["4 · Revue de projet", null, null]] } },
@@ -450,6 +453,8 @@ window.CAHIER = {
           ],
           bilan: { titre: "Bilan de l'activité 2.1", points: [
             "Le <b>règlement</b> joue le rôle de <b>cahier des charges</b> : il fixe ce qui est attendu et les contraintes à respecter.",
+            "Une <b>exigence</b> dit ce que l'équipe, le robot ou le dispositif <b>doit</b> faire ou respecter ; une information ne fait qu'expliquer.",
+            "Le <b>diagramme des exigences</b> (SysML) range les exigences par thème et les numérote : c'est la base du cahier des charges.",
             "4 épreuves : <b>vitesse</b>, <b>défis</b>, <b>SUMO</b> et <b>revue de projet</b>, sur un total de 80 points.",
           ] },
         },
